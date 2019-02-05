@@ -43,109 +43,17 @@ guard url.scheme == "https" else {
 let uri = url.absoluteURL.path == "" ? "/" : url.absoluteURL.path
 let port = url.port ?? 443
 
+let apns = try APNSConnection.connect(host: host, port: port, on: group.next()).wait()
 
-final class APNSHTTP2Handler: ChannelInboundHandler {
-    typealias InboundIn = Never
-    
-    let multiplexer: HTTP2StreamMultiplexer
-    let activePromise: EventLoopPromise<Channel>
-    
-    init(multiplexer: HTTP2StreamMultiplexer, activePromise: EventLoopPromise<Channel>) {
-        self.multiplexer = multiplexer
-        self.activePromise = activePromise
-    }
-    
-    func channelActive(ctx: ChannelHandlerContext) {
-        multiplexer.createStreamChannel(promise: nil) { channel, streamID in
-            let handlers: [ChannelHandler] = [
-                HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder(),
-                APNSResponseDecoder(),
-                APNSHTTP2StreamHandler(activePromise: self.activePromise)
-            ]
-            return channel.pipeline.addHandlers(handlers, first: false)
-        }
-    }
+if verbose {
+    print("* Connected to \(host) (\(apns.channel.remoteAddress!)")
 }
 
-struct APNSRequestContext {
-    let request: APNSRequest
-    let responsePromise: EventLoopPromise<APNSResponse>
-}
+let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
+let aps = Aps(badge: 1, category: nil, alert: alert)
+let res = try apns.send(APNSRequest(aps: aps, custom: nil)).wait()
+print("APNS response: \(res)")
 
-final class APNSHTTP2StreamHandler: ChannelDuplexHandler {
-    typealias InboundIn = APNSResponse
-    typealias OutboundOut = APNSRequest
-    typealias OutboundIn = APNSRequestContext
-    
-    let activePromise: EventLoopPromise<Channel>
-    var queue: [APNSRequestContext]
-    
-    init(activePromise: EventLoopPromise<Channel>) {
-        self.activePromise = activePromise
-        self.queue = []
-    }
-    
-    func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
-        let res = self.unwrapInboundIn(data)
-        if let current = self.queue.popLast() {
-            current.responsePromise.succeed(result: res)
-        }
-    }
-    
-    func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
-        let input = self.unwrapOutboundIn(data)
-        self.queue.insert(input, at: 0)
-        ctx.write(self.wrapOutboundOut(input.request), promise: promise)
-    }
-    
-    func channelActive(ctx: ChannelHandlerContext) {
-        self.activePromise.succeed(result: ctx.channel)
-    }
-}
-
-let activePromise = group.next().newPromise(of: Channel.self)
-let bootstrap = ClientBootstrap(group: group)
-    .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
-    .channelInitializer { channel in
-        let sslHandler = try! OpenSSLClientHandler(context: sslContext, serverHostname: host)
-        let multiplexer = HTTP2StreamMultiplexer { channel, streamID in
-            fatalError("server push not supported")
-        }
-        let handlers: [ChannelHandler] = [
-            sslHandler,
-            HTTP2Parser(mode: .client),
-            multiplexer,
-            APNSHTTP2Handler(multiplexer: multiplexer, activePromise: activePromise)
-        ]
-        return channel.pipeline.addHandlers(handlers, first: false)
-}
-
-
-defer {
-    try! group.syncShutdownGracefully()
-}
-
-do {
-    let channel = try bootstrap.connect(host: host, port: port).wait()
-
-    if verbose {
-        print("* Connected to \(host) (\(channel.remoteAddress!)")
-    }
-
-    let subchannel = try activePromise.futureResult.wait()
-    print(subchannel.pipeline)
-
-    let res = subchannel.eventLoop.newPromise(of: APNSResponse.self)
-    let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-    let aps = Aps(badge: 1, category: nil, alert: alert)
-    let req = APNSRequestContext(request: APNSRequest(aps: aps, custom: nil), responsePromise: res)
-    subchannel.writeAndFlush(req, promise: nil)
-    print(try res.futureResult.wait())
-   
-    try channel.close(mode: .all).wait()
-    try group.syncShutdownGracefully()
-    exit(0)
-} catch {
-    print("ERROR: \(error)")
-}
+try apns.close().wait()
+try group.syncShutdownGracefully()
+exit(0)
