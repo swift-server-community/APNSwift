@@ -50,4 +50,25 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 - [Use the SSWG HTTP2 client](https://forums.swift.org/t/generic-http-client-server-library/18290/11)
 - Be the APNS library for all of Server Side Swift projects!
 
-Please let me know what y'all think. Hopefully I am able to edit this Topic once more input form the community is available.
+## Usage
+```swift 
+let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
+let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+var verbose = true
+
+let apnsConfig = APNSConfig.init(keyId: "9UC9ZLQ8YW", teamId: "ABBM6U9RM5", privateKeyPath: "/Users/kylebrowning/Downloads/key.p8", topic: "com.grasscove.Fern", env: .sandbox)
+let apns = try APNSConnection.connect(apnsConfig: apnsConfig, sslContext: sslContext, on: group.next()).wait()
+
+if verbose {
+    print("* Connected to \(apnsConfig.getUrl().host!) (\(apns.channel.remoteAddress!)")
+}
+
+let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
+let aps = Aps(alert: alert, category: nil, badge: 1)
+let res = try apns.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", APNSRequest(aps: aps, custom: nil)).wait()
+print("APNS response: \(res)")
+
+try apns.close().wait()
+try group.syncShutdownGracefully()
+exit(0)
+```
