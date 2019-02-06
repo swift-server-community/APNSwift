@@ -53,7 +53,7 @@ public struct JWT: Codable {
     }
     
     /// Sign digest with P8(PEM) string. Use the result in your request authorization header.
-    public func sign(with p8: P8) throws -> String {
+    public func sign(with p8: String) throws -> String {
         let digest = try self.digest()
         let signingKey = SigningKey.init(url: URL.init(fileURLWithPath: p8))!
         let fixedDigest = sha256(message: digest.data(using: .utf8)!)

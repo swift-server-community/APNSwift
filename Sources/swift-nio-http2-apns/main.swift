@@ -7,28 +7,9 @@ import Foundation
 let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
-var args = CommandLine.arguments.dropFirst(0)
-
-func usage() {
-    print("Usage: http2-client [-v] https://host:port/path")
-    print()
-    print("OPTIONS:")
-    print("     -v: verbose operation (print response code, headers, etc.)")
-}
-
-if case .some(let arg) = args.dropFirst().first, arg.starts(with: "-") {
-    switch arg {
-    case "-v":
-        verbose = true
-        args = args.dropFirst()
-    default:
-        usage()
-        exit(1)
-    }
-}
-
-guard let url = URL.init(string: "https://api.development.push.apple.com/3/device/e4bcda99669b692a726b3912e8eca173bac937101c04b774fb053939e74c4f4d") else {
-    usage()
+let urlString = "https://api.development.push.apple.com"
+guard let url = URL.init(string: urlString) else {
+    print("ERROR: URL '\(urlString)' is not a real URL")
     exit(1)
 }
 guard let host = url.host else {
@@ -43,7 +24,8 @@ guard url.scheme == "https" else {
 let uri = url.absoluteURL.path == "" ? "/" : url.absoluteURL.path
 let port = url.port ?? 443
 
-let apns = try APNSConnection.connect(host: host, port: port, on: group.next()).wait()
+let apnsConfig = APNSConfig.init(keyId: "9UC9ZLQ8YW", teamId: "ABBM6U9RM5", privateKeyPath: "/Users/kylebrowning/Downloads/key.p8", topic: "com.grasscove.Fern")
+let apns = try APNSConnection.connect(host: host, port: port, apnsConfig: apnsConfig, on: group.next()).wait()
 
 if verbose {
     print("* Connected to \(host) (\(apns.channel.remoteAddress!)")
@@ -51,7 +33,7 @@ if verbose {
 
 let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
 let aps = Aps(badge: 1, category: nil, alert: alert)
-let res = try apns.send(APNSRequest(aps: aps, custom: nil)).wait()
+let res = try apns.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", APNSRequest(aps: aps, custom: nil)).wait()
 print("APNS response: \(res)")
 
 try apns.close().wait()
