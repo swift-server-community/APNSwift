@@ -7,16 +7,16 @@
 
 import Foundation
 import NIOHTTP1
-struct APNSResponse {
-    var header: HTTPResponseHead
-    var data: Data? {
+public struct APNSResponse {
+    public var header: HTTPResponseHead
+    public var data: Data? {
         didSet {
             if let data = data {
                 error = try? JSONDecoder().decode(APNSError.self, from: data)
             }
         }
     }
-    var error: APNSError?
+    public var error: APNSError?
     public init(header: HTTPResponseHead, data: Data?) {
         self.header = header
         self.data = data
