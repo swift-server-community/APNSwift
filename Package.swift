@@ -30,6 +30,6 @@ let package = Package(
         .target(name: "NIOAPNSExample",
             dependencies: ["NIOAPNS", "NIOOpenSSL"]),
         .target(name: "NIOAPNS",
-            dependencies: ["NIO", "NIOOpenSSL", "NIOHTTP1", "NIOHTTP2", "CNIOOpenSSL"]),
+            dependencies: ["NIO", "NIOOpenSSL", "NIOHTTP1", "NIOHTTP2"]),
     ]
 )
