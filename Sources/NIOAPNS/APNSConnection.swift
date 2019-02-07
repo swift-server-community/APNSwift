@@ -3,14 +3,14 @@ import NIOHTTP2
 import NIOOpenSSL
 
 final public class APNSConnection {
-    public static func connect(apnsConfig: APNSConfig, sslContext: SSLContext, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
+    public static func connect(apnsConfig: APNSConfig, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
         let multiplexer = HTTP2StreamMultiplexer { channel, streamID in
             fatalError("server push not supported")
         }
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
-                let sslHandler = try! OpenSSLClientHandler(context: sslContext, serverHostname: apnsConfig.getUrl().host)
+                let sslHandler = try! OpenSSLClientHandler(context: apnsConfig.sslContext, serverHostname: apnsConfig.getUrl().host)
                 let handlers: [ChannelHandler] = [
                     sslHandler,
                     HTTP2Parser(mode: .client),
