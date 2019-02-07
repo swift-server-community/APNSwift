@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CNIOOpenSSL
+import CAPNSOpenSSL
 
 public struct JWT: Codable {
 
