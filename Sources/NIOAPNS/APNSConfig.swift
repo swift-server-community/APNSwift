@@ -9,6 +9,7 @@ import Foundation
 import NIO
 import NIOHTTP2
 import NIOOpenSSL
+import CNIOOpenSSL
 
 public struct APNSConfig {
     public let keyId: String
