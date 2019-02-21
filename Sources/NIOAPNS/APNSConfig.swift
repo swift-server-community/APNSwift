@@ -14,16 +14,16 @@ import CNIOOpenSSL
 public struct APNSConfig {
     public let keyId: String
     public let teamId: String
-    public let privateKeyPath: String
+    public let signingMode: SigningMode
     public let topic: String
     public let env: APNSEnv
     public let sslContext: NIOOpenSSL.SSLContext
 
-    public init(keyId: String, teamId: String, privateKeyPath: String, topic: String, env: APNSEnv) {
+    public init(keyId: String, teamId: String, signingMode: SigningMode, topic: String, env: APNSEnv) {
         self.keyId = keyId
         self.teamId = teamId
-        self.privateKeyPath = privateKeyPath
         self.topic = topic
+        self.signingMode = signingMode
         self.env = env
         self.sslContext = try! SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
     }
@@ -35,5 +35,4 @@ public struct APNSConfig {
             return URL(string: "https://api.development.push.apple.com")!
         }
     }
-
 }
