@@ -7,12 +7,21 @@
 
 import Foundation
 
-/// Specifies options to sign with
-public enum SigningMode {
-    /// Use a custom Signer.
-    case custom(Signer)
-    /// Use file Signer.
-    case file(String)
-    /// Use data Signer
-    case data(Data)
+public struct SigningMode {
+    public let signer: APNSSigner
+    init(signer: APNSSigner) {
+        self.signer = signer
+    }
+}
+
+extension SigningMode {
+    public static func file(path: String) -> SigningMode {
+        return .init(signer: FileSigner(url: URL(fileURLWithPath: path))!)
+    }
+    public static func data(data: Data) -> SigningMode {
+        return .init(signer: DataSigner(data: data)!)
+    }
+    public static func custom(signer: APNSSigner) -> SigningMode {
+        return .init(signer: signer)
+    }
 }

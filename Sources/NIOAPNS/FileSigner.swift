@@ -8,7 +8,7 @@
 import Foundation
 import CAPNSOpenSSL
 
-public class FileSigner: Signer {
+public class FileSigner: APNSSigner {
     private let opaqueKey: OpaquePointer
 
     public init?(url: URL, passphrase: String? = nil) {

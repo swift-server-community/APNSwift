@@ -56,18 +56,7 @@ public struct JWT: Codable {
         // TODO: Dont force unwrap, and properly throw errors
         let digest = try self.digest()
         let fixedDigest = sha256(message: digest.data(using: .utf8)!)
-        var signature: Data
-        switch signingMode {
-        case .file(let filepath):
-            let fileSigner = FileSigner(url: URL.init(fileURLWithPath: filepath))!
-            signature = try! fileSigner.sign(digest: fixedDigest)
-        case .data(let data):
-            let dataSigner = DataSigner(data: data)!
-            signature = try! dataSigner.sign(digest: fixedDigest)
-        case .custom(let signer):
-            signature = try! signer.sign(digest: fixedDigest)
-        }
-
+        let signature = try signingMode.signer.sign(digest: fixedDigest)
         return digest + "." + signature.base64EncodedURLString()
     }
 }

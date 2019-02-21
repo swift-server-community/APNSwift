@@ -8,7 +8,7 @@
 import Foundation
 import CAPNSOpenSSL
 
-public class DataSigner: Signer {
+public class DataSigner: APNSSigner {
     private let opaqueKey: OpaquePointer
 
     public init?(data: Data) {
