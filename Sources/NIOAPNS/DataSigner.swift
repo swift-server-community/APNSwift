@@ -20,14 +20,7 @@ public class DataSigner: APNSSigner {
             return BIO_puts(bio, key)
         }
 
-        let read: (UnsafeMutableRawPointer?) -> OpaquePointer? = { u in PEM_read_bio_ECPrivateKey(bio!, nil, nil, u) }
-
-        let pointer: OpaquePointer?
-        pointer = read(nil)
-
-        BIO_free(bio!)
-
-        if let pointer = pointer {
+        if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
             self.opaqueKey = pointer
         } else {
             return nil
