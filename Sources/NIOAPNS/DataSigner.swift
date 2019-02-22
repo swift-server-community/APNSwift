@@ -37,17 +37,15 @@ public class DataSigner: APNSSigner {
 
         var derEncodedSignature: UnsafeMutablePointer<UInt8>? = nil
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
-
-        guard let derCopy = derEncodedSignature, derLength > 0 else {
+        
+        guard let _ = derEncodedSignature, derLength > 0 else {
             throw APNSSignatureError.invalidAsn1
         }
-
-        var derBytes = [UInt8](repeating: 0, count: Int(derLength))
-
-        for b in 0..<Int(derLength) {
-            derBytes[b] = derCopy[b]
-        }
-        return Data(derBytes)
+        
+        // Force unwrap because guard protects us.
+        return Data(bytesNoCopy: derEncodedSignature!,
+                    count: Int(derLength),
+                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer) }))
     }
 
     public func verify(digest: Data, signature: Data) -> Bool {
