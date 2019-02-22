@@ -53,7 +53,7 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
-let apnsConfig = APNSConfig.init(keyId: "9UC9ZLQ8YW", teamId: "ABBM6U9RM5", privateKeyPath: "/Users/kylebrowning/Downloads/key.p8", topic: "com.grasscove.Fern", env: .sandbox)
+let apnsConfig = APNSConfig.init(keyId: "9UC9ZLQ8YW", teamId: "ABBM6U9RM5", signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"), topic: "com.grasscove.Fern", env: .sandbox)
 let apns = try APNSConnection.connect(apnsConfig: apnsConfig, sslContext: sslContext, on: group.next()).wait()
 if verbose {
     print("* Connected to \(apnsConfig.getUrl().host!) (\(apns.channel.remoteAddress!)")
