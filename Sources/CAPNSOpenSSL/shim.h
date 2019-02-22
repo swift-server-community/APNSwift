@@ -6,6 +6,7 @@
 #include <openssl/ecdsa.h>
 #include <openssl/pem.h>
 #include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 typedef struct ECDSA_SIG_st {

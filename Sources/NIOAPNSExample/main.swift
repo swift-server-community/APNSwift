@@ -9,7 +9,7 @@ let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applic
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
-let apnsConfig = APNSConfig.init(keyId: "9UC9ZLQ8YW", teamId: "ABBM6U9RM5", privateKeyPath: "/Users/kylebrowning/Downloads/key.p8", topic: "com.grasscove.Fern", env: .sandbox)
+let apnsConfig = APNSConfig.init(keyId: "9UC9ZLQ8YW", teamId: "ABBM6U9RM5", signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"), topic: "com.grasscove.Fern", env: .sandbox)
 let apns = try APNSConnection.connect(apnsConfig: apnsConfig, on: group.next()).wait()
 
 if verbose {

@@ -37,7 +37,7 @@ internal final class APNSRequestEncoder: ChannelOutboundHandler {
         reqHead.headers.add(name: "content-length", value: buffer.readableBytes.description)
         reqHead.headers.add(name: "apns-topic", value: apnsConfig.topic)
         let jwt = JWT(keyID: apnsConfig.keyId, teamID: apnsConfig.teamId, issueDate: Date(), expireDuration: 60 * 60)
-        let token = try! jwt.sign(with: apnsConfig.privateKeyPath)
+        let token = try! jwt.sign(with: apnsConfig.signingMode)
         reqHead.headers.add(name: "authorization", value: "bearer \(token)")
         ctx.write(self.wrapOutboundOut(.head(reqHead)), promise: nil)
         ctx.write(self.wrapOutboundOut(.body(.byteBuffer(buffer))), promise: nil)
