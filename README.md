@@ -27,7 +27,7 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 - Provides proper error messages that APNS might respond with.
 - Uses custom/non dependency implementations of JSON Web Token specific to APNS (using [rfc7519](https://tools.ietf.org/html/rfc7519)
 - Imports OpenSSL for SHA256 and ES256
-- Reads your `.p8` APNS Push key from local file.
+- Provides an interface for signing your Push Notifications
 - Signs your token request
 - Sends push notifications to a specific device.
 - [Adheres to guidelines Apple Provides.](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns)
@@ -48,6 +48,7 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 - [Use the SSWG HTTP2 client](https://forums.swift.org/t/generic-http-client-server-library/18290/11)
 - Be the APNS library for all of Server Side Swift projects!
 
+Please let me know what y'all think. I’ll edit the topic with feedback as it comes in!
 ### Usage
 ```swift 
 let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
