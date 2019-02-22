@@ -73,3 +73,64 @@ try apns.close().wait()
 try group.syncShutdownGracefully()
 exit(0)
 ```
+
+## Vapor Example
+This outlines what it takes to get working with Vapor
+### Vapor Service
+Depending on which platform you are using, you will need to expose the NIOAPNS API to your apps code. In Vapor this can be done with Service, a dependency injection framework.
+
+```swift 
+import NIO
+import NIOAPNS
+import Service
+
+// MARK: - Service
+public protocol APNSService: Service {
+    var apnsConfig: APNSConfig { get }
+    func send(deviceToken: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse>
+}
+public struct APNS: APNSService {
+    public var apnsConfig: APNSConfig
+
+    public init(apnsConfig: APNSConfig) {
+        self.apnsConfig = apnsConfig
+    }
+    public func send(deviceToken: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse> {
+        return APNSConnection.connect(apnsConfig: apnsConfig, on: group.next()).then({ (connection) -> EventLoopFuture<APNSResponse> in
+            return connection.send(deviceToken: deviceToken, APNSRequest(aps: aps, custom: nil))
+        })
+    }
+}
+```
+
+### Vapor Config
+In vapor, you register services in configure.swift
+
+```swift
+    let apnsConfig = APNSConfig(keyId: "9UC9ZLQ8YW",
+                            teamId: "ABBM6U9RM5",
+                            signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                            topic: "com.grasscove.Fern",
+                            env: .sandbox)
+    services.register(APNS(apnsConfig: apnsConfig))
+```
+### Route
+This provides the APNS Service to be made available on requests. The device token used here was registered via Apple UserNotification SDK. (Which ill show in the next steps)
+
+```swift
+   router.get("singlePush") { req -> String in
+        let temp = try req.make(APNS.self)
+        let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
+        let aps = Aps(alert: alert, category: nil, badge: 1)
+        let resp = try temp.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", aps: aps, group: req.eventLoop)
+        print(resp)
+        return "It works!"
+    }
+```
+
+### Expanded examples
+[Here is a quick APNS Device model for Vapor](https://gist.github.com/kylebrowning/bf1041674c6cce44f9e80121f729826c)
+
+[Here is how you register on iOS to our Vapor backend](https://gist.github.com/kylebrowning/240be40a92bf219481f05dd3f4bc9c94)
+
+[This fetches all registered device tokens in Vapor, and pushes a notification to them](https://gist.github.com/kylebrowning/2b1b5d48e2d8bafe59b869a6533a9d9e)
