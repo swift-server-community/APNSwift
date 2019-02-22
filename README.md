@@ -1,3 +1,5 @@
+This is a pitch on [Swift forums for Apple Push notification implementation](https://forums.swift.org/t/apple-push-notification-service-implementation/20193).
+
 # Pitch
 A lightweight, non intrusive, low dependency library to communicate with APNS over HTTP/2 built with Swift NIO.
 
@@ -48,7 +50,6 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 - [Use the SSWG HTTP2 client](https://forums.swift.org/t/generic-http-client-server-library/18290/11)
 - Be the APNS library for all of Server Side Swift projects!
 
-Please let me know what y'all think. I’ll edit the topic with feedback as it comes in!
 ### Usage
 ```swift 
 let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
