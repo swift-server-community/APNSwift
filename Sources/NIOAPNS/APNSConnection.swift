@@ -3,43 +3,49 @@ import NIOHTTP2
 import NIOOpenSSL
 
 final public class APNSConnection {
-    public static func connect(apnsConfig: APNSConfig, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
+    public static func connect(configuration: APNSConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
         let multiplexer = HTTP2StreamMultiplexer { channel, streamID in
             fatalError("server push not supported")
         }
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
-                let sslHandler = try! OpenSSLClientHandler(context: apnsConfig.sslContext, serverHostname: apnsConfig.getUrl().host)
-                let handlers: [ChannelHandler] = [
-                    sslHandler,
-                    HTTP2Parser(mode: .client),
-                    multiplexer
-                ]
-                return channel.pipeline.addHandlers(handlers, first: false)
+                do {
+                    let sslContext = try SSLContext(configuration: configuration.tlsConfiguration)
+                    let sslHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
+                    let handlers: [ChannelHandler] = [
+                        sslHandler,
+                        HTTP2Parser(mode: .client),
+                        multiplexer
+                    ]
+                    return channel.pipeline.addHandlers(handlers, first: false)
+                } catch {
+                    channel.close(mode: .all, promise: nil)
+                    return channel.eventLoop.newFailedFuture(error: error)
+                }
         }
         
-        return bootstrap.connect(host: apnsConfig.getUrl().host!, port: 443).map { channel in
-            return APNSConnection(channel: channel, multiplexer: multiplexer, apnsConfig: apnsConfig)
+        return bootstrap.connect(host: configuration.url.host!, port: 443).map { channel in
+            return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
         }
     }
     
     public let multiplexer: HTTP2StreamMultiplexer
     public let channel: Channel
-    public let apnsConfig: APNSConfig
+    public let configuration: APNSConfiguration
     
-    public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, apnsConfig: APNSConfig) {
+    public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSConfiguration) {
         self.channel = channel
         self.multiplexer = multiplexer
-        self.apnsConfig = apnsConfig
+        self.configuration = configuration
     }
     
-    public func send(deviceToken: String, _ request: APNSRequest) -> EventLoopFuture<APNSResponse> {
+    public func send<T: APNSNotificationProtocol>(_ notification: T, to: String) -> EventLoopFuture<APNSResponse> {
         let streamPromise = channel.eventLoop.newPromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder(deviceToken: deviceToken, apnsConfig: self.apnsConfig),
+                APNSRequestEncoder<T>(deviceToken: to, configuration: self.configuration),
                 APNSResponseDecoder(),
                 APNSStreamHandler()
             ]
@@ -48,7 +54,7 @@ final public class APNSConnection {
         
         let responsePromise = channel.eventLoop.newPromise(of: APNSResponse.self)
         let ctx = APNSRequestContext(
-            request: request,
+            request: notification,
             responsePromise: responsePromise
         )
         return streamPromise.futureResult.then { stream in

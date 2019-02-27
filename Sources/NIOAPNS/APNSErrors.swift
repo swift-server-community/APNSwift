@@ -11,35 +11,36 @@ public struct APNSError: Codable {
     public let reason: APNSErrors
 }
 public enum APNSErrors: String, Codable {
-    case BadCollapseId = "BadCollapseId"
-    case BadDeviceToken = "BadDeviceToken"
-    case BadExpirationDate = "BadExpirationDate"
-    case BadMessageId = "BadMessageId"
-    case BadPriority = "BadPriority"
-    case BadTopic = "BadTopic"
-    case DeviceTokenNotForTopic = "DeviceTokenNotForTopic"
-    case DuplicateHeaders = "DuplicateHeaders"
-    case IdleTimeout = "IdleTimeout"
-    case MissingDeviceToken = "MissingDeviceToken"
-    case MissingTopic = "MissingTopic"
-    case PayloadEmpty = "PayloadEmpty"
-    case TopicDisallowed = "TopicDisallowed"
-    case BadCertificate = "BadCertificate"
-    case BadCertificateEnvironment = "BadCertificateEnvironment"
-    case ExpiredProviderToken = "ExpiredProviderToken"
-    case Forbidden = "Forbidden"
-    case InvalidProviderToken = "InvalidProviderToken"
-    case MissingProviderToken = "MissingProviderToken"
-    case BadPath = "BadPath"
-    case MethodNotAllowed = "MethodNotAllowed"
-    case Unregistered = "Unregistered"
-    case PayloadTooLarge = "PayloadTooLarge"
-    case TooManyProviderTokenUpdates = "TooManyProviderTokenUpdates"
-    case TooManyRequests = "TooManyRequests"
-    case InternalServerError = "InternalServerError"
-    case ServiceUnavailable = "ServiceUnavailable"
-    case Shutdown = "Shutdown"
-    case Unknown = "unknown"
+    case badCollapseIdentifier = "BadCollapseId"
+    case badDeviceToken = "BadDeviceToken"
+    case badExpirationDate = "BadExpirationDate"
+    case badMessageId = "BadMessageId"
+    case badPriority = "BadPriority"
+    case badTopic = "BadTopic"
+    case deviceTokenNotForTopic = "DeviceTokenNotForTopic"
+    case duplicateHeaders = "DuplicateHeaders"
+    case idleTimeout = "IdleTimeout"
+    case missingDeviceToken = "MissingDeviceToken"
+    case missingTopic = "MissingTopic"
+    case payloadEmpty = "PayloadEmpty"
+    case topicDisallowed = "TopicDisallowed"
+    case badCertificate = "BadCertificate"
+    case badCertificateEnvironment = "BadCertificateEnvironment"
+    case expiredProviderToken = "ExpiredProviderToken"
+    case forbidden = "Forbidden"
+    case invalidProviderToken = "InvalidProviderToken"
+    case missingProviderToken = "MissingProviderToken"
+    case badPath = "BadPath"
+    case methodNotAllowed = "MethodNotAllowed"
+    case unregistered = "Unregistered"
+    case payloadTooLarge = "PayloadTooLarge"
+    case tooManyProviderTokenUpdates = "TooManyProviderTokenUpdates"
+    case tooManyRequests = "TooManyRequests"
+    case internalServerError = "InternalServerError"
+    case serviceUnavailable = "ServiceUnavailable"
+    case shutdown = "Shutdown"
+    case encodingFailed = "EncodingFailed"
+    case unknown = "unknown"
 
 
     public var description: String {
@@ -47,30 +48,18 @@ public enum APNSErrors: String, Codable {
     }
 }
 
-public enum TokenError: Error {
+public enum APNSTokenError: Error {
     case invalidAuthKey
     case invalidTokenString
-    case wrongTokenLength
     case tokenWasNotGeneratedCorrectly
+    case certificateFileDoesNotExist
+    case keyFileDoesNotExist
 }
 
 public enum SimpleError: Error {
     case string(message: String)
 }
 
-public enum InitializeError: Error, CustomStringConvertible {
-    case noAuthentication
-    case noTopic
-    case certificateFileDoesNotExist
-    case keyFileDoesNotExist
-
-    public var description: String {
-        switch self {
-        case .noAuthentication: return "APNS Authentication is required. You can either use APNS Auth Key authentication (easiest to setup and maintain) or the old fashioned certificates way"
-        case .noTopic: return "No APNS topic provided. This is required."
-        case .certificateFileDoesNotExist: return "Certificate file could not be found on your disk. Double check if the file exists and if the path is correct"
-        case .keyFileDoesNotExist: return "Key file could not be found on your disk. Double check if the file exists and if the path is correct"
-        }
-    }
-
+public enum APNSCoderError: Error {
+    case encodingFailed
 }
