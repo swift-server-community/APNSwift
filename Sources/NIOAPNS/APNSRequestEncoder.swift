@@ -31,8 +31,8 @@ internal final class APNSRequestEncoder<T: APNSNotificationProtocol>: ChannelOut
         do {
             data = try JSONEncoder().encode(req)
         } catch {
-            promise?.fail(error: APNSCoderError.encodingFailed)
-            ctx.close(promise: promise)
+            promise?.fail(error: error)
+            ctx.close(promise: nil)
             return
         }
         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
@@ -48,7 +48,7 @@ internal final class APNSRequestEncoder<T: APNSNotificationProtocol>: ChannelOut
             token = try jwt.sign(with: configuration.signingMode)
         } catch {
             promise?.fail(error: APNSTokenError.tokenWasNotGeneratedCorrectly)
-            ctx.close(promise: promise)
+            ctx.close(promise: nil)
             return
         }
         reqHead.headers.add(name: "authorization", value: "bearer \(token)")

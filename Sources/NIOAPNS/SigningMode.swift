@@ -15,7 +15,7 @@ public struct SigningMode {
 }
 
 extension SigningMode {
-    public static func file(path: String) throws  -> SigningMode {
+    public static func file(path: String) throws -> SigningMode {
         return .init(signer: try FileSigner(url: URL(fileURLWithPath: path)))
     }
     public static func data(data: Data) throws -> SigningMode {

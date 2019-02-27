@@ -10,14 +10,20 @@ final public class APNSConnection {
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
-                let sslContext = try! SSLContext(configuration: configuration.tlsConfiguration)
-                let sslHandler = try! OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
-                let handlers: [ChannelHandler] = [
-                    sslHandler,
-                    HTTP2Parser(mode: .client),
-                    multiplexer
-                ]
-                return channel.pipeline.addHandlers(handlers, first: false)
+                let sslHandler: OpenSSLClientHandler
+                do {
+                    let sslContext = try SSLContext(configuration: configuration.tlsConfiguration)
+                    sslHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
+                    let handlers: [ChannelHandler] = [
+                        sslHandler,
+                        HTTP2Parser(mode: .client),
+                        multiplexer
+                    ]
+                    return channel.pipeline.addHandlers(handlers, first: false)
+                } catch {
+                    channel.close(mode: .all, promise: nil)
+                    return channel.eventLoop.newFailedFuture(error: error)
+                }
         }
         
         return bootstrap.connect(host: configuration.url.host!, port: 443).map { channel in
@@ -35,12 +41,12 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
-    public func send<T: APNSNotificationProtocol>( _ request: T, deviceToken: String) -> EventLoopFuture<APNSResponse> {
+    public func send<T: APNSNotificationProtocol>(_ notification: T, to: String) -> EventLoopFuture<APNSResponse> {
         let streamPromise = channel.eventLoop.newPromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder<T>(deviceToken: deviceToken, configuration: self.configuration),
+                APNSRequestEncoder<T>(deviceToken: to, configuration: self.configuration),
                 APNSResponseDecoder(),
                 APNSStreamHandler()
             ]
@@ -49,7 +55,7 @@ final public class APNSConnection {
         
         let responsePromise = channel.eventLoop.newPromise(of: APNSResponse.self)
         let ctx = APNSRequestContext(
-            request: request,
+            request: notification,
             responsePromise: responsePromise
         )
         return streamPromise.futureResult.then { stream in
