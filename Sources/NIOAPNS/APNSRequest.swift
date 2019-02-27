@@ -9,16 +9,18 @@ import NIO
 import NIOHTTP1
 import NIOHTTP2
 
-public struct APNSRequest: Codable {
-    public let aps: Aps
-    public let custom: [String: String]?
-    public init(aps: Aps, custom: [String: String]?) {
+public protocol APNotification: Codable {
+    var aps: APSPayload { get }
+}
+
+public struct APNS: APNotification {
+    public var aps: APSPayload
+    public init(aps: APSPayload) {
         self.aps = aps
-        self.custom = custom
     }
 }
 
-public struct Aps: Codable {
+public struct APSPayload: Codable {
     public let badge: Int?
     public let category: String?
     public let alert: Alert

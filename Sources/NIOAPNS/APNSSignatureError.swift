@@ -9,7 +9,7 @@
 import Foundation
 public enum APNSSignatureError: Error {
     case invalidP8
-    case invalidAsn1
+    case invalidASN1
 }
 
 extension APNSSignatureError: LocalizedError {
@@ -17,7 +17,7 @@ extension APNSSignatureError: LocalizedError {
         switch self {
         case .invalidP8:
             return "The .p8 string has invalid format."
-        case .invalidAsn1:
+        case .invalidASN1:
             return "The ASN.1 data has invalid format."
         }
     }

@@ -39,7 +39,7 @@ public class DataSigner: APNSSigner {
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
         
         guard let _ = derEncodedSignature, derLength > 0 else {
-            throw APNSSignatureError.invalidAsn1
+            throw APNSSignatureError.invalidASN1
         }
         
         // Force unwrap because guard protects us.
