@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public enum APNSEnv {
-    case prod
+public enum APNSEnvironment {
+    case production
     case sandbox
 }
