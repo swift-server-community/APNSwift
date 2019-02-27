@@ -10,10 +10,9 @@ final public class APNSConnection {
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
-                let sslHandler: OpenSSLClientHandler
                 do {
                     let sslContext = try SSLContext(configuration: configuration.tlsConfiguration)
-                    sslHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
+                    let sslHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
                     let handlers: [ChannelHandler] = [
                         sslHandler,
                         HTTP2Parser(mode: .client),
