@@ -10,7 +10,8 @@ final public class APNSConnection {
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
-                let sslHandler = try! OpenSSLClientHandler(context: configuration.sslContext, serverHostname: configuration.url.host)
+                let sslContext = try! SSLContext(configuration: configuration.tlsConfiguration)
+                let sslHandler = try! OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
                 let handlers: [ChannelHandler] = [
                     sslHandler,
                     HTTP2Parser(mode: .client),
@@ -34,12 +35,12 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
-    public func send<T: APNotification>( _ request: T, deviceToken: String) -> EventLoopFuture<APNSResponse> {
+    public func send<T: APNSNotificationProtocol>( _ request: T, deviceToken: String) -> EventLoopFuture<APNSResponse> {
         let streamPromise = channel.eventLoop.newPromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder(deviceToken: deviceToken, apnsConfig: self.configuration),
+                APNSRequestEncoder<T>(deviceToken: deviceToken, configuration: self.configuration),
                 APNSResponseDecoder(),
                 APNSStreamHandler()
             ]

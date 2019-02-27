@@ -8,8 +8,13 @@
 import Foundation
 import CAPNSOpenSSL
 public class FileSigner: DataSigner {
-    public convenience init?(url: URL) {
-        let data = try! Data.init(contentsOf: url)
-        self.init(data: data)
+    public convenience init (url: URL) throws {
+        let data: Data
+        do {
+            data = try Data.init(contentsOf: url)
+        } catch {
+            throw APNSTokenError.certificateFileDoesNotExist
+        }
+       try self.init(data: data)
     }
 }

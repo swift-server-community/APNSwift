@@ -5,13 +5,12 @@ import NIOOpenSSL
 import NIOAPNS
 import Foundation
 
-let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
 let apnsConfig = APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
                                    teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                                   signingMode: try .file(path: "/Users/kylebrowning/Downloads/key.p8"),
                                    topic: "com.grasscove.Fern",
                                    environment: .sandbox)
 
@@ -21,7 +20,7 @@ if verbose {
     print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
 }
 
-struct AcmeNotification: APNotification {
+struct AcmeNotification: APNSNotificationProtocol {
     let acme2: [String]
     let aps: APSPayload
     
