@@ -52,31 +52,43 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 
 ### Usage
 ```swift 
-let sslContext = try SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
-let apnsConfig = APNSConfig(keyId: "9UC9ZLQ8YW",
-                            teamId: "ABBM6U9RM5",
-                            signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
-                            topic: "com.grasscove.Fern",
-                            env: .sandbox)
+let apnsConfig = APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
+                                   teamIdentifier: "ABBM6U9RM5",
+                                   signingMode: try .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                                   topic: "com.grasscove.Fern",
+                                   environment: .sandbox)
 
-let apns = try APNSConnection.connect(apnsConfig: apnsConfig, on: group.next()).wait()
+let apns = try APNSConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 
 if verbose {
-    print("* Connected to \(apnsConfig.getUrl().host!) (\(apns.channel.remoteAddress!)")
+    print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
 }
 
+// Custom data on Notification
+struct AcmeNotification: APNSNotificationProtocol {
+    let acme2: [String]
+    let aps: APSPayload
+    
+    init(acme2: [String], aps: APSPayload) {
+        self.acme2 = acme2
+        self.aps = aps
+    }
+}
+
+
 let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let aps = Aps(alert: alert, category: nil, badge: 1)
-let res = try apns.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", APNSRequest(aps: aps, custom: nil)).wait()
+let aps = APSPayload(alert: alert, category: nil, badge: 1)
+let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
+
+let res = try apns.send(notification, to: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f").wait()
 print("APNS response: \(res)")
 
 try apns.close().wait()
 try group.syncShutdownGracefully()
 exit(0)
-
 ```
 
 ## Vapor Example
@@ -91,18 +103,18 @@ import Service
 
 // MARK: - Service
 public protocol APNSService: Service {
-    var apnsConfig: APNSConfig { get }
-    func send(deviceToken: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse>
+    var configuration: APNSConfiguration { get }
+    func send(notification: APNSNotification, to: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse>
 }
 public struct APNS: APNSService {
-    public var apnsConfig: APNSConfig
+    public var configuration: APNSConfiguration
 
-    public init(apnsConfig: APNSConfig) {
-        self.apnsConfig = apnsConfig
+    public init(configuration: APNSConfiguration) {
+        self.configuration = configuration
     }
-    public func send(deviceToken: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse> {
-        return APNSConnection.connect(apnsConfig: apnsConfig, on: group.next()).then({ (connection) -> EventLoopFuture<APNSResponse> in
-            return connection.send(deviceToken: deviceToken, APNSRequest(aps: aps, custom: nil))
+    public func send(notification: APNSNotification, to: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse> {
+        return APNSConnection.connect(configuration: configuration, on: group.next()).then({ (connection) -> EventLoopFuture<APNSResponse> in
+            return connection.send(notification: APNSRequest(aps: aps, custom: nil), to: to)
         })
     }
 }
@@ -112,12 +124,12 @@ public struct APNS: APNSService {
 In vapor, you register services in configure.swift
 
 ```swift
-    let apnsConfig = APNSConfig(keyId: "9UC9ZLQ8YW",
-                            teamId: "ABBM6U9RM5",
-                            signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
-                            topic: "com.grasscove.Fern",
-                            env: .sandbox)
-    services.register(APNS(apnsConfig: apnsConfig))
+    let apnsConfig = try APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
+                                   teamIdentifier: "ABBM6U9RM5",
+                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                                   topic: "com.grasscove.Fern",
+                                   environment: .sandbox)
+    services.register(APNS(configuration: APNSConfiguration))
 ```
 ### Route
 This provides the APNS Service to be made available on requests. The device token used here was registered via Apple UserNotification SDK. (Which ill show in the next steps)
@@ -126,7 +138,7 @@ This provides the APNS Service to be made available on requests. The device toke
    router.get("singlePush") { req -> String in
         let temp = try req.make(APNS.self)
         let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-        let aps = Aps(alert: alert, category: nil, badge: 1)
+        let aps = APSPayload(alert: alert, category: nil, badge: 1)
         let resp = try temp.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", aps: aps, group: req.eventLoop)
         print(resp)
         return "It works!"

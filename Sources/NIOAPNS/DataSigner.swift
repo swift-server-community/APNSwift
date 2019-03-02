@@ -11,7 +11,7 @@ import CAPNSOpenSSL
 public class DataSigner: APNSSigner {
     private let opaqueKey: OpaquePointer
 
-    public init?(data: Data) {
+    public init(data: Data) throws {
         let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
 
@@ -23,7 +23,7 @@ public class DataSigner: APNSSigner {
         if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
             self.opaqueKey = pointer
         } else {
-            return nil
+            throw APNSTokenError.invalidAuthKey
         }
     }
 

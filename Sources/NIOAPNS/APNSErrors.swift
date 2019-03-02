@@ -11,7 +11,7 @@ public struct APNSError: Codable {
     public let reason: APNSErrors
 }
 public enum APNSErrors: String, Codable {
-    case badCollapseId = "BadCollapseId"
+    case badCollapseIdentifier = "BadCollapseId"
     case badDeviceToken = "BadDeviceToken"
     case badExpirationDate = "BadExpirationDate"
     case badMessageId = "BadMessageId"
@@ -39,6 +39,7 @@ public enum APNSErrors: String, Codable {
     case internalServerError = "InternalServerError"
     case serviceUnavailable = "ServiceUnavailable"
     case shutdown = "Shutdown"
+    case encodingFailed = "EncodingFailed"
     case unknown = "unknown"
 
 
@@ -47,30 +48,18 @@ public enum APNSErrors: String, Codable {
     }
 }
 
-public enum TokenError: Error {
+public enum APNSTokenError: Error {
     case invalidAuthKey
     case invalidTokenString
-    case wrongTokenLength
     case tokenWasNotGeneratedCorrectly
+    case certificateFileDoesNotExist
+    case keyFileDoesNotExist
 }
 
 public enum SimpleError: Error {
     case string(message: String)
 }
 
-public enum InitializeError: Error, CustomStringConvertible {
-    case noAuthentication
-    case noTopic
-    case certificateFileDoesNotExist
-    case keyFileDoesNotExist
-
-    public var description: String {
-        switch self {
-        case .noAuthentication: return "APNS Authentication is required. You can either use APNS Auth Key authentication (easiest to setup and maintain) or the old fashioned certificates way"
-        case .noTopic: return "No APNS topic provided. This is required."
-        case .certificateFileDoesNotExist: return "Certificate file could not be found on your disk. Double check if the file exists and if the path is correct"
-        case .keyFileDoesNotExist: return "Key file could not be found on your disk. Double check if the file exists and if the path is correct"
-        }
-    }
-
+public enum APNSCoderError: Error {
+    case encodingFailed
 }

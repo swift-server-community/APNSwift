@@ -1,5 +1,5 @@
 //
-//  APNSConfig.swift
+//  APNSConfiguration.swift
 //  swift-nio-http2-apns
 //
 //  Created by Kyle Browning on 2/5/19.
@@ -17,16 +17,14 @@ public struct APNSConfiguration {
     public let signingMode: SigningMode
     public let topic: String
     public let environment: APNSEnvironment
-    public let sslContext: NIOOpenSSL.SSLContext
+    public let tlsConfiguration: TLSConfiguration
 
     public var url: URL {
-        get {
-            switch environment {
-            case .production:
-                return URL(string: "https://api.push.apple.com")!
-            case .sandbox:
-                return URL(string: "https://api.development.push.apple.com")!
-            }
+        switch environment {
+        case .production:
+            return URL(string: "https://api.push.apple.com")!
+        case .sandbox:
+            return URL(string: "https://api.development.push.apple.com")!
         }
     }
     
@@ -36,6 +34,6 @@ public struct APNSConfiguration {
         self.topic = topic
         self.signingMode = signingMode
         self.environment = environment
-        self.sslContext = try! SSLContext(configuration: TLSConfiguration.forClient(applicationProtocols: ["h2"]))
+        self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
     }
 }
