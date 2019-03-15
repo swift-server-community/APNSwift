@@ -1,7 +1,7 @@
 import NIO
 import NIOHTTP1
 import NIOHTTP2
-import NIOOpenSSL
+import NIOSSL
 import NIOAPNS
 import Foundation
 

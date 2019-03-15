@@ -24,19 +24,19 @@ internal final class APNSRequestEncoder<T: APNSNotificationProtocol>: ChannelOut
         self.configuration = configuration
         self.deviceToken = deviceToken
     }
-    /// See `ChannelOutboundHandler.write(ctx:data:promise:)`.
-    func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+    /// See `ChannelOutboundHandler.write(context:data:promise:)`.
+    func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
         let req: T = unwrapOutboundIn(data)
         let data: Data
         do {
             data = try JSONEncoder().encode(req)
         } catch {
-            promise?.fail(error: error)
-            ctx.close(promise: nil)
+            promise?.fail(error)
+            context.close(promise: nil)
             return
         }
         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
-        buffer.write(bytes: data)
+        buffer.writeBytes(data)
         var reqHead = HTTPRequestHead(version: .init(major: 2, minor: 0), method: .POST, uri: "/3/device/\(deviceToken)")
         reqHead.headers.add(name: "content-type", value: "application/json")
         reqHead.headers.add(name: "user-agent", value: "APNS/swift-nio")
@@ -47,13 +47,13 @@ internal final class APNSRequestEncoder<T: APNSNotificationProtocol>: ChannelOut
         do {
             token = try jwt.sign(with: configuration.signingMode)
         } catch {
-            promise?.fail(error: APNSTokenError.tokenWasNotGeneratedCorrectly)
-            ctx.close(promise: nil)
+            promise?.fail(APNSTokenError.tokenWasNotGeneratedCorrectly)
+            context.close(promise: nil)
             return
         }
         reqHead.headers.add(name: "authorization", value: "bearer \(token)")
-        ctx.write(self.wrapOutboundOut(.head(reqHead)), promise: nil)
-        ctx.write(self.wrapOutboundOut(.body(.byteBuffer(buffer))), promise: nil)
-        ctx.write(self.wrapOutboundOut(.end(nil)), promise: nil)
+        context.write(self.wrapOutboundOut(.head(reqHead)), promise: nil)
+        context.write(self.wrapOutboundOut(.body(.byteBuffer(buffer))), promise: nil)
+        context.write(self.wrapOutboundOut(.end(nil)), promise: nil)
     }
 }
