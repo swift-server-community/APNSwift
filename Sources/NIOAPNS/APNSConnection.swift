@@ -1,32 +1,33 @@
 import NIO
 import NIOHTTP2
-import NIOOpenSSL
+import NIOSSL
 
 final public class APNSConnection {
     public static func connect(configuration: APNSConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
-        let multiplexer = HTTP2StreamMultiplexer { channel, streamID in
-            fatalError("server push not supported")
-        }
+        let multiplexerPromise = eventLoop.makePromise(of: HTTP2StreamMultiplexer.self)
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
                 do {
-                    let sslContext = try SSLContext(configuration: configuration.tlsConfiguration)
-                    let sslHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
-                    let handlers: [ChannelHandler] = [
-                        sslHandler,
-                        HTTP2Parser(mode: .client),
-                        multiplexer
-                    ]
-                    return channel.pipeline.addHandlers(handlers, first: false)
+                    let sslContext = try NIOSSLContext(configuration: configuration.tlsConfiguration)
+                    let sslHandler = try NIOSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
+                    return channel.pipeline.addHandler(sslHandler).flatMap {
+                        return channel.configureHTTP2Pipeline(mode: .client) { channel, streamID in
+                            fatalError("server push not supported")
+                        }.map { multiplexer in
+                            multiplexerPromise.succeed(multiplexer)
+                        }
+                    }
                 } catch {
                     channel.close(mode: .all, promise: nil)
-                    return channel.eventLoop.newFailedFuture(error: error)
+                    return channel.eventLoop.makeFailedFuture(error)
                 }
         }
         
-        return bootstrap.connect(host: configuration.url.host!, port: 443).map { channel in
-            return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+        return bootstrap.connect(host: configuration.url.host!, port: 443).flatMap { channel in
+            return multiplexerPromise.futureResult.map { multiplexer in
+                return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+            }
         }
     }
     
@@ -40,27 +41,29 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
-    public func send<T: APNSNotificationProtocol>(_ notification: T, to: String) -> EventLoopFuture<APNSResponse> {
-        let streamPromise = channel.eventLoop.newPromise(of: Channel.self)
+    public func send<Notification>(_ notification: Notification, to deviceToken: String) -> EventLoopFuture<APNSResponse>
+        where Notification: APNSNotificationProtocol
+    {
+        let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder<T>(deviceToken: to, configuration: self.configuration),
+                APNSRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration),
                 APNSResponseDecoder(),
                 APNSStreamHandler()
             ]
-            return channel.pipeline.addHandlers(handlers, first: false)
+            return channel.pipeline.addHandlers(handlers)
         }
         
-        let responsePromise = channel.eventLoop.newPromise(of: APNSResponse.self)
-        let ctx = APNSRequestContext(
+        let responsePromise = channel.eventLoop.makePromise(of: APNSResponse.self)
+        let context = APNSRequestContext(
             request: notification,
             responsePromise: responsePromise
         )
-        return streamPromise.futureResult.then { stream in
-            return stream.writeAndFlush(ctx)
-            }.then {
-                return responsePromise.futureResult
+        return streamPromise.futureResult.flatMap { stream in
+            return stream.writeAndFlush(context)
+        }.flatMap {
+            return responsePromise.futureResult
         }
     }
     

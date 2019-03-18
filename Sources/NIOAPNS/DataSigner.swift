@@ -4,7 +4,6 @@
 //
 //  Created by Kyle Browning on 2/21/19.
 //
-
 import Foundation
 import CAPNSOpenSSL
 
@@ -15,10 +14,11 @@ public class DataSigner: APNSSigner {
         let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
 
-        let nullTerminatedData = data + Data(bytes: [0])
-        _ = nullTerminatedData.withUnsafeBytes { key in
-            return BIO_puts(bio, key)
+        let nullTerminatedData = data + Data([0])
+        let res = nullTerminatedData.withUnsafeBytes { ptr in
+            return BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self))
         }
+        assert(res >= 0, "BIO_puts failed")
 
         if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
             self.opaqueKey = pointer
@@ -32,7 +32,9 @@ public class DataSigner: APNSSigner {
     }
 
     public func sign(digest: Data) throws -> Data  {
-        let sig = digest.withUnsafeBytes { ptr in ECDSA_do_sign(ptr, Int32(digest.count), opaqueKey) }
+        let sig = digest.withUnsafeBytes { ptr in
+            return ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.count), opaqueKey)
+        }
         defer { ECDSA_SIG_free(sig) }
 
         var derEncodedSignature: UnsafeMutablePointer<UInt8>? = nil
@@ -45,20 +47,20 @@ public class DataSigner: APNSSigner {
         // Force unwrap because guard protects us.
         return Data(bytesNoCopy: derEncodedSignature!,
                     count: Int(derLength),
-                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer) }))
+                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer, nil, 0) }))
     }
 
     public func verify(digest: Data, signature: Data) -> Bool {
         var signature = signature
-        let sig = signature.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> UnsafeMutablePointer<ECDSA_SIG> in
-            var copy = Optional.some(ptr)
+        let sig = signature.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) -> UnsafeMutablePointer<ECDSA_SIG> in
+            var copy = ptr.baseAddress?.assumingMemoryBound(to: UInt8.self)
             return d2i_ECDSA_SIG(nil, &copy, signature.count)
         }
 
         defer { ECDSA_SIG_free(sig) }
 
         let result = digest.withUnsafeBytes { ptr in
-            return ECDSA_do_verify(ptr, Int32(digest.count), sig, opaqueKey)
+            return ECDSA_do_verify(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.count), sig, opaqueKey)
         }
 
         return result == 1

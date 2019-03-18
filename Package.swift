@@ -1,4 +1,4 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.0
 import PackageDescription
 
 let package = Package(
@@ -8,10 +8,9 @@ let package = Package(
         .library(name: "NIOAPNS", targets: ["NIOAPNS"])
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/apple/swift-nio", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-nio-ssl", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-nio-http2", .upToNextMinor(from: "0.1.0")),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0-convergence"),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0-convergence"),
+        .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.0.0-convergence"),
     ],
     targets: [
         .systemLibrary(
@@ -22,7 +21,7 @@ let package = Package(
                 .brew(["openssl"]),
             ]
         ),
-        .target(name: "NIOAPNSExample", dependencies: ["NIOAPNS", "NIOOpenSSL"]),
-        .target(name: "NIOAPNS", dependencies: ["CAPNSOpenSSL", "NIO", "NIOOpenSSL", "NIOHTTP1", "NIOHTTP2"]),
+        .target(name: "NIOAPNSExample", dependencies: ["NIOAPNS"]),
+        .target(name: "NIOAPNS", dependencies: ["CAPNSOpenSSL", "NIO", "NIOSSL", "NIOHTTP1", "NIOHTTP2"]),
     ]
 )

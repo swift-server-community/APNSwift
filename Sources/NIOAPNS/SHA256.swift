@@ -6,20 +6,22 @@
 //
 
 import Foundation
-import CNIOOpenSSL
+import CAPNSOpenSSL
 
 func sha256(message: Data) -> Data {
-    var ctx = SHA256_CTX()
-    SHA256_Init(&ctx)
+    var context = SHA256_CTX()
+    SHA256_Init(&context)
 
-    message.enumerateBytes { buffer, _, _ in
-        SHA256_Update(&ctx, buffer.baseAddress, buffer.count)
+    var res = message.withUnsafeBytes { buffer in
+        return SHA256_Update(&context, buffer.baseAddress, buffer.count)
     }
+    assert(res == 1, "SHA256_Update failed")
 
     var digest = Data(count: Int(SHA256_DIGEST_LENGTH))
-    _ = digest.withUnsafeMutableBytes { mptr in
-        SHA256_Final(mptr, &ctx)
+    res = digest.withUnsafeMutableBytes { mptr in
+        return SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
     }
+    assert(res == 1, "SHA256_Final failed")
 
     return digest
 }

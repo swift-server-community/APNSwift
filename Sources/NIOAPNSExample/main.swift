@@ -1,16 +1,15 @@
 import NIO
 import NIOHTTP1
 import NIOHTTP2
-import NIOOpenSSL
+import NIOSSL
 import NIOAPNS
 import Foundation
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
-
-let apnsConfig = try APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
+let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                    teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                                   signingMode: .file(path: "/Users/tanner/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
                                    topic: "com.grasscove.Fern",
                                    environment: .sandbox)
 

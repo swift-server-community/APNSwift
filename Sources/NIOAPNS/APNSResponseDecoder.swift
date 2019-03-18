@@ -26,8 +26,8 @@ internal final class APNSResponseDecoder: ChannelInboundHandler {
         self.state = .ready
     }
 
-    /// See `ChannelInboundHandler.channelRead(ctx:data:)`.
-    func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
+    /// See `ChannelInboundHandler.channelRead(context:data:)`.
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let res = unwrapInboundIn(data)
         switch res {
         case .head(let head):
@@ -36,7 +36,6 @@ internal final class APNSResponseDecoder: ChannelInboundHandler {
             case .ready: state = .parsingBody(head, nil)
             case .parsingBody: assert(false, "Unexptected HTTPClientResponsePart.head when body being parsed")
             }
-
         case .body(var body):
             switch state {
             case .ready: assert(false, "Unexpected HTTPClientResponse.body when awaiting request head.")
@@ -56,7 +55,7 @@ internal final class APNSResponseDecoder: ChannelInboundHandler {
             switch state {
             case .ready: assert(false, "Unexpected HTTPClientResponse.end when awaiting request head.")
             case .parsingBody(let head, let data):
-                ctx.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, data: data)))
+                context.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, data: data)))
                 state = .ready
             }
         }
