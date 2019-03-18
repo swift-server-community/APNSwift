@@ -18,7 +18,7 @@ public class DataSigner: APNSSigner {
         let res = nullTerminatedData.withUnsafeBytes { ptr in
             return BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self))
         }
-        assert(res == 0, "BIO_puts failed")
+        assert(res >= 0, "BIO_puts failed")
 
         if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
             self.opaqueKey = pointer
@@ -47,7 +47,7 @@ public class DataSigner: APNSSigner {
         // Force unwrap because guard protects us.
         return Data(bytesNoCopy: derEncodedSignature!,
                     count: Int(derLength),
-                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer) }))
+                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer, nil, 0) }))
     }
 
     public func verify(digest: Data, signature: Data) -> Bool {

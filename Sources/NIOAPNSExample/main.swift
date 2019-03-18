@@ -7,10 +7,9 @@ import Foundation
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
-
-let apnsConfig = try APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
+let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                    teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                                   signingMode: .file(path: "/Users/tanner/Downloads/AuthKey_3SNQ6V92MT.p8"),
                                    topic: "com.grasscove.Fern",
                                    environment: .sandbox)
 

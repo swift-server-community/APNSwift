@@ -41,12 +41,14 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
-    public func send<T: APNSNotificationProtocol>(_ notification: T, to: String) -> EventLoopFuture<APNSResponse> {
+    public func send<Notification>(_ notification: Notification, to deviceToken: String) -> EventLoopFuture<APNSResponse>
+        where Notification: APNSNotificationProtocol
+    {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder<T>(deviceToken: to, configuration: self.configuration),
+                APNSRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration),
                 APNSResponseDecoder(),
                 APNSStreamHandler()
             ]

@@ -36,7 +36,6 @@ internal final class APNSResponseDecoder: ChannelInboundHandler {
             case .ready: state = .parsingBody(head, nil)
             case .parsingBody: assert(false, "Unexptected HTTPClientResponsePart.head when body being parsed")
             }
-
         case .body(var body):
             switch state {
             case .ready: assert(false, "Unexpected HTTPClientResponse.body when awaiting request head.")
