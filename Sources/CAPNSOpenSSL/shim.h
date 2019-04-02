@@ -8,13 +8,6 @@
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || !defined(LIBRESSL_VERSION_NUMBER)
-typedef struct ECDSA_SIG_st {
-    BIGNUM *r;
-    BIGNUM *s;
-} ECDSA_SIG;
-#endif
-
 #endif
 
 
