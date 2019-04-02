@@ -47,7 +47,7 @@ public class DataSigner: APNSSigner {
         // Force unwrap because guard protects us.
         return Data(bytesNoCopy: derEncodedSignature!,
                     count: Int(derLength),
-                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer, nil, 0) }))
+                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer) }))
     }
 
     public func verify(digest: Data, signature: Data) -> Bool {
