@@ -25,8 +25,10 @@ final public class APNSConnection {
         }
         
         return bootstrap.connect(host: configuration.url.host!, port: 443).flatMap { channel in
-            return multiplexerPromise.futureResult.map { multiplexer in
-                return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+            return channel.pipeline.context(handlerType: HTTP2StreamMultiplexer.self).map { $0.handler as! HTTP2StreamMultiplexer }.flatMap { multiplexer in
+                return multiplexerPromise.futureResult.map { multiplexer in
+                    return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+                }
             }
         }
     }

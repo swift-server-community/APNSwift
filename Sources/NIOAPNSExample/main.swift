@@ -9,7 +9,7 @@ let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                    teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file(path: "/Users/tanner/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
+                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
                                    topic: "com.grasscove.Fern",
                                    environment: .sandbox)
 
@@ -34,7 +34,7 @@ let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
 let aps = APSPayload(alert: alert, category: nil, badge: 1)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
-let res = try apns.send(notification, to: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f").wait()
+let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
 print("APNS response: \(res)")
 
 try apns.close().wait()
