@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NIOAPNSJWT
 import NIO
 import NIOHTTP1
 import NIOHTTP2
