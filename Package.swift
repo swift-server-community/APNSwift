@@ -36,8 +36,5 @@ let package = Package(
                                                 "NIOSSL",
                                                 "NIOHTTP1",
                                                 "NIOHTTP2"]),
-
-        .testTarget(name: "NIOAPNSTests", dependencies: ["NIOAPNS"]),
-
     ]
 )
