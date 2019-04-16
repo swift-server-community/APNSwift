@@ -31,7 +31,7 @@ struct AcmeNotification: APNSNotificationProtocol {
 
 
 let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let aps = APSPayload(alert: alert, category: nil, badge: 1)
+let aps = APSPayload(alert: alert, badge: 1)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
 let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
