@@ -23,7 +23,7 @@ public class DataSigner: APNSSigner {
         if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
             self.opaqueKey = pointer
         } else {
-            throw JWTError.invalidAuthKey
+            throw APNSSignatureError.invalidAuthKey
         }
     }
 
