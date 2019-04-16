@@ -10,7 +10,7 @@ import CAPNSOpenSSL
 public class DataSigner: APNSSigner {
     private let opaqueKey: OpaquePointer
 
-    public init(data: Data) throws {        
+    public init(data: Data) throws {
         let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
 
