@@ -12,7 +12,7 @@ public class FileSigner: DataSigner {
         do {
             try self.init(data: Data(contentsOf: url))
         } catch {
-            throw APNSTokenError.certificateFileDoesNotExist
+            throw APNSSignatureError.certificateFileDoesNotExist
         }
     }
 }

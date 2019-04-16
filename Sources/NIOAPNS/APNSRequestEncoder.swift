@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NIOAPNSJWT
 import NIO
 import NIOHTTP1
 import NIOHTTP2
@@ -21,7 +22,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
     
     let configuration: APNSConfiguration
     let deviceToken: String
-    
+
     init(deviceToken: String, configuration: APNSConfiguration) {
         self.configuration = configuration
         self.deviceToken = deviceToken

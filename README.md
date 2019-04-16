@@ -50,6 +50,12 @@ A proof of concept implementation exists [here](https://github.com/kylebrowning/
 - [Use the SSWG HTTP2 client](https://forums.swift.org/t/generic-http-client-server-library/18290/11)
 - Be the APNS library for all of Server Side Swift projects!
 
+### Running Test on macOS
+Be sure to have `LibreSSL` installed and make sure pkg-config can see LibreSSL
+- `brew install libressl`
+- `export PKG_CONFIG_PATH="/usr/local/opt/libressl/lib/pkgconfig"`
+- `swift test`
+
 ### Usage
 ```swift 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)

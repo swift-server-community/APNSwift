@@ -5,7 +5,8 @@ let package = Package(
     name: "nio-apns",
     products: [
         .executable(name: "NIOAPNSExample", targets: ["NIOAPNSExample"]),
-        .library(name: "NIOAPNS", targets: ["NIOAPNS"])
+        .library(name: "NIOAPNSJWT", targets: ["NIOAPNSJWT"]),
+        .library(name: "NIOAPNS", targets: ["NIOAPNS"]),        
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
@@ -21,7 +22,19 @@ let package = Package(
                 .brew(["openssl"]),
             ]
         ),
+
         .target(name: "NIOAPNSExample", dependencies: ["NIOAPNS"]),
-        .target(name: "NIOAPNS", dependencies: ["CAPNSOpenSSL", "NIO", "NIOSSL", "NIOHTTP1", "NIOHTTP2"]),
+
+        .target(name: "NIOAPNSJWT", dependencies:["CAPNSOpenSSL"]),
+
+        .testTarget(name: "NIOAPNSJWTTests", dependencies: ["NIOAPNSJWT"]),
+
+        .target(name: "NIOAPNS", dependencies: ["NIOAPNSJWT",
+                                                "NIO",
+                                                "NIOSSL",
+                                                "NIOHTTP1",
+                                                "NIOHTTP2"]),
+
+        .testTarget(name: "NIOAPNSTests", dependencies: ["NIOAPNS"]),
     ]
 )

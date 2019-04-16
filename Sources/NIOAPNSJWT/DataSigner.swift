@@ -23,7 +23,7 @@ public class DataSigner: APNSSigner {
         if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
             self.opaqueKey = pointer
         } else {
-            throw APNSTokenError.invalidAuthKey
+            throw APNSSignatureError.invalidAuthKey
         }
     }
 
@@ -40,29 +40,17 @@ public class DataSigner: APNSSigner {
         var derEncodedSignature: UnsafeMutablePointer<UInt8>? = nil
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
         
-        guard let _ = derEncodedSignature, derLength > 0 else {
+        guard let derCopy = derEncodedSignature, derLength > 0 else {
             throw APNSSignatureError.invalidASN1
         }
-        
-        // Force unwrap because guard protects us.
-        return Data(bytesNoCopy: derEncodedSignature!,
-                    count: Int(derLength),
-                    deallocator: .custom({ pointer, length in CRYPTO_free(pointer) }))
-    }
 
-    public func verify(digest: Data, signature: Data) -> Bool {
-        var signature = signature
-        let sig = signature.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) -> UnsafeMutablePointer<ECDSA_SIG> in
-            var copy = ptr.baseAddress?.assumingMemoryBound(to: UInt8.self)
-            return d2i_ECDSA_SIG(nil, &copy, signature.count)
+        var derBytes = [UInt8](repeating: 0, count: Int(derLength))
+
+        for b in 0..<Int(derLength) {
+            derBytes[b] = derCopy[b]
         }
 
-        defer { ECDSA_SIG_free(sig) }
+        return Data(derBytes)
 
-        let result = digest.withUnsafeBytes { ptr in
-            return ECDSA_do_verify(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.count), sig, opaqueKey)
-        }
-
-        return result == 1
     }
 }
