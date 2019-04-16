@@ -25,16 +25,16 @@ let package = Package(
 
         .target(name: "NIOAPNSExample", dependencies: ["NIOAPNS"]),
 
-
         .target(name: "NIOAPNSJWT", dependencies:["CAPNSOpenSSL"]),
 
         .testTarget(name: "NIOAPNSJWTTests", dependencies: ["NIOAPNSJWT"]),
-
 
         .target(name: "NIOAPNS", dependencies: ["NIOAPNSJWT",
                                                 "NIO",
                                                 "NIOSSL",
                                                 "NIOHTTP1",
                                                 "NIOHTTP2"]),
+
+        .testTarget(name: "NIOAPNSTests", dependencies: ["NIOAPNS"]),
     ]
 )

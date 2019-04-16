@@ -8,6 +8,7 @@ echo ""
 echo "Running Tests in Docker Container"
 echo "Swift 5"
 echo "================================="
+docker rmi swift-nio-apns
 docker build -t swift-nio-apns -f Dockerfile .
 
 docker run --name swift-nio-apns-tests --rm swift-nio-apns swift test \

@@ -23,9 +23,11 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
     let configuration: APNSConfiguration
     let deviceToken: String
     
+    let encoder = JSONEncoder()
+
     init(deviceToken: String, configuration: APNSConfiguration) {
         self.configuration = configuration
-        self.deviceToken = deviceToken
+        self.deviceToken = deviceToken        
     }
     
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
@@ -33,7 +35,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         let req: Notification = unwrapOutboundIn(data)
         let data: Data
         do {
-            data = try JSONEncoder().encode(req)
+            data = try encoder.encode(req)
         } catch {
             promise?.fail(error)
             context.close(promise: nil)
