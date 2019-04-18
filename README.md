@@ -86,7 +86,7 @@ struct AcmeNotification: APNSNotificationProtocol {
 
 
 let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let aps = APSPayload(alert: alert, category: nil, badge: 1)
+let aps = APSPayload(alert: alert, badge: 1)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
 let res = try apns.send(notification, to: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f").wait()
@@ -144,7 +144,7 @@ This provides the APNS Service to be made available on requests. The device toke
    router.get("singlePush") { req -> String in
         let temp = try req.make(APNS.self)
         let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-        let aps = APSPayload(alert: alert, category: nil, badge: 1)
+        let aps = APSPayload(alert: alert, badge: 1)
         let resp = try temp.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", aps: aps, group: req.eventLoop)
         print(resp)
         return "It works!"
