@@ -143,6 +143,11 @@ let alert = ...
 let aps = APSPayload(alert: alert, badge: 1, sound: "cow.wav")
 ```
 
+### Custom Notification Data
+
+Apple provides engineers with the ability to add custom payload data to each notification. In order to faciliate this we have the `APNSNotificationProtocol`.
+
+#### Example
 ```swift
 struct AcmeNotification: APNSNotificationProtocol {
     let acme2: [String]
