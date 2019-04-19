@@ -1,79 +1,162 @@
-This is a pitch on [Swift forums for Apple Push notification implementation](https://forums.swift.org/t/apple-push-notification-service-implementation/20193).
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build](https://img.shields.io/circleci/project/github/kylebrowning/swift-nio-http2-apns/master.svg?logo=circleci)](https://circleci.com/gh/kylebrowning/swift-nio-http2-apns/tree/master)
+[![Swift](https://img.shields.io/badge/Swift-5.0-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
 
-# Pitch
-A lightweight, non intrusive, low dependency library to communicate with APNS over HTTP/2 built with Swift NIO.
+# NIOApns
 
-# Motivations
-APNS is used to push billions of pushes a day, (7 billion per day in 2012). Many of us using Swift on the backend are using it to power our iOS applications. Having a community supported APNS implementation would go a long way to making it the fastest, free-ist, and simplest solution that exists.
+A non-blocking Swift module for sending remote Apple Push Notificaiton requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms. 
 
-Also too many non standard approaches currently exist. Some use code that depends on Security (Doesn't work on linux) and I haven't found one that uses NIO with no other dependencies. Some just execute curl commands.
+* Pitch discussion: [Swift Server Forums](https://forums.swift.org/t/apple-push-notification-service-implementation-pitch/20193)
+* Proposal: [SSWG-0005]()
 
-#### Existing solutions
-- https://github.com/moritzsternemann/nio-apns
-- https://github.com/kaunteya/APNSwift
-- https://medium.com/@nathantannar4/supporting-push-notifications-with-vapor-3-3f6cc959c789
-- https://github.com/PerfectlySoft/Perfect-Notifications
-- https://github.com/hjuraev/VaporNotifications
+## Installation
 
-Almost all require a ton of dependencies.
+To install `NIOApns`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies)
 
-# Proposed Solution
+```swift
+dependencies: [
+    .package(url: "https://github.com/kylebrowning/swift-nio-http2-apns.git", .upToNextMinor(from: "0.1.0")
+]
+```
 
-Develop a Swift NIO HTTP2 solution with minimal dependencies.
+## Getting Started
 
-A proof of concept implementation exists [here](https://github.com/kylebrowning/swift-nio-http2-apns)
-
-### What it does do
-
-- Provides an API for handling connection to Apples HTTP2 APNS server
-- Provides proper error messages that APNS might respond with.
-- Uses custom/non dependency implementations of JSON Web Token specific to APNS (using [rfc7519](https://tools.ietf.org/html/rfc7519)
-- Imports OpenSSL for SHA256 and ES256
-- Provides an interface for signing your Push Notifications
-- Signs your token request
-- Sends push notifications to a specific device.
-- [Adheres to guidelines Apple Provides.](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns)
-
-### What it doesn't do YET
-- Use an OpenSSL implementation that **is not** `CNIOOpenSSL`
-
-
-### What it won't do.
-- Store/register device tokens
-- Build an HTTP2 generic client
-- Google Cloud Message
-- Refresh your token no more than once every 20 minutes and no less than once every 60 minutes. (up to connection handler)
-- Provide multiple device tokens to send same push to.
-
-
-### What it could do
-- [Use the SSWG HTTP2 client](https://forums.swift.org/t/generic-http-client-server-library/18290/11)
-- Be the APNS library for all of Server Side Swift projects!
-
-### Running Test on macOS
-Be sure to have `LibreSSL` installed and make sure pkg-config can see LibreSSL
-- `brew install libressl`
-- `export PKG_CONFIG_PATH="/usr/local/opt/libressl/lib/pkgconfig"`
-- `swift test`
-
-### Usage
-```swift 
+```swift
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-var verbose = true
-
-let apnsConfig = APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
+let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                    teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: try .file(path: "/Users/kylebrowning/Downloads/key.p8"),
+                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
                                    topic: "com.grasscove.Fern",
                                    environment: .sandbox)
 
 let apns = try APNSConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
+let aps = APSPayload(alert: alert, badge: 1, sound: "cow.wav")
+let notification = APNSNotification(aps: aps)
+let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
+try apns.close().wait()
+try group.syncShutdownGracefully()
+```
 
-if verbose {
-    print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
+```swift
+import NIORedis
+
+let driver = NIORedisDriver(ownershipModel: .internal(threadCount: 2))
+
+let connection = try driver.makeConnection().wait()
+
+let result = try connection.set("my_key", to: "some value")
+    .flatMap { return connection.get("my_key" }
+    .wait()
+
+print(result) // Optional("some value")
+
+
+### APNSConfiguration
+
+[`APNSConfiguration`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSConfiguration.swift) is a structure that provides the system with common configuration.
+
+```swift
+public struct APNSConfiguration {
+    public let keyIdentifier: String
+    public let teamIdentifier: String
+    public let signingMode: SigningMode
+    public let topic: String
+    public let environment: APNSEnvironment
+    public let tlsConfiguration: TLSConfiguration
+
+    public var url: URL {
+        switch environment {
+        case .production:
+            return URL(string: "https://api.push.apple.com")!
+        case .sandbox:
+            return URL(string: "https://api.development.push.apple.com")!
+        }
+    }
+```
+#### Example `APNSConfiguration`
+```swift
+let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+                                   teamIdentifier: "ABBM6U9RM5",
+                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
+                                   topic: "com.grasscove.Fern",
+                                   environment: .sandbox)
+```
+
+### SigningMode
+
+[`SigningMode`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNSJWT/SigningMode.swift) provides a method by which engineers can choose how their certificates are signed. Since security is important keeping we extracted this logic into three options. `file`, `data`, or `custom`.
+
+```swift
+public struct SigningMode {
+    public let signer: APNSSigner
+    init(signer: APNSSigner) {
+        self.signer = signer
+    }
 }
 
-// Custom data on Notification
+extension SigningMode {
+    public static func file(path: String) throws -> SigningMode {
+        return .init(signer: try FileSigner(url: URL(fileURLWithPath: path)))
+    }
+    public static func data(data: Data) throws -> SigningMode {
+        return .init(signer: try DataSigner(data: data))
+    }
+    public static func custom(signer: APNSSigner) -> SigningMode {
+        return .init(signer: signer)
+    }
+}
+```
+#### Example Custom SigningMode that uses AWS for private keystorage
+```swift
+public class CustomSigner: APNSSigner {
+   public func sign(digest: Data) throws -> Data {
+     return try AWSKeyStore.sign(digest: digest)
+   }
+   public func verify(digest: Data, signature: Data) -> Bool {
+      // verification
+   }
+}
+let customSigner = CustomSigner()
+let apnsConfig = APNSConfig(keyId: "9UC9ZLQ8YW",
+                      teamId: "ABBM6U9RM5",
+                      signingMode: .custom(signer: customSigner),
+                      topic: "com.grasscove.Fern",
+                      env: .sandbox)
+```
+### APNSConnection
+
+[`APNSConnection`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSConnection.swift) is a class with methods thats provides a wrapper to NIO's ClientBootstrap. The `swift-nio-http2` dependency is utilized here. It also provides a function to send a notification to a specific device token string.
+
+
+#### Example `APNSConnection`
+```swift
+let apnsConfig = ...
+let apns = try APNSConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+```
+
+### Alert
+
+[`Alert`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSRequest.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifcs of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). THey follow a 1-1 naming scheme listed in Apple's documentation
+
+
+#### Example `Alert`
+```swift
+let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
+```
+
+### APSPayload
+
+[`APSPayload`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSRequest.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifcs of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). THey follow a 1-1 naming scheme listed in Apple's documentation
+
+
+#### Example `APSPayload`
+```swift
+let alert = ...
+let aps = APSPayload(alert: alert, badge: 1, sound: "cow.wav")
+```
+
+```swift
 struct AcmeNotification: APNSNotificationProtocol {
     let acme2: [String]
     let aps: APSPayload
@@ -84,76 +167,8 @@ struct AcmeNotification: APNSNotificationProtocol {
     }
 }
 
-
-let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let aps = APSPayload(alert: alert, badge: 1)
+let apns: APNSConnection: = ...
+let aps: APSPayload = ...
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-
-let res = try apns.send(notification, to: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f").wait()
-print("APNS response: \(res)")
-
-try apns.close().wait()
-try group.syncShutdownGracefully()
-exit(0)
+let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
 ```
-
-## Vapor Example
-This outlines what it takes to get working with Vapor
-### Vapor Service
-Depending on which platform you are using, you will need to expose the NIOAPNS API to your apps code. In Vapor this can be done with Service, a dependency injection framework.
-
-```swift 
-import NIO
-import NIOAPNS
-import Service
-
-// MARK: - Service
-public protocol APNSService: Service {
-    var configuration: APNSConfiguration { get }
-    func send(notification: APNSNotification, to: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse>
-}
-public struct APNS: APNSService {
-    public var configuration: APNSConfiguration
-
-    public init(configuration: APNSConfiguration) {
-        self.configuration = configuration
-    }
-    public func send(notification: APNSNotification, to: String, aps: Aps, group: EventLoop) throws -> EventLoopFuture<APNSResponse> {
-        return APNSConnection.connect(configuration: configuration, on: group.next()).then({ (connection) -> EventLoopFuture<APNSResponse> in
-            return connection.send(notification: APNSRequest(aps: aps, custom: nil), to: to)
-        })
-    }
-}
-```
-
-### Vapor Config
-In vapor, you register services in configure.swift
-
-```swift
-    let apnsConfig = try APNSConfiguration(keyIdentifier: "2M7SG2MR8K",
-                                   teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file(path: "/Users/kylebrowning/Downloads/key.p8"),
-                                   topic: "com.grasscove.Fern",
-                                   environment: .sandbox)
-    services.register(APNS(configuration: APNSConfiguration))
-```
-### Route
-This provides the APNS Service to be made available on requests. The device token used here was registered via Apple UserNotification SDK. (Which ill show in the next steps)
-
-```swift
-   router.get("singlePush") { req -> String in
-        let temp = try req.make(APNS.self)
-        let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-        let aps = APSPayload(alert: alert, badge: 1)
-        let resp = try temp.send(deviceToken: "223a86bdd22598fb3a76ce12eafd590c86592484539f9b8526d0e683ad10cf4f", aps: aps, group: req.eventLoop)
-        print(resp)
-        return "It works!"
-    }
-```
-
-### Expanded examples
-[Here is a quick APNS Device model for Vapor](https://gist.github.com/kylebrowning/bf1041674c6cce44f9e80121f729826c)
-
-[Here is how you register on iOS to our Vapor backend](https://gist.github.com/kylebrowning/240be40a92bf219481f05dd3f4bc9c94)
-
-[This fetches all registered device tokens in Vapor, and pushes a notification to them](https://gist.github.com/kylebrowning/2b1b5d48e2d8bafe59b869a6533a9d9e)
