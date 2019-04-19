@@ -38,19 +38,6 @@ try apns.close().wait()
 try group.syncShutdownGracefully()
 ```
 
-```swift
-import NIORedis
-
-let driver = NIORedisDriver(ownershipModel: .internal(threadCount: 2))
-
-let connection = try driver.makeConnection().wait()
-
-let result = try connection.set("my_key", to: "some value")
-    .flatMap { return connection.get("my_key" }
-    .wait()
-
-print(result) // Optional("some value")
-
 
 ### APNSConfiguration
 
