@@ -7,7 +7,7 @@
 A non-blocking Swift module for sending remote Apple Push Notificaiton requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms. 
 
 * Pitch discussion: [Swift Server Forums](https://forums.swift.org/t/apple-push-notification-service-implementation-pitch/20193)
-* Proposal: [SSWG-0005](https://forums.swift.org/t/discussion-nioapns-nio-based-apple-push-notification-service/23384/6)
+* Proposal: [SSWG-0005](https://forums.swift.org/t/discussion-nioapns-nio-based-apple-push-notification-service/23384)
 
 ## Installation
 
