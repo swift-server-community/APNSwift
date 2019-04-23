@@ -56,10 +56,6 @@ public enum APNSTokenError: Error {
     case keyFileDoesNotExist
 }
 
-public enum SimpleError: Error {
-    case string(message: String)
-}
-
-public enum APNSCoderError: Error {
-    case encodingFailed
+public enum APNSResponseError: Error {
+    case badRequest(APNSError)
 }

@@ -43,7 +43,7 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
-    public func send<Notification>(_ notification: Notification, to deviceToken: String) -> EventLoopFuture<APNSResponse>
+    public func send<Notification>(_ notification: Notification, to deviceToken: String) -> EventLoopFuture<Void>
         where Notification: APNSNotificationProtocol
     {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
@@ -57,7 +57,7 @@ final public class APNSConnection {
             return channel.pipeline.addHandlers(handlers)
         }
         
-        let responsePromise = channel.eventLoop.makePromise(of: APNSResponse.self)
+        let responsePromise = channel.eventLoop.makePromise(of: Void.self)
         let context = APNSRequestContext(
             request: notification,
             responsePromise: responsePromise

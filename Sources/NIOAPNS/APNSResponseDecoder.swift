@@ -5,68 +5,45 @@
 //  Created by Kyle Browning on 2/1/19.
 //
 
-import Foundation
 import NIO
 import NIOHTTP1
-import NIOHTTP2
 
 /// Internal `ChannelInboundHandler` that parses `HTTPClientResponsePart` to `HTTPResponse`.
-internal final class APNSResponseDecoder: ChannelInboundHandler {
+internal final class APNSResponseDecoder {
+    private enum State {
+        /// Waiting to parse the next response.
+        case ready
+        /// Currently parsing the response's body.
+        case parsingBody(HTTPResponseHead, ByteBuffer?)
+    }
+
+    private var state: State = .ready
+}
+
+extension APNSResponseDecoder: ChannelInboundHandler {
     /// See `ChannelInboundHandler.InboundIn`.
     typealias InboundIn = HTTPClientResponsePart
 
     /// See `ChannelInboundHandler.OutboundOut`.
     typealias OutboundOut = APNSResponse
 
-    /// Current state.
-    private var state: HTTPClientState
-
-    /// Creates a new `HTTP2ClientResponseParser`.
-    init() {
-        self.state = .ready
-    }
-
     /// See `ChannelInboundHandler.channelRead(context:data:)`.
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        let res = unwrapInboundIn(data)
-        switch res {
-        case .head(let head):
-            print(head)
-            switch state {
-            case .ready: state = .parsingBody(head, nil)
-            case .parsingBody: assert(false, "Unexptected HTTPClientResponsePart.head when body being parsed")
+        let response = unwrapInboundIn(data)
+        switch (response, state) {
+        case (.head(let head), .ready): state = .parsingBody(head, nil)
+        case (.body(var body), .parsingBody(let head, let existingBuffer)):
+            guard var existing = existingBuffer else {
+                state = .parsingBody(head, body)
+                return
             }
-        case .body(var body):
-            switch state {
-            case .ready: assert(false, "Unexpected HTTPClientResponse.body when awaiting request head.")
-            case .parsingBody(let head, let existingData):
-                let data: Data
-                if var existing = existingData {
-                    existing += Data(body.readBytes(length: body.readableBytes) ?? [])
-                    data = existing
-                } else {
-                    data = Data(body.readBytes(length: body.readableBytes) ?? [])
-                }
-                state = .parsingBody(head, data)
-            }
-
-        case .end(let tailHeaders):
-            assert(tailHeaders == nil, "Unexpected tail headers")
-            switch state {
-            case .ready: assert(false, "Unexpected HTTPClientResponse.end when awaiting request head.")
-            case .parsingBody(let head, let data):
-                context.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, data: data)))
-                state = .ready
-            }
+            existing.writeBuffer(&body)
+            state = .parsingBody(head, existing)
+        case (.end(.none), let .parsingBody(head, data)):
+            context.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, data: data)))
+            state = .ready
+        default:
+            assertionFailure("Unexpected state! Decoder state: \(state) HTTPResponsePart: \(response)")
         }
     }
-}
-
-/// Tracks `HTTP2ClientResponseParser`'s state.
-private enum HTTPClientState {
-    /// Waiting to parse the next response.
-    case ready
-
-    /// Currently parsing the response's body.
-    case parsingBody(HTTPResponseHead, Data?)
 }

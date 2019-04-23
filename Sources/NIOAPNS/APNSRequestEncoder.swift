@@ -36,7 +36,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
             data = try JSONEncoder().encode(req)
         } catch {
             promise?.fail(error)
-            context.close(promise: nil)
+            context.fireErrorCaught(error)
             return
         }
         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
