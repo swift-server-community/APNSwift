@@ -34,7 +34,7 @@ let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
 let aps = APSPayload(alert: alert, badge: 1)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
-do  {
+do {
     try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
 } catch (let error) {
     print(error)
