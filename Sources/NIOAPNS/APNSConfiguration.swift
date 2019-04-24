@@ -16,7 +16,7 @@ public struct APNSConfiguration {
     public let teamIdentifier: String
     public let signingMode: SigningMode
     public let topic: String
-    public let environment: APNSEnvironment
+    public let environment: Environment
     public let tlsConfiguration: TLSConfiguration
 
     public var url: URL {
@@ -28,7 +28,7 @@ public struct APNSConfiguration {
         }
     }
     
-    public init(keyIdentifier: String, teamIdentifier: String, signingMode: SigningMode, topic: String, environment: APNSEnvironment) {
+    public init(keyIdentifier: String, teamIdentifier: String, signingMode: SigningMode, topic: String, environment: APNSConfiguration.Environment) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
         self.topic = topic
