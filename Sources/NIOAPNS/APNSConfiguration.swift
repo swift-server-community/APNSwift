@@ -12,12 +12,6 @@ import NIOHTTP2
 import NIOSSL
 
 public struct APNSConfiguration {
-    
-    public enum APNSEnvironment {
-        case production
-        case sandbox
-    }
-    
     public let keyIdentifier: String
     public let teamIdentifier: String
     public let signingMode: SigningMode
@@ -41,5 +35,12 @@ public struct APNSConfiguration {
         self.signingMode = signingMode
         self.environment = environment
         self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
+    }
+}
+
+extension APNSConfiguration {
+    public enum Environment {
+        case production
+        case sandbox
     }
 }
