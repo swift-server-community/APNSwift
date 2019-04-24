@@ -19,7 +19,7 @@ if verbose {
     print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
 }
 
-struct AcmeNotification: APNSNotificationProtocol {
+struct AcmeNotification: APNSNotification {
     let acme2: [String]
     let aps: APSPayload
     

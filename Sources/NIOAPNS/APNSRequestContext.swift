@@ -1,6 +1,6 @@
 import NIO
 
 public struct APNSRequestContext {
-    let request: APNSNotificationProtocol
+    let request: APNSNotification
     let responsePromise: EventLoopPromise<Void>
 }

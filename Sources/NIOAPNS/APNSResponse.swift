@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NIO
 import NIOHTTP1
 internal struct APNSResponse {
     public var header: HTTPResponseHead

@@ -12,7 +12,7 @@ import NIOHTTP1
 import NIOHTTP2
 
 internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
-    where Notification: APNSNotificationProtocol
+    where Notification: APNSNotification
 {
     /// See `ChannelOutboundHandler.OutboundIn`.
     typealias OutboundIn = Notification

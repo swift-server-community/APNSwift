@@ -3,7 +3,7 @@ import Foundation
 
 final class APNSStreamHandler: ChannelDuplexHandler {
     typealias InboundIn = APNSResponse
-    typealias OutboundOut = APNSNotificationProtocol
+    typealias OutboundOut = APNSNotification
     typealias OutboundIn = APNSRequestContext
     
     var queue: [APNSRequestContext]

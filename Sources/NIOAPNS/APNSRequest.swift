@@ -9,11 +9,11 @@ import NIO
 import NIOHTTP1
 import NIOHTTP2
 
-public protocol APNSNotificationProtocol: Codable {
+public protocol APNSNotification: Codable {
     var aps: APSPayload { get }
 }
 
-public struct APNSNotification: APNSNotificationProtocol {
+public struct BasicNotification: APNSNotification {
     public var aps: APSPayload
     public init(aps: APSPayload) {
         self.aps = aps

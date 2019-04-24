@@ -44,7 +44,7 @@ final public class APNSConnection {
     }
     
     public func send<Notification>(_ notification: Notification, to deviceToken: String) -> EventLoopFuture<Void>
-        where Notification: APNSNotificationProtocol
+        where Notification: APNSNotification
     {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
