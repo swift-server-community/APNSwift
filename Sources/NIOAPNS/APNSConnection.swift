@@ -1,3 +1,4 @@
+import Foundation
 import NIO
 import NIOHTTP2
 import NIOSSL
@@ -43,14 +44,13 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
-    public func send<Notification>(_ notification: Notification, to deviceToken: String) -> EventLoopFuture<Void>
-        where Notification: APNSNotification
-    {
+    public func send<Notification>(_ notification: Notification, to deviceToken: String, expiration: Int? = nil, priority: Int? = nil, collapseIdentifier: String? = nil) -> EventLoopFuture<Void>
+        where Notification: APNSNotification {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration),
+                APNSRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
                 APNSResponseDecoder(),
                 APNSStreamHandler()
             ]

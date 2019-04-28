@@ -22,10 +22,16 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
     
     let configuration: APNSConfiguration
     let deviceToken: String
+    let priority: Int?
+    let expiration: Int?
+    let collapseIdentifier: String?
 
-    init(deviceToken: String, configuration: APNSConfiguration) {
+    init(deviceToken: String, configuration: APNSConfiguration, expiration: Int?, priority: Int?, collapseIdentifier: String?) {
         self.configuration = configuration
         self.deviceToken = deviceToken
+        self.expiration = expiration
+        self.priority = priority
+        self.collapseIdentifier = collapseIdentifier
     }
     
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
@@ -46,6 +52,15 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         reqHead.headers.add(name: "user-agent", value: "APNS/swift-nio")
         reqHead.headers.add(name: "content-length", value: buffer.readableBytes.description)
         reqHead.headers.add(name: "apns-topic", value: configuration.topic)
+        if let priority = self.priority {
+            reqHead.headers.add(name: "apns-priority", value: String(priority))
+        }
+        if let epochTime = self.expiration {
+            reqHead.headers.add(name: "apns-expiration", value: String(epochTime))
+        }
+        if let collapseId = self.collapseIdentifier {
+            reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
+        }
         reqHead.headers.add(name: "host", value: self.configuration.url.host!)
         let jwt = JWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
         let token: String
