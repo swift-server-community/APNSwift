@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CAPNSOpenSSL
+import CNIOBoringSSL
 public class FileSigner: DataSigner {
     public convenience init(url: URL) throws {
         do {
