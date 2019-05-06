@@ -38,8 +38,8 @@ extension APNSResponseDecoder: ChannelInboundHandler {
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let response = unwrapInboundIn(data)
         switch (response, state) {
-        case (.head(let head), .ready): state = .parsingBody(head, nil)
-        case (.body(var body), .parsingBody(let head, let existingBuffer)):
+        case (let .head(head), .ready): state = .parsingBody(head, nil)
+        case (var .body(body), let .parsingBody(head, existingBuffer)):
             guard var existing = existingBuffer else {
                 state = .parsingBody(head, body)
                 return

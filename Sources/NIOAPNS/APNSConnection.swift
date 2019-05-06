@@ -18,8 +18,7 @@ import NIOHTTP2
 import NIOSSL
 
 /// <#Description#>
-final public class APNSConnection {
-
+public final class APNSConnection {
     /// <#Description#>
     ///
     /// - Parameters:
@@ -35,7 +34,7 @@ final public class APNSConnection {
                     let sslContext = try NIOSSLContext(configuration: configuration.tlsConfiguration)
                     let sslHandler = try NIOSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
                     return channel.pipeline.addHandler(sslHandler).flatMap {
-                        return channel.configureHTTP2Pipeline(mode: .client) { channel, streamID in
+                        channel.configureHTTP2Pipeline(mode: .client) { _, _ in
                             fatalError("server push not supported")
                         }.map { multiplexer in
                             multiplexerPromise.succeed(multiplexer)
@@ -45,27 +44,27 @@ final public class APNSConnection {
                     channel.close(mode: .all, promise: nil)
                     return channel.eventLoop.makeFailedFuture(error)
                 }
-        }
-        
+            }
+
         return bootstrap.connect(host: configuration.url.host!, port: 443).flatMap { channel in
-            return channel.pipeline.context(handlerType: HTTP2StreamMultiplexer.self).map { $0.handler as! HTTP2StreamMultiplexer }.flatMap { multiplexer in
-                return multiplexerPromise.futureResult.map { multiplexer in
-                    return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+            channel.pipeline.context(handlerType: HTTP2StreamMultiplexer.self).map { $0.handler as! HTTP2StreamMultiplexer }.flatMap { multiplexer in
+                multiplexerPromise.futureResult.map { multiplexer in
+                    APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
                 }
             }
         }
     }
-    
+
     public let multiplexer: HTTP2StreamMultiplexer
     public let channel: Channel
     public let configuration: APNSConfiguration
-    
+
     public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSConfiguration) {
         self.channel = channel
         self.multiplexer = multiplexer
         self.configuration = configuration
     }
-    
+
     /// <#Description#>
     ///
     /// - Parameters:
@@ -83,31 +82,31 @@ final public class APNSConnection {
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
                 APNSRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
                 APNSResponseDecoder(),
-                APNSStreamHandler()
+                APNSStreamHandler(),
             ]
             return channel.pipeline.addHandlers(handlers)
         }
-        
+
         let responsePromise = channel.eventLoop.makePromise(of: Void.self)
         let context = APNSRequestContext(
             request: notification,
             responsePromise: responsePromise
         )
         return streamPromise.futureResult.flatMap { stream in
-            return stream.writeAndFlush(context)
+            stream.writeAndFlush(context)
         }.flatMap {
-            return responsePromise.futureResult
+            responsePromise.futureResult
         }
     }
-    
+
     var onClose: EventLoopFuture<Void> {
-        return self.channel.closeFuture
+        return channel.closeFuture
     }
-    
+
     /// <#Description#>
     ///
     /// - Returns: <#return value description#>
     public func close() -> EventLoopFuture<Void> {
-        return self.channel.close(mode: .all)
+        return channel.close(mode: .all)
     }
 }

@@ -17,6 +17,7 @@ import Foundation
 public struct APNSError: Codable {
     public let reason: APNSErrors
 }
+
 public enum APNSErrors: String, Codable {
     case badCollapseIdentifier = "BadCollapseId"
     case badDeviceToken = "BadDeviceToken"
@@ -47,8 +48,7 @@ public enum APNSErrors: String, Codable {
     case serviceUnavailable = "ServiceUnavailable"
     case shutdown = "Shutdown"
     case encodingFailed = "EncodingFailed"
-    case unknown = "unknown"
-
+    case unknown
 
     public var description: String {
         return rawValue

@@ -16,5 +16,5 @@ import Foundation
 
 // Protocol for signing digests
 public protocol APNSSigner {
-    func sign(digest: Data) throws -> Data    
+    func sign(digest: Data) throws -> Data
 }
