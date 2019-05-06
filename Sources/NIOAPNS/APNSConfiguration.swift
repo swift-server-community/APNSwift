@@ -38,12 +38,15 @@ public struct APNSConfiguration {
 
     /**
      Call this function to create a new Configuration.
+
      - Parameters:
-     - keyIdentifier: The key identifier Apple gives you when you setup your APNS key.
-     - teamIdentifier: The team identifier Apple assigned you when you created your developer team
-     - signingMode: provides a method by which engineers can choose how their certificates are
+       - keyIdentifier: The key identifier Apple gives you when you setup your APNS key.
+       - teamIdentifier: The team identifier Apple assigned you when you created your developer team
+       - signingMode: provides a method by which engineers can choose how their certificates are
      signed. Since security is important keeping we extracted this logic into three options.
      `file`, `data`, or `custom`.
+       - topic: The bundle identifier for these push notifications.
+       - environment: The environment to use, sandbox, or production.
 
      ### Usage Example: ###
      ````
