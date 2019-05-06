@@ -4,7 +4,7 @@
 
 # NIOApns
 
-A non-blocking Swift module for sending remote Apple Push Notificaiton requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms. 
+A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms.
 
 * Pitch discussion: [Swift Server Forums](https://forums.swift.org/t/apple-push-notification-service-implementation-pitch/20193)
 * Proposal: [SSWG-0005](https://forums.swift.org/t/discussion-nioapns-nio-based-apple-push-notification-service/23384)
@@ -145,14 +145,14 @@ let aps = APSPayload(alert: alert, badge: 1, sound: "cow.wav")
 
 ### Custom Notification Data
 
-Apple provides engineers with the ability to add custom payload data to each notification. In order to faciliate this we have the `APNSNotificationProtocol`.
+Apple provides engineers with the ability to add custom payload data to each notification. In order to facilitate this we have the `APNSNotification`.
 
 #### Example
 ```swift
-struct AcmeNotification: APNSNotificationProtocol {
+struct AcmeNotification: APNSNotification {
     let acme2: [String]
     let aps: APSPayload
-    
+
     init(acme2: [String], aps: APSPayload) {
         self.acme2 = acme2
         self.aps = aps
