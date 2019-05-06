@@ -15,6 +15,8 @@
 import Foundation
 import NIO
 
+/// This is a class created the handles our stream.
+/// It checks for a good request to APNS Servers.
 final class APNSStreamHandler: ChannelDuplexHandler {
     typealias InboundIn = APNSResponse
     typealias OutboundOut = APNSNotification

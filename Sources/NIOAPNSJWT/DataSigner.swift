@@ -15,6 +15,7 @@
 import CAPNSOpenSSL
 import Foundation
 
+
 public class DataSigner: APNSSigner {
     private let opaqueKey: OpaquePointer
 

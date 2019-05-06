@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+/// This enum provides an error interface for Signing digests.
 public enum APNSSignatureError: Error {
     case invalidP8
     case invalidASN1

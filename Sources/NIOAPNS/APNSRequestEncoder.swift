@@ -18,6 +18,7 @@ import NIOAPNSJWT
 import NIOHTTP1
 import NIOHTTP2
 
+/// The class provides the HTTP2 interface to Swift NIO 2
 internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
     where Notification: APNSNotification {
     /// See `ChannelOutboundHandler.OutboundIn`.

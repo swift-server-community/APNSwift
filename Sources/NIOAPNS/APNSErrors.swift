@@ -17,7 +17,7 @@ import Foundation
 public struct APNSError: Codable {
     public let reason: APNSErrors
 }
-
+/// This is an enum that provides the possible responses from Apple
 public enum APNSErrors: String, Codable {
     case badCollapseIdentifier = "BadCollapseId"
     case badDeviceToken = "BadDeviceToken"

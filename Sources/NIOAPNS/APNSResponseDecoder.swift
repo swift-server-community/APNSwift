@@ -27,6 +27,8 @@ internal final class APNSResponseDecoder {
     private var state: State = .ready
 }
 
+/// This extension allows our APNSResponseDecoder to parse our the body that Apple provides
+
 extension APNSResponseDecoder: ChannelInboundHandler {
     /// See `ChannelInboundHandler.InboundIn`.
     typealias InboundIn = HTTPClientResponsePart
