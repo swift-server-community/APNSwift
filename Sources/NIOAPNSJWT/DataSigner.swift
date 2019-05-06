@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
 import CAPNSOpenSSL
+import Foundation
 
 public class DataSigner: APNSSigner {
     private let opaqueKey: OpaquePointer
@@ -24,12 +24,12 @@ public class DataSigner: APNSSigner {
 
         let nullTerminatedData = data + Data([0])
         let res = nullTerminatedData.withUnsafeBytes { ptr in
-            return BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self))
+            BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self))
         }
         assert(res >= 0, "BIO_puts failed")
 
-        if let pointer  = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
-            self.opaqueKey = pointer
+        if let pointer = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
+            opaqueKey = pointer
         } else {
             throw APNSSignatureError.invalidAuthKey
         }
@@ -39,26 +39,25 @@ public class DataSigner: APNSSigner {
         EC_KEY_free(opaqueKey)
     }
 
-    public func sign(digest: Data) throws -> Data  {
+    public func sign(digest: Data) throws -> Data {
         let sig = digest.withUnsafeBytes { ptr in
-            return ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.count), opaqueKey)
+            ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.count), opaqueKey)
         }
         defer { ECDSA_SIG_free(sig) }
 
-        var derEncodedSignature: UnsafeMutablePointer<UInt8>? = nil
+        var derEncodedSignature: UnsafeMutablePointer<UInt8>?
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
-        
+
         guard let derCopy = derEncodedSignature, derLength > 0 else {
             throw APNSSignatureError.invalidASN1
         }
 
         var derBytes = [UInt8](repeating: 0, count: Int(derLength))
 
-        for b in 0..<Int(derLength) {
+        for b in 0 ..< Int(derLength) {
             derBytes[b] = derCopy[b]
         }
 
         return Data(derBytes)
-
     }
 }

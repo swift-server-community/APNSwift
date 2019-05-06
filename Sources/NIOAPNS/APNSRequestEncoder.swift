@@ -13,20 +13,19 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
-import NIOAPNSJWT
 import NIO
+import NIOAPNSJWT
 import NIOHTTP1
 import NIOHTTP2
 
 internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
-    where Notification: APNSNotification
-{
+    where Notification: APNSNotification {
     /// See `ChannelOutboundHandler.OutboundIn`.
     typealias OutboundIn = Notification
 
     /// See `ChannelOutboundHandler.OutboundOut`.
     typealias OutboundOut = HTTPClientRequestPart
-    
+
     let configuration: APNSConfiguration
     let deviceToken: String
     let priority: Int?
@@ -40,7 +39,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         self.priority = priority
         self.collapseIdentifier = collapseIdentifier
     }
-    
+
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
     func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
         let req: Notification = unwrapOutboundIn(data)
@@ -68,7 +67,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         if let collapseId = self.collapseIdentifier {
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
         }
-        reqHead.headers.add(name: "host", value: self.configuration.url.host!)
+        reqHead.headers.add(name: "host", value: configuration.url.host!)
         let jwt = JWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
         let token: String
         do {
@@ -79,8 +78,8 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
             return
         }
         reqHead.headers.add(name: "authorization", value: "bearer \(token)")
-        context.write(self.wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
-        context.write(self.wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)
-        context.write(self.wrapOutboundOut(.end(nil)), promise: promise)
+        context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
+        context.write(wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)
+        context.write(wrapOutboundOut(.end(nil)), promise: promise)
     }
 }

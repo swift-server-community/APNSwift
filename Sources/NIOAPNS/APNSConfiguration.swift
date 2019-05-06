@@ -13,8 +13,8 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
-import NIOAPNSJWT
 import NIO
+import NIOAPNSJWT
 import NIOHTTP2
 import NIOSSL
 
@@ -34,14 +34,14 @@ public struct APNSConfiguration {
             return URL(string: "https://api.development.push.apple.com")!
         }
     }
-    
+
     public init(keyIdentifier: String, teamIdentifier: String, signingMode: SigningMode, topic: String, environment: APNSConfiguration.Environment) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
         self.topic = topic
         self.signingMode = signingMode
         self.environment = environment
-        self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
+        tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
     }
 }
 

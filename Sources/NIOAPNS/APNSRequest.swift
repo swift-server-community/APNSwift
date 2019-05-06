@@ -33,7 +33,6 @@ public struct BasicNotification: APNSNotification {
  [https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#]: Payload Key Reference
  */
 public struct APSPayload: Codable {
-
     public let alert: Alert?
     public let badge: Int?
     public let sound: String?
@@ -41,7 +40,7 @@ public struct APSPayload: Codable {
     public let category: String?
     public let threadID: String?
 
-    public init (alert: Alert? = nil, badge: Int? = nil, sound: String? = nil, contentAvailable: Int? = nil,  category: String? = nil, threadID: String? = nil) {
+    public init(alert: Alert? = nil, badge: Int? = nil, sound: String? = nil, contentAvailable: Int? = nil, category: String? = nil, threadID: String? = nil) {
         self.alert = alert
         self.badge = badge
         self.sound = sound
@@ -60,14 +59,12 @@ public struct APSPayload: Codable {
     }
 }
 
-
 /**
-    APNS Alert
+ APNS Alert
 
-    - SeeAlso: `struct APSPayload: Codable`
+ - SeeAlso: `struct APSPayload: Codable`
  */
 public struct Alert: Codable {
-
     public let title: String?
     public let subtitle: String?
     public let body: String?
@@ -103,5 +100,4 @@ public struct Alert: Codable {
         case locArgs = "loc-args"
         case launchImage = "launch-image"
     }
-    
 }
