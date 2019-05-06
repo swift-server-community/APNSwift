@@ -18,6 +18,7 @@ import XCTest
 public func allTests() -> [XCTestCaseEntry] {
     return [
         testCase(APNSRequestTests.allTests),
+        testCase(APNSConfigurationTests.allTests)
     ]
 }
 #endif
