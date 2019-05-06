@@ -28,7 +28,7 @@ public class DataSigner: APNSSigner {
         }
         assert(res >= 0, "BIO_puts failed")
 
-        if let pointer = PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) {
+        if let pointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) {
             opaqueKey = pointer
         } else {
             throw APNSSignatureError.invalidAuthKey
