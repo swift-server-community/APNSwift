@@ -1,9 +1,31 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the NIOApns open source project
+//
+// Copyright (c) 2019 the NIOApns project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of NIOApns project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import Foundation
 import NIO
 import NIOHTTP2
 import NIOSSL
 
+/// <#Description#>
 final public class APNSConnection {
+
+    /// <#Description#>
+    ///
+    /// - Parameters:
+    ///   - configuration: <#configuration description#>
+    ///   - eventLoop: <#eventLoop description#>
+    /// - Returns: <#return value description#>
     public static func connect(configuration: APNSConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
         let multiplexerPromise = eventLoop.makePromise(of: HTTP2StreamMultiplexer.self)
         let bootstrap = ClientBootstrap(group: eventLoop)
@@ -44,6 +66,15 @@ final public class APNSConnection {
         self.configuration = configuration
     }
     
+    /// <#Description#>
+    ///
+    /// - Parameters:
+    ///   - notification: <#notification description#>
+    ///   - deviceToken: <#deviceToken description#>
+    ///   - expiration: <#expiration description#>
+    ///   - priority: <#priority description#>
+    ///   - collapseIdentifier: <#collapseIdentifier description#>
+    /// - Returns: <#return value description#>
     public func send<Notification>(_ notification: Notification, to deviceToken: String, expiration: Int? = nil, priority: Int? = nil, collapseIdentifier: String? = nil) -> EventLoopFuture<Void>
         where Notification: APNSNotification {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
@@ -73,6 +104,9 @@ final public class APNSConnection {
         return self.channel.closeFuture
     }
     
+    /// <#Description#>
+    ///
+    /// - Returns: <#return value description#>
     public func close() -> EventLoopFuture<Void> {
         return self.channel.close(mode: .all)
     }
