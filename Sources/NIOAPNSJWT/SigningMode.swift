@@ -15,7 +15,7 @@
 import Foundation
 
 public struct SigningMode {
-    public let signer: APNSSigner
+    public var signer: APNSSigner
     init(signer: APNSSigner) {
         self.signer = signer
     }

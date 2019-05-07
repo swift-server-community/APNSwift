@@ -20,12 +20,12 @@ import NIOSSL
 
 /// This is structure that provides the system with common configuration.
 public struct APNSConfiguration {
-    public let keyIdentifier: String
-    public let teamIdentifier: String
-    public let signingMode: SigningMode
-    public let topic: String
-    public let environment: Environment
-    public let tlsConfiguration: TLSConfiguration
+    public var keyIdentifier: String
+    public var teamIdentifier: String
+    public var signingMode: SigningMode
+    public var topic: String
+    public var environment: Environment
+    public var tlsConfiguration: TLSConfiguration
 
     public var url: URL {
         switch environment {
