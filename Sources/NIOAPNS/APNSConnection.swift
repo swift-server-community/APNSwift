@@ -19,7 +19,6 @@ import NIOSSL
 
 public final class APNSConnection {
     public static func connect(configuration: APNSConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
-        let multiplexerPromise = eventLoop.makePromise(of: HTTP2StreamMultiplexer.self)
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
@@ -29,9 +28,7 @@ public final class APNSConnection {
                     return channel.pipeline.addHandler(sslHandler).flatMap {
                         channel.configureHTTP2Pipeline(mode: .client) { _, _ in
                             fatalError("server push not supported")
-                        }.map { multiplexer in
-                            multiplexerPromise.succeed(multiplexer)
-                        }
+                        }.map { _ in }
                     }
                 } catch {
                     channel.close(mode: .all, promise: nil)
@@ -40,10 +37,8 @@ public final class APNSConnection {
             }
 
         return bootstrap.connect(host: configuration.url.host!, port: 443).flatMap { channel in
-            channel.pipeline.context(handlerType: HTTP2StreamMultiplexer.self).map { $0.handler as! HTTP2StreamMultiplexer }.flatMap { multiplexer in
-                multiplexerPromise.futureResult.map { multiplexer in
-                    APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
-                }
+            return channel.pipeline.handler(type: HTTP2StreamMultiplexer.self).map { multiplexer in
+                return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
             }
         }
     }
