@@ -11,7 +11,7 @@ A non-blocking Swift module for sending remote Apple Push Notification requests 
 
 ## Installation
 
-To install `NIOApns`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies)
+To install `NIOSAPNS`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies)
 
 ```swift
 dependencies: [
