@@ -20,7 +20,7 @@ class APNSConfigurationTests: XCTestCase {
 
     func configuration(environment: APNSConfiguration.Environment) throws {
         guard let pk = appleECP8PrivateKey.data(using: .utf8) else { XCTFail("Can't convert private key string to Data"); return}
-        let signer = try SigningMode.data(data: pk)
+        let signer = SigningMode.data(pk)
 
         let apnsConfiguration = APNSConfiguration(keyIdentifier: "MY_KEY_ID", teamIdentifier: "MY_TEAM_ID", signingMode: signer, topic: "MY_TOPIC", environment: environment)
 
