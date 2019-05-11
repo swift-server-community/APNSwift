@@ -65,7 +65,7 @@ public struct JWT: Codable {
             throw APNSSignatureError.encodingFailed
         }
         let fixedDigest = sha256(message: digestAsData)
-        let signature = try signingMode.signer.sign(digest: fixedDigest)
+        let signature = try signingMode.sign(digest: fixedDigest)
         return digest + "." + signature.base64EncodedURLString()
     }
 }

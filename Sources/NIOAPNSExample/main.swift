@@ -21,9 +21,9 @@ import NIOSSL
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
-let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+let apnsConfig = APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        teamIdentifier: "ABBM6U9RM5",
-                                       signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
+                                       signingMode: .file("/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
                                        topic: "com.grasscove.Fern",
                                        environment: .sandbox)
 
@@ -44,7 +44,11 @@ struct AcmeNotification: APNSNotification {
 }
 
 let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let aps = APSPayload(alert: alert, badge: 1)
+let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
+let aps = APSPayload(alert: alert, badge: 1, sound: .critical(apsSound), hasContentAvailable: true)
+let temp = try! JSONEncoder().encode(aps)
+let string = String(bytes: temp, encoding: .utf8)
+dump(string)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
 do {
