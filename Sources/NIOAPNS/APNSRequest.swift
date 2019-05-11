@@ -17,23 +17,66 @@ import NIOHTTP1
 import NIOHTTP2
 
 /// This is a protocol which allows developers to construct their own Notification payload
-public protocol APNSNotification: Codable {
+public protocol APNSNotification: Encodable {
     var aps: APSPayload { get }
 }
-/// This structure is provided as a default basic notification
-public struct BasicNotification: APNSNotification {
-    public var aps: APSPayload
-    public init(aps: APSPayload) {
-        self.aps = aps
+
+public struct APNSSoundDictionary: Encodable {
+    public let critical: Int
+    public let name: String
+    public let volume: Double
+    
+    /**
+     Initialize an APNSSoundDictionary
+     - Parameters:
+     - critical: The critical alert flag. Set to true to enable the critical alert.
+     - sound: The apps path to a sound file.
+     - volume: The volume for the critical alert’s sound. Set this to a value between 0.0 (silent) and 1.0 (full volume).
+     
+     For more information see:
+     [Payload Key Reference](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#)
+     ### Usage Example: ###
+     ````
+     let apsSound = APNSSoundDictionary(critical: true, name: "cow.wav", volume: 0.8)
+     let aps = APSPayload(alert: alert, badge: 1, sound: .dictionary(apsSound))
+     ````
+     */
+    public init(isCritical: Bool, name: String, volume: Double) {
+        self.critical = isCritical ? 1 : 0
+        self.name = name
+        self.volume = volume
+    }
+}
+/**
+ An enum to define how to use sound.
+ - Parameters:
+ - string: use this for a normal alert sound
+ - critical: use for a critical alert type
+ */
+public enum APNSSoundType: Encodable {
+    case normal(String)
+    case critical(APNSSoundDictionary)
+}
+
+extension APNSSoundType {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .normal(let string):
+            try container.encode(string)
+        case .critical(let dict):
+            try container.encode(dict)
+        }
     }
 }
 
 /// This structure provides the data structure for an APNS Payload
-public struct APSPayload: Codable {
+public struct APSPayload: Encodable {
     public let alert: Alert?
     public let badge: Int?
-    public let sound: String?
+    public let sound: APNSSoundType?
     public let contentAvailable: Int?
+    public let mutableContent: Int?
     public let category: String?
     public let threadID: String?
 
@@ -42,9 +85,11 @@ public struct APSPayload: Codable {
      - Parameters:
        - alert: The alert which will be display to the user.
        - badge: The number the push notification will bump the apps badge number to.
-       - sound: The apps path to a sound file.
-       - contentAvailable: When this key is present, the system wakes up your app in the background and
+       - sound: A normal, or critical alert.
+       - hasContentAvailable: When this key is present, the system wakes up your app in the background and
      delivers the notification to its app delegate.
+       - hasMutableContent: When this key is present, the system will pass your notification to the
+     notification service app extension before delivery.
        - category: provide this string to define a category for your app.
        - threadID: Provide a thread value to group notifications.
 
@@ -53,14 +98,15 @@ public struct APSPayload: Codable {
      ### Usage Example: ###
      ````
      let alert = ...
-     let aps = APSPayload(alert: alert, badge: 1)
+     let aps = APSPayload(alert: alert, badge: 1, sound: .normal("cow.wav))
      ````
      */
-    public init(alert: Alert? = nil, badge: Int? = nil, sound: String? = nil, contentAvailable: Int? = nil, category: String? = nil, threadID: String? = nil) {
+    public init(alert: Alert? = nil, badge: Int? = nil, sound: APNSSoundType? = nil, hasContentAvailable: Bool? = nil, hasMutableContent: Bool? = nil, category: String? = nil, threadID: String? = nil) {
         self.alert = alert
         self.badge = badge
         self.sound = sound
-        self.contentAvailable = contentAvailable
+        self.contentAvailable = hasContentAvailable ?? false ?  1 : 1
+        self.mutableContent = hasMutableContent ?? false  ? 1 : 0
         self.category = category
         self.threadID = threadID
     }
@@ -70,6 +116,7 @@ public struct APSPayload: Codable {
         case badge
         case sound
         case contentAvailable = "content-available"
+        case mutableContent = "mutable-content"
         case category
         case threadID = "thread-id"
     }

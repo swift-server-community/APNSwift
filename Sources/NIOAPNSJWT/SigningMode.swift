@@ -14,23 +14,21 @@
 
 import Foundation
 
-public struct SigningMode {
-    public var signer: APNSSigner
-    init(signer: APNSSigner) {
-        self.signer = signer
-    }
+public enum SigningMode {
+    case file(String)
+    case data(Data)
+    case custom(APNSSigner)
 }
 
 extension SigningMode {
-    public static func file(path: String) throws -> SigningMode {
-        return .init(signer: try FileSigner(url: URL(fileURLWithPath: path)))
-    }
-
-    public static func data(data: Data) throws -> SigningMode {
-        return .init(signer: try DataSigner(data: data))
-    }
-
-    public static func custom(signer: APNSSigner) -> SigningMode {
-        return .init(signer: signer)
+    public func sign(digest: Data) throws -> Data {
+        switch self {
+        case .file(let filePath):
+            return try FileSigner(url: URL(fileURLWithPath: filePath)).sign(digest: digest)
+        case .data(let data):
+            return try DataSigner(data: data).sign(digest: digest)
+        case .custom(let signer):
+            return try signer.sign(digest: digest)
+        }
     }
 }
