@@ -25,7 +25,7 @@ final class JWTTests: XCTestCase {
         let date = Date()
 
         guard let pk = appleECP8PrivateKey.data(using: .utf8) else { XCTFail("Can't convert private key string to Data"); return}
-        let signer = try SigningMode.data(data: pk)
+        let signer = SigningMode.data(pk)
         let jwt = JWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
         let token = try jwt.sign(with: signer)
 
