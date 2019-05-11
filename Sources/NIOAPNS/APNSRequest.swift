@@ -37,7 +37,7 @@ public struct APNSSoundDictionary: Encodable {
      [Payload Key Reference](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#)
      ### Usage Example: ###
      ````
-     let apsSound = APNSSoundDictionary(critical: true, name: "cow.wav", volume: 0.8)
+     let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
      let aps = APSPayload(alert: alert, badge: 1, sound: .dictionary(apsSound))
      ````
      */
