@@ -32,7 +32,7 @@ public class DataSigner: APNSSigner {
         if let pointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) {
             opaqueKey = pointer
         } else {
-            throw APNSSignatureError.invalidAuthKey
+            throw APNSJWTError.invalidAuthKey
         }
     }
 
@@ -50,7 +50,7 @@ public class DataSigner: APNSSigner {
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
 
         guard let derCopy = derEncodedSignature, derLength > 0 else {
-            throw APNSSignatureError.invalidASN1
+            throw APNSJWTError.invalidASN1
         }
 
         var derBytes = [UInt8](repeating: 0, count: Int(derLength))

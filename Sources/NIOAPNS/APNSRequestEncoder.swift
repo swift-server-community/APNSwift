@@ -74,7 +74,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         do {
             token = try jwt.sign(with: configuration.signingMode)
         } catch {
-            promise?.fail(APNSTokenError.tokenWasNotGeneratedCorrectly)
+            promise?.fail(error)
             context.close(promise: nil)
             return
         }

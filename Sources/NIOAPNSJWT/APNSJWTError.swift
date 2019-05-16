@@ -13,20 +13,18 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
-/// This enum provides an error interface for Signing digests.
-public enum APNSSignatureError: Error {
-    case invalidP8
+public enum APNSJWTError {
     case invalidASN1
     case invalidAuthKey
     case certificateFileDoesNotExist
     case encodingFailed
+    case tokenWasNotGeneratedCorrectly
 }
 
-extension APNSSignatureError: LocalizedError {
+
+extension APNSJWTError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case .invalidP8:
-            return "The .p8 string has invalid format."
         case .invalidASN1:
             return "The ASN.1 data has invalid format."
         case .invalidAuthKey:
@@ -34,7 +32,9 @@ extension APNSSignatureError: LocalizedError {
         case .certificateFileDoesNotExist:
             return "The Certificate file doesn't exist."
         case .encodingFailed:
-            return "The JWT Header or Payload can't be encoded"
+            return "The JWT Header or Payload can't be encoded."
+        case .tokenWasNotGeneratedCorrectly:
+            return "The JWT token was not generated correctly."
         }
     }
 }

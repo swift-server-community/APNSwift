@@ -19,7 +19,7 @@ public class FileSigner: DataSigner {
         do {
             try self.init(data: Data(contentsOf: url))
         } catch {
-            throw APNSSignatureError.certificateFileDoesNotExist
+            throw APNSJWTError.certificateFileDoesNotExist
         }
     }
 }

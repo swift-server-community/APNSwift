@@ -62,10 +62,14 @@ public struct JWT: Codable {
     public func sign(with signingMode: SigningMode) throws -> String {
         let digest = try self.digest()
         guard let digestAsData = digest.data(using: .utf8) else {
-            throw APNSSignatureError.encodingFailed
+            throw APNSJWTError.encodingFailed
         }
         let fixedDigest = sha256(message: digestAsData)
-        let signature = try signingMode.sign(digest: fixedDigest)
-        return digest + "." + signature.base64EncodedURLString()
+        do {
+            let signature = try signingMode.sign(digest: fixedDigest)
+            return digest + "." + signature.base64EncodedURLString()
+        } catch {
+            throw APNSJWTError.tokenWasNotGeneratedCorrectly
+        }
     }
 }

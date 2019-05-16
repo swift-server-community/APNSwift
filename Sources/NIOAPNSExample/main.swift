@@ -43,12 +43,11 @@ struct AcmeNotification: APNSNotification {
     }
 }
 
-let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
+let alert = APSPayload.APSAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
+let apsSound = APSPayload.APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
 let aps = APSPayload(alert: alert, badge: 1, sound: .critical(apsSound), hasContentAvailable: true)
 let temp = try! JSONEncoder().encode(aps)
 let string = String(bytes: temp, encoding: .utf8)
-dump(string)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
 do {
