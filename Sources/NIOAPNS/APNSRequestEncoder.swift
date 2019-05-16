@@ -70,9 +70,13 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
         let jwt = JWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
-        let token: String
+        var token: String
         do {
-            token = try jwt.sign(with: configuration.signingMode)
+            let digestValues = try jwt.getDigest()
+            let digest = digestValues.digest
+            let fixedDigest = digestValues.fixedDigest
+            let signature = try configuration.signingMode.sign(digest: fixedDigest)
+            token = digest + "." + signature.base64EncodedURLString()
         } catch {
             promise?.fail(error)
             context.close(promise: nil)

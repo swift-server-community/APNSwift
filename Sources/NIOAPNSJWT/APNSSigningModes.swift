@@ -12,14 +12,4 @@
 //
 //===----------------------------------------------------------------------===//
 
-import CAPNSOpenSSL
 import Foundation
-public class FileSigner: DataSigner {
-    public convenience init(url: URL) throws {
-        do {
-            try self.init(data: Data(contentsOf: url))
-        } catch {
-            throw APNSJWTError.certificateFileDoesNotExist
-        }
-    }
-}
