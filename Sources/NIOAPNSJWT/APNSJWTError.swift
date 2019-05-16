@@ -18,7 +18,6 @@ public enum APNSJWTError {
     case tokenWasNotGeneratedCorrectly
 }
 
-
 extension APNSJWTError: LocalizedError {
     public var errorDescription: String? {
         switch self {
