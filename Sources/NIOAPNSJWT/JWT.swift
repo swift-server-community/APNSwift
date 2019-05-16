@@ -52,24 +52,18 @@ public struct JWT: Codable {
     }
 
     /// Combine header and payload as digest for signing.
-    public func digest() throws -> String {
+    private func digest() throws -> String {
         let headerString = try JSONEncoder().encode(header.self).base64EncodedURLString()
         let payloadString = try JSONEncoder().encode(payload.self).base64EncodedURLString()
         return "\(headerString).\(payloadString)"
     }
 
     /// Sign digest with SigningMode. Use the result in your request authorization header.
-    public func sign(with signingMode: SigningMode) throws -> String {
+    public func getDigest() throws -> (digest: String, fixedDigest: Data) {
         let digest = try self.digest()
         guard let digestAsData = digest.data(using: .utf8) else {
             throw APNSJWTError.encodingFailed
         }
-        let fixedDigest = sha256(message: digestAsData)
-        do {
-            let signature = try signingMode.sign(digest: fixedDigest)
-            return digest + "." + signature.base64EncodedURLString()
-        } catch {
-            throw APNSJWTError.tokenWasNotGeneratedCorrectly
-        }
+        return (digest: digest, fixedDigest: sha256(message: digestAsData))
     }
 }

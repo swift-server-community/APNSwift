@@ -15,7 +15,7 @@
 import Foundation
 
 extension Data {
-    func base64EncodedURLString() -> String {
+    public func base64EncodedURLString() -> String {
         let result = base64EncodedString()
         return result.replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")

@@ -59,4 +59,9 @@ public struct APNSError {
             return rawValue
         }
     }
+    public enum SigningError: Error {
+        case invalidAuthKey
+        case invalidASN1
+        case certificateFileDoesNotExist
+    }
 }
