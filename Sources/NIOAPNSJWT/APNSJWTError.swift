@@ -14,9 +14,6 @@
 
 import Foundation
 public enum APNSJWTError {
-    case invalidASN1
-    case invalidAuthKey
-    case certificateFileDoesNotExist
     case encodingFailed
     case tokenWasNotGeneratedCorrectly
 }
@@ -25,12 +22,6 @@ public enum APNSJWTError {
 extension APNSJWTError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case .invalidASN1:
-            return "The ASN.1 data has invalid format."
-        case .invalidAuthKey:
-            return "The Private key is invalid."
-        case .certificateFileDoesNotExist:
-            return "The Certificate file doesn't exist."
         case .encodingFailed:
             return "The JWT Header or Payload can't be encoded."
         case .tokenWasNotGeneratedCorrectly:
