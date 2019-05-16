@@ -14,55 +14,49 @@
 
 import Foundation
 
-public struct APNSError: Codable {
-    public let reason: APNSErrors
-}
 /// This is an enum that provides the possible responses from Apple
-public enum APNSErrors: String, Codable {
-    case badCollapseIdentifier = "BadCollapseId"
-    case badDeviceToken = "BadDeviceToken"
-    case badExpirationDate = "BadExpirationDate"
-    case badMessageId = "BadMessageId"
-    case badPriority = "BadPriority"
-    case badTopic = "BadTopic"
-    case deviceTokenNotForTopic = "DeviceTokenNotForTopic"
-    case duplicateHeaders = "DuplicateHeaders"
-    case idleTimeout = "IdleTimeout"
-    case missingDeviceToken = "MissingDeviceToken"
-    case missingTopic = "MissingTopic"
-    case payloadEmpty = "PayloadEmpty"
-    case topicDisallowed = "TopicDisallowed"
-    case badCertificate = "BadCertificate"
-    case badCertificateEnvironment = "BadCertificateEnvironment"
-    case expiredProviderToken = "ExpiredProviderToken"
-    case forbidden = "Forbidden"
-    case invalidProviderToken = "InvalidProviderToken"
-    case missingProviderToken = "MissingProviderToken"
-    case badPath = "BadPath"
-    case methodNotAllowed = "MethodNotAllowed"
-    case unregistered = "Unregistered"
-    case payloadTooLarge = "PayloadTooLarge"
-    case tooManyProviderTokenUpdates = "TooManyProviderTokenUpdates"
-    case tooManyRequests = "TooManyRequests"
-    case internalServerError = "InternalServerError"
-    case serviceUnavailable = "ServiceUnavailable"
-    case shutdown = "Shutdown"
-    case encodingFailed = "EncodingFailed"
-    case unknown
-
-    public var description: String {
-        return rawValue
+public struct APNSError {
+    public enum ResponseError: Error {
+        case badRequest(ResponseErrorMessage)
     }
-}
+    // This is used to decode the response from Apple.
+    public struct ResponseStruct: Codable {
+        public let reason: ResponseErrorMessage
+    }
+    public enum ResponseErrorMessage: String, Codable {
+        case badCollapseIdentifier = "BadCollapseId"
+        case badDeviceToken = "BadDeviceToken"
+        case badExpirationDate = "BadExpirationDate"
+        case badMessageId = "BadMessageId"
+        case badPriority = "BadPriority"
+        case badTopic = "BadTopic"
+        case deviceTokenNotForTopic = "DeviceTokenNotForTopic"
+        case duplicateHeaders = "DuplicateHeaders"
+        case idleTimeout = "IdleTimeout"
+        case missingDeviceToken = "MissingDeviceToken"
+        case missingTopic = "MissingTopic"
+        case payloadEmpty = "PayloadEmpty"
+        case topicDisallowed = "TopicDisallowed"
+        case badCertificate = "BadCertificate"
+        case badCertificateEnvironment = "BadCertificateEnvironment"
+        case expiredProviderToken = "ExpiredProviderToken"
+        case forbidden = "Forbidden"
+        case invalidProviderToken = "InvalidProviderToken"
+        case missingProviderToken = "MissingProviderToken"
+        case badPath = "BadPath"
+        case methodNotAllowed = "MethodNotAllowed"
+        case unregistered = "Unregistered"
+        case payloadTooLarge = "PayloadTooLarge"
+        case tooManyProviderTokenUpdates = "TooManyProviderTokenUpdates"
+        case tooManyRequests = "TooManyRequests"
+        case internalServerError = "InternalServerError"
+        case serviceUnavailable = "ServiceUnavailable"
+        case shutdown = "Shutdown"
+        case encodingFailed = "EncodingFailed"
+        case unknown
 
-public enum APNSTokenError: Error {
-    case invalidAuthKey
-    case invalidTokenString
-    case tokenWasNotGeneratedCorrectly
-    case certificateFileDoesNotExist
-    case keyFileDoesNotExist
-}
-
-public enum APNSResponseError: Error {
-    case badRequest(APNSError)
+        public var description: String {
+            return rawValue
+        }
+    }
 }

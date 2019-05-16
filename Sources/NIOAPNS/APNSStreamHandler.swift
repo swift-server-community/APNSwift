@@ -32,8 +32,8 @@ final class APNSStreamHandler: ChannelDuplexHandler {
         let res = unwrapInboundIn(data)
         guard let current = self.queue.popLast() else { return }
         guard res.header.status == .ok else {
-            if var data = res.data, let error = try? JSONDecoder().decode(APNSError.self, from: Data(data.readBytes(length: data.readableBytes) ?? [])) {
-                current.responsePromise.fail(APNSResponseError.badRequest(error))
+            if var data = res.data, let error = try? JSONDecoder().decode(APNSError.ResponseStruct.self, from: Data(data.readBytes(length: data.readableBytes) ?? [])) {
+                current.responsePromise.fail(APNSError.ResponseError.badRequest(error.reason))
             }
             return
         }
