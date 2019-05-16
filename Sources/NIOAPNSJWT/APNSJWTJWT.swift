@@ -13,8 +13,9 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+import CAPNSOpenSSL
 
-public struct JWT: Codable {
+public struct APNSJWT: Codable {
     private struct Payload: Codable {
         /// iss
         public let teamID: String
@@ -66,4 +67,22 @@ public struct JWT: Codable {
         }
         return (digest: digest, fixedDigest: sha256(message: digestAsData))
     }
+    private func sha256(message: Data) -> Data {
+        var context = SHA256_CTX()
+        SHA256_Init(&context)
+
+        var res = message.withUnsafeBytes { buffer in
+            SHA256_Update(&context, buffer.baseAddress, buffer.count)
+        }
+        assert(res == 1, "SHA256_Update failed")
+
+        var digest = Data(count: Int(SHA256_DIGEST_LENGTH))
+        res = digest.withUnsafeMutableBytes { mptr in
+            SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
+        }
+        assert(res == 1, "SHA256_Final failed")
+
+        return digest
+    }
+
 }
