@@ -69,7 +69,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        let jwt = JWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
+        let jwt = APNSJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
         var token: String
         do {
             let digestValues = try jwt.getDigest()
