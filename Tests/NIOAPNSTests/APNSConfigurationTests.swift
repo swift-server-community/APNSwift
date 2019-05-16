@@ -20,7 +20,7 @@ class APNSConfigurationTests: XCTestCase {
 
     func configuration(environment: APNSConfiguration.Environment) throws {
         guard let pk = appleECP8PrivateKey.data(using: .utf8) else { XCTFail("Can't convert private key string to Data"); return}
-        let signer = SigningMode.data(pk)
+        let signer = APNSSigners.SigningMode.data(pk)
 
         let apnsConfiguration = APNSConfiguration(keyIdentifier: "MY_KEY_ID", teamIdentifier: "MY_TEAM_ID", signingMode: signer, topic: "MY_TOPIC", environment: environment)
 
@@ -42,12 +42,24 @@ class APNSConfigurationTests: XCTestCase {
     }
 
     func testProductionConfiguration() throws {
-      try configuration(environment: .production)
+        try configuration(environment: .production)
+    }
+    func testSignature() throws {
+        guard let pk = appleECP8PrivateKey.data(using: .utf8) else { XCTFail("Can't convert private key string to Data"); return}
+        let signer = APNSSigners.SigningMode.data(pk)
+        let teamID = "8RX5AF8F6Z"
+        let keyID = "9N8238KQ6Z"
+        let date = Date()
+        let jwt = JWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
+        let digestValues = try jwt.getDigest()
+        let _ = try signer.sign(digest: digestValues.fixedDigest)
+
     }
 
     static var allTests = [
         ("testSandboxConfiguration", testSandboxConfiguration),
-        ("testProductionConfiguration", testProductionConfiguration)
+        ("testProductionConfiguration", testProductionConfiguration),
+        ("testSignature", testSignature)
     ]
 
     let appleECP8PrivateKey = """
