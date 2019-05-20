@@ -67,8 +67,11 @@ public final class APNSConnection {
         }
 
         let responsePromise = channel.eventLoop.makePromise(of: Void.self)
+        let data = try! JSONEncoder().encode(notification)
+        var buffer = ByteBufferAllocator().buffer(capacity: data.count)
+        buffer.writeBytes(data)
         let context = APNSRequestContext(
-            request: notification,
+            request: buffer,
             responsePromise: responsePromise
         )
         return streamPromise.futureResult.flatMap { stream in

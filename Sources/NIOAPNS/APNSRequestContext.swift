@@ -15,6 +15,6 @@
 import NIO
 
 public struct APNSRequestContext {
-    let request: APNSNotification
+    let request: ByteBuffer
     let responsePromise: EventLoopPromise<Void>
 }

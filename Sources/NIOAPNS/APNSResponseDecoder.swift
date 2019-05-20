@@ -49,7 +49,7 @@ extension APNSResponseDecoder: ChannelInboundHandler {
             existing.writeBuffer(&body)
             state = .parsingBody(head, existing)
         case (.end(.none), let .parsingBody(head, data)):
-            context.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, data: data)))
+            context.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, byteBuffer: data)))
             state = .ready
         default:
             assertionFailure("Unexpected state! Decoder state: \(state) HTTPResponsePart: \(response)")

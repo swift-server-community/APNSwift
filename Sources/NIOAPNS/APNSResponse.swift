@@ -18,5 +18,5 @@ import NIOHTTP1
 /// This structure is for managing the response from Apples push notification service.
 internal struct APNSResponse {
     public var header: HTTPResponseHead
-    public var data: ByteBuffer?
+    public var byteBuffer: ByteBuffer?
 }

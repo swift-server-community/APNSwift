@@ -15,12 +15,14 @@
 import XCTest
 @testable import NIOAPNS
 import NIOAPNSJWT
+import NIO
 
 class APNSConfigurationTests: XCTestCase {
 
     func configuration(environment: APNSConfiguration.Environment) throws {
-        guard let pk = appleECP8PrivateKey.data(using: .utf8) else { XCTFail("Can't convert private key string to Data"); return}
-        let signer = APNSSigners.SigningMode.data(pk)
+        var buffer = ByteBufferAllocator().buffer(capacity: appleECP8PrivateKey.count)
+        buffer.writeString(appleECP8PrivateKey)
+        let signer = APNSSigners.SigningMode.data(buffer)
 
         let apnsConfiguration = APNSConfiguration(keyIdentifier: "MY_KEY_ID", teamIdentifier: "MY_TEAM_ID", signingMode: signer, topic: "MY_TOPIC", environment: environment)
 
@@ -45,14 +47,15 @@ class APNSConfigurationTests: XCTestCase {
         try configuration(environment: .production)
     }
     func testSignature() throws {
-        guard let pk = appleECP8PrivateKey.data(using: .utf8) else { XCTFail("Can't convert private key string to Data"); return}
-        let signer = APNSSigners.SigningMode.data(pk)
+        var buffer = ByteBufferAllocator().buffer(capacity: appleECP8PrivateKey.count)
+        buffer.writeString(appleECP8PrivateKey)
+        let signer = APNSSigners.SigningMode.data(buffer)
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
         let date = Date()
         let jwt = APNSJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
         let digestValues = try jwt.getDigest()
-        let _ = try signer.sign(digest: digestValues.fixedDigest)
+        let _ = try signer.sign(digestValues.fixedDigest)
 
     }
 

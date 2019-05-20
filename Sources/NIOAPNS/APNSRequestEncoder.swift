@@ -22,7 +22,7 @@ import NIOHTTP2
 internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
     where Notification: APNSNotification {
     /// See `ChannelOutboundHandler.OutboundIn`.
-    typealias OutboundIn = Notification
+    typealias OutboundIn = ByteBuffer
 
     /// See `ChannelOutboundHandler.OutboundOut`.
     typealias OutboundOut = HTTPClientRequestPart
@@ -43,17 +43,7 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
     func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
-        let req: Notification = unwrapOutboundIn(data)
-        let data: Data
-        do {
-            data = try JSONEncoder().encode(req)
-        } catch {
-            promise?.fail(error)
-            context.fireErrorCaught(error)
-            return
-        }
-        var buffer = ByteBufferAllocator().buffer(capacity: data.count)
-        buffer.writeBytes(data)
+        let buffer: ByteBuffer = unwrapOutboundIn(data)
         var reqHead = HTTPRequestHead(version: .init(major: 2, minor: 0), method: .POST, uri: "/3/device/\(deviceToken)")
         reqHead.headers.add(name: "content-type", value: "application/json")
         reqHead.headers.add(name: "user-agent", value: "APNS/swift-nio")
@@ -73,8 +63,9 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         var token: String
         do {
             let digestValues = try jwt.getDigest()
-            let signature = try configuration.signingMode.sign(digest: digestValues.fixedDigest)
-            token = digestValues.digest + "." + signature.base64EncodedURLString()
+            let signature = try configuration.signingMode.sign(digestValues.fixedDigest)
+            let data = signature.getData(at: 0, length: signature.readableBytes)
+            token = digestValues.digest + "." + data!.base64EncodedURLString()
         } catch {
             promise?.fail(error)
             context.close(promise: nil)

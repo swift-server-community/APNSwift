@@ -14,28 +14,26 @@
 
 import Foundation
 import CAPNSOpenSSL
+import NIO
 
 // Protocol for signing digests
 public protocol APNSSigner {
-    func sign(digest: Data) throws -> Data
+    func sign(digest: ByteBuffer) throws -> ByteBuffer
 }
-
 public struct APNSSigners {
     public enum SigningMode {
         case file(String)
-        case data(Data)
+        case data(ByteBuffer)
         case custom(APNSSigner)
     }
     public class DataSigner: APNSSigner {
         private let opaqueKey: OpaquePointer
 
-        public init(data: Data) throws {
+        public init(buffer: ByteBuffer) throws {
             let bio = BIO_new(BIO_s_mem())
             defer { BIO_free(bio) }
-
-            let nullTerminatedData = data + Data([0])
-            let res = nullTerminatedData.withUnsafeBytes { ptr in
-                BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self))
+            let res = buffer.withUnsafeReadableBytes { ptr in
+                Int(BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self)))
             }
             assert(res >= 0, "BIO_puts failed")
 
@@ -45,14 +43,13 @@ public struct APNSSigners {
                 throw APNSError.SigningError.invalidAuthKey
             }
         }
-
         deinit {
             EC_KEY_free(opaqueKey)
         }
 
-        public func sign(digest: Data) throws -> Data {
-            let sig = digest.withUnsafeBytes { ptr in
-                ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.count), opaqueKey)
+        public func sign(digest: ByteBuffer) throws -> ByteBuffer {
+            let sig = digest.withUnsafeReadableBytes { ptr in
+                ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.readableBytes), opaqueKey)
             }
             defer { ECDSA_SIG_free(sig) }
 
@@ -63,33 +60,36 @@ public struct APNSSigners {
                 throw APNSError.SigningError.invalidASN1
             }
 
-            var derBytes = [UInt8](repeating: 0, count: Int(derLength))
-
+            var derBytes = ByteBufferAllocator().buffer(capacity: Int(derLength))
             for b in 0 ..< Int(derLength) {
-                derBytes[b] = derCopy[b]
+                derBytes.writeBytes([derCopy[b]])
             }
 
-            return Data(derBytes)
+            return derBytes
         }
     }
     public class FileSigner: DataSigner {
         public convenience init(url: URL) throws {
+            let data: Data
             do {
-                try self.init(data: Data(contentsOf: url))
+                data = try Data(contentsOf: url)
             } catch {
                 throw APNSError.SigningError.certificateFileDoesNotExist
             }
+            var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
+            byteBuffer.writeBytes(data)
+            try self.init(buffer: byteBuffer)
         }
     }
 }
 
 extension APNSSigners.SigningMode {
-    public func sign(digest: Data) throws -> Data {
+    public func sign(_ digest: ByteBuffer) throws -> ByteBuffer {
         switch self {
         case .file(let filePath):
             return try APNSSigners.FileSigner(url: URL(fileURLWithPath: filePath)).sign(digest: digest)
         case .data(let data):
-            return try APNSSigners.DataSigner(data: data).sign(digest: digest)
+            return try APNSSigners.DataSigner(buffer: data).sign(digest: data)
         case .custom(let signer):
             return try signer.sign(digest: digest)
         }

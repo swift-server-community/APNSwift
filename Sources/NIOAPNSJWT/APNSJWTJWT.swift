@@ -14,6 +14,7 @@
 
 import Foundation
 import CAPNSOpenSSL
+import NIO
 
 public struct APNSJWT: Codable {
     private struct Payload: Codable {
@@ -60,29 +61,29 @@ public struct APNSJWT: Codable {
     }
 
     /// Sign digest with SigningMode. Use the result in your request authorization header.
-    public func getDigest() throws -> (digest: String, fixedDigest: Data) {
+    public func getDigest() throws -> (digest: String, fixedDigest: ByteBuffer) {
         let digest = try self.digest()
-        guard let digestAsData = digest.data(using: .utf8) else {
-            throw APNSJWTError.encodingFailed
-        }
-        return (digest: digest, fixedDigest: sha256(message: digestAsData))
+        var buffer = ByteBufferAllocator().buffer(capacity: digest.utf8.count)
+        buffer.writeString(digest)
+        return (digest: digest, fixedDigest: sha256(message: buffer))
     }
-    private func sha256(message: Data) -> Data {
+    private func sha256(message: ByteBuffer) -> ByteBuffer {
         var context = SHA256_CTX()
         SHA256_Init(&context)
 
-        var res = message.withUnsafeBytes { buffer in
+        var res = message.withUnsafeReadableBytes { buffer in
             SHA256_Update(&context, buffer.baseAddress, buffer.count)
         }
         assert(res == 1, "SHA256_Update failed")
-
-        var digest = Data(count: Int(SHA256_DIGEST_LENGTH))
-        res = digest.withUnsafeMutableBytes { mptr in
-            SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
+        var buffer = ByteBufferAllocator().buffer(capacity: Int(SHA256_DIGEST_LENGTH))
+        res = message.withUnsafeReadableBytes { data in
+            return buffer.withUnsafeMutableWritableBytes { mptr in
+                SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
+            }
         }
         assert(res == 1, "SHA256_Final failed")
-
-        return digest
+        buffer.moveWriterIndex(forwardBy: Int(SHA256_DIGEST_LENGTH))
+        return buffer
     }
 
 }
