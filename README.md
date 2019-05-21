@@ -23,11 +23,22 @@ dependencies: [
 
 ```swift
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                   teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file("/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
-                                   topic: "com.grasscove.Fern",
-                                   environment: .sandbox)
+let url = URL(fileURLWithPath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
+let data: Data
+do {
+    data = try Data(contentsOf: url)
+} catch {
+    throw APNSError.SigningError.certificateFileDoesNotExist
+}
+var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
+byteBuffer.writeBytes(data)
+let signer = try! APNSSigner.init(buffer: byteBuffer)
+
+let apnsConfig = APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+                                       teamIdentifier: "ABBM6U9RM5",
+                                       signer: signer,
+                                       topic: "com.grasscove.Fern",
+                                       environment: .sandbox)
 
 let apns = try APNSConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
@@ -47,9 +58,9 @@ try group.syncShutdownGracefully()
 public struct APNSConfiguration {
     public var keyIdentifier: String
     public var teamIdentifier: String
-    public var signingMode: SigningMode
+    public var signer: APNSSigner
     public var topic: String
-    public var environment: APNSEnvironment
+    public var environment: Environment
     public var tlsConfiguration: TLSConfiguration
 
     public var url: URL {
@@ -63,54 +74,29 @@ public struct APNSConfiguration {
 ```
 #### Example `APNSConfiguration`
 ```swift
+let signer = ...
 let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                    teamIdentifier: "ABBM6U9RM5",
-                                   signingMode: .file("/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
+                                   signer: signer),
                                    topic: "com.grasscove.Fern",
                                    environment: .sandbox)
 ```
 
-### SigningMode
+### Signer
 
-[`SigningMode`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNSJWT/SigningMode.swift) provides a method by which engineers can choose how their certificates are signed. Since security is important we extracted this logic into three options. `file`, `data`, or `custom`.
+[`APNSSigner`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSSigner.swift) provides a structure to sign the payloads with. This should be loaded into memory at the configuration level. It requires the data to be in a ByteBuffer format.
 
 ```swift
-public enum SigningMode {
-    case file(String)
-    case data(Data)
-    case custom(APNSSigner)
+let url = URL(fileURLWithPath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
+let data: Data
+do {
+    data = try Data(contentsOf: url)
+} catch {
+    throw APNSError.SigningError.certificateFileDoesNotExist
 }
-
-extension SigningMode {
-    public func sign(digest: Data) throws -> Data {
-        switch self {
-        case .file(let filePath):
-            return try FileSigner(url: URL(fileURLWithPath: filePath)).sign(digest: digest)
-        case .data(let data):
-            return try DataSigner(data: data).sign(digest: digest)
-        case .custom(let signer):
-            return try signer.sign(digest: digest)
-        }
-    }
-}
-
-```
-#### Example Custom SigningMode that uses AWS for private keystorage
-```swift
-public class CustomSigner: APNSSigner {
-   public func sign(digest: Data) throws -> Data {
-     return try AWSKeyStore.sign(digest: digest)
-   }
-   public func verify(digest: Data, signature: Data) -> Bool {
-      // verification
-   }
-}
-let customSigner = CustomSigner()
-let apnsConfig = APNSConfig(keyId: "9UC9ZLQ8YW",
-                      teamId: "ABBM6U9RM5",
-                      signingMode: .custom(customSigner),
-                      topic: "com.grasscove.Fern",
-                      env: .sandbox)
+var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
+byteBuffer.writeBytes(data)
+let signer = try! APNSSigner.init(buffer: byteBuffer)
 ```
 ### APNSConnection
 
@@ -125,7 +111,7 @@ let apns = try APNSConnection.connect(configuration: apnsConfig, on: group.next(
 
 ### Alert
 
-[`Alert`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSRequest.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifcs of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). THey follow a 1-1 naming scheme listed in Apple's documentation
+[`Alert`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSRequest.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
 #### Example `Alert`
@@ -135,13 +121,43 @@ let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "The
 
 ### APSPayload
 
-[`APSPayload`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSRequest.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifcs of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). THey follow a 1-1 naming scheme listed in Apple's documentation
+[`APSPayload`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/NIOAPNS/APNSRequest.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
 #### Example `APSPayload`
 ```swift
 let alert = ...
 let aps = APSPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
+```
+
+## Putting it all together
+
+```swift
+let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+let url = URL(fileURLWithPath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
+let data: Data
+do {
+    data = try Data(contentsOf: url)
+} catch {
+    throw APNSError.SigningError.certificateFileDoesNotExist
+}
+var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
+byteBuffer.writeBytes(data)
+let signer = try! APNSSigner.init(buffer: byteBuffer)
+
+let apnsConfig = APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+                                       teamIdentifier: "ABBM6U9RM5",
+                                       signer: signer,
+                                       topic: "com.grasscove.Fern",
+                                       environment: .sandbox)
+
+let apns = try APNSConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
+let aps = APSPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
+let notification = BasicNotification(aps: aps)
+let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
+try apns.close().wait()
+try group.syncShutdownGracefully()
 ```
 
 ### Custom Notification Data
@@ -165,3 +181,4 @@ let aps: APSPayload = ...
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
 ```
+
