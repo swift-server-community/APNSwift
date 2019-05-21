@@ -17,7 +17,15 @@ import XCTest
 @testable import NIOAPNSJWT
 
 final class JWTTests: XCTestCase {
-
+    func createDecodedData(with string: String) -> Data? {
+        let paddingLength = 4 - string.count % 4
+        let padding = (paddingLength < 4) ? String(repeating: "=", count: paddingLength) : ""
+        let base64EncodedString = string
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+            + padding
+        return Data(base64Encoded: base64EncodedString)
+    }
     func testJWTEncoding() throws {
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
@@ -30,7 +38,7 @@ final class JWTTests: XCTestCase {
         XCTAssertEqual(part.count, 2)
 
         let header = String(part[0])
-        if let headerData = Data(base64Encoded: header),  let headerObj = try JSONSerialization.jsonObject(with: headerData, options: []) as? [String: Any] {
+        if let headerData = createDecodedData(with: header),  let headerObj = try JSONSerialization.jsonObject(with: headerData, options: []) as? [String: Any] {
             XCTAssertEqual(headerObj["kid"] as? String, keyID)
             XCTAssertEqual(headerObj["alg"] as? String, "ES256")
         } else {
@@ -38,7 +46,7 @@ final class JWTTests: XCTestCase {
         }
 
         let payload = String(part[1])
-        if let payloadData = Data(base64Encoded: payload),  let payloadObj = try JSONSerialization.jsonObject(with: payloadData, options: []) as? [String: Any] {
+        if let payloadData = createDecodedData(with: payload),  let payloadObj = try JSONSerialization.jsonObject(with: payloadData, options: []) as? [String: Any] {
             XCTAssertEqual(payloadObj["iss"] as? String, teamID)
             XCTAssertEqual(payloadObj["iat"] as? Int, Int(date.timeIntervalSince1970.rounded()))
         } else {
