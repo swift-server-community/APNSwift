@@ -30,7 +30,7 @@ final class JWTTests: XCTestCase {
         XCTAssertEqual(part.count, 2)
 
         let header = String(part[0])
-        if let headerData = Data(base64EncodedURL: header),  let headerObj = try JSONSerialization.jsonObject(with: headerData, options: []) as? [String: Any] {
+        if let headerData = Data(base64Encoded: header),  let headerObj = try JSONSerialization.jsonObject(with: headerData, options: []) as? [String: Any] {
             XCTAssertEqual(headerObj["kid"] as? String, keyID)
             XCTAssertEqual(headerObj["alg"] as? String, "ES256")
         } else {
@@ -38,7 +38,7 @@ final class JWTTests: XCTestCase {
         }
 
         let payload = String(part[1])
-        if let payloadData = Data(base64EncodedURL: payload),  let payloadObj = try JSONSerialization.jsonObject(with: payloadData, options: []) as? [String: Any] {
+        if let payloadData = Data(base64Encoded: payload),  let payloadObj = try JSONSerialization.jsonObject(with: payloadData, options: []) as? [String: Any] {
             XCTAssertEqual(payloadObj["iss"] as? String, teamID)
             XCTAssertEqual(payloadObj["iat"] as? Int, Int(date.timeIntervalSince1970.rounded()))
         } else {

@@ -22,7 +22,7 @@ import NIOSSL
 public struct APNSConfiguration {
     public var keyIdentifier: String
     public var teamIdentifier: String
-    public var signingMode: APNSSigners.SigningMode
+    public var signer: APNSSigner
     public var topic: String
     public var environment: Environment
     public var tlsConfiguration: TLSConfiguration
@@ -58,11 +58,11 @@ public struct APNSConfiguration {
      )
      ````
      */
-    public init(keyIdentifier: String, teamIdentifier: String, signingMode: APNSSigners.SigningMode, topic: String, environment: APNSConfiguration.Environment) {
+    public init(keyIdentifier: String, teamIdentifier: String, signer: APNSSigner, topic: String, environment: APNSConfiguration.Environment) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
         self.topic = topic
-        self.signingMode = signingMode
+        self.signer = signer
         self.environment = environment
         tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
     }

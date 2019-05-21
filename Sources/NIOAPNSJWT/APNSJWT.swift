@@ -55,8 +55,8 @@ public struct APNSJWT: Codable {
 
     /// Combine header and payload as digest for signing.
     private func digest() throws -> String {
-        let headerString = try JSONEncoder().encode(header.self).base64EncodedURLString()
-        let payloadString = try JSONEncoder().encode(payload.self).base64EncodedURLString()
+        let headerString = try JSONEncoder().encode(header.self)._base64EncodedURLString()
+        let payloadString = try JSONEncoder().encode(payload.self)._base64EncodedURLString()
         return "\(headerString).\(payloadString)"
     }
 
