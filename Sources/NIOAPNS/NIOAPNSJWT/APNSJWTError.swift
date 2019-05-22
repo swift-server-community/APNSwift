@@ -13,13 +13,13 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
-public enum APNSJWTError {
+internal enum APNSJWTError {
     case encodingFailed
     case tokenWasNotGeneratedCorrectly
 }
 
 extension APNSJWTError: LocalizedError {
-    public var errorDescription: String? {
+    internal var errorDescription: String? {
         switch self {
         case .encodingFailed:
             return "The JWT Header or Payload can't be encoded."

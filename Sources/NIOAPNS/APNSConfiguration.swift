@@ -14,7 +14,6 @@
 
 import Foundation
 import NIO
-import NIOAPNSJWT
 import NIOHTTP2
 import NIOSSL
 

@@ -16,7 +16,7 @@ import Foundation
 import CAPNSOpenSSL
 import NIO
 
-public struct APNSJWT: Codable {
+internal struct APNSJWT: Codable {
     private struct Payload: Codable {
         /// iss
         public let teamID: String
@@ -47,7 +47,7 @@ public struct APNSJWT: Codable {
 
     private let payload: Payload
 
-    public init(keyID: String, teamID: String, issueDate: Date, expireDuration _: TimeInterval) {
+    internal init(keyID: String, teamID: String, issueDate: Date, expireDuration _: TimeInterval) {
         header = Header(keyID: keyID)
         let iat = Int(issueDate.timeIntervalSince1970.rounded())
         payload = Payload(teamID: teamID, issueDate: iat)
@@ -55,13 +55,13 @@ public struct APNSJWT: Codable {
 
     /// Combine header and payload as digest for signing.
     private func digest() throws -> String {
-        let headerString = try JSONEncoder().encode(header.self)._base64EncodedURLString()
-        let payloadString = try JSONEncoder().encode(payload.self)._base64EncodedURLString()
+        let headerString = try JSONEncoder().encode(header.self).base64EncodedURLString()
+        let payloadString = try JSONEncoder().encode(payload.self).base64EncodedURLString()
         return "\(headerString).\(payloadString)"
     }
 
     /// Sign digest with SigningMode. Use the result in your request authorization header.
-    public func getDigest() throws -> (digest: String, fixedDigest: ByteBuffer) {
+    internal func getDigest() throws -> (digest: String, fixedDigest: ByteBuffer) {
         let digest = try self.digest()
         var buffer = ByteBufferAllocator().buffer(capacity: digest.utf8.count)
         buffer.writeString(digest)

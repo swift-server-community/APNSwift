@@ -14,7 +14,6 @@
 
 import XCTest
 @testable import NIOAPNS
-import NIOAPNSJWT
 import NIO
 
 class APNSConfigurationTests: XCTestCase {

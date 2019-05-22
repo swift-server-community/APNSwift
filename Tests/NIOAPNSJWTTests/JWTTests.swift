@@ -14,7 +14,7 @@
 
 import Foundation
 import XCTest
-@testable import NIOAPNSJWT
+@testable import NIOAPNS
 
 final class JWTTests: XCTestCase {
     func createDecodedData(with string: String) -> Data? {
