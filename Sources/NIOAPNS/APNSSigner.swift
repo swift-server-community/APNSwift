@@ -21,13 +21,25 @@ public struct APNSSigner {
     public init(buffer: ByteBuffer) throws {
         self.buffer = buffer
     }
-    public func sign(digest: ByteBuffer) throws -> ByteBuffer {
+
+    // this is a blocking init and should be done at the start of application not on an event loop.
+    public init(filePath: String) throws {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else {
+            throw APNSError.SigningError.certificateFileDoesNotExist
+        }
+        var mutableByteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
+        mutableByteBuffer.writeBytes(data)
+        self.buffer = mutableByteBuffer
+    }
+
+    internal func sign(digest: ByteBuffer) throws -> ByteBuffer {
         let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
         let res = buffer.withUnsafeReadableBytes { ptr in
             Int(BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self)))
         }
         assert(res >= 0, "BIO_puts failed")
+
         guard let opaquePointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
             throw APNSError.SigningError.invalidAuthKey
         }
@@ -40,7 +52,6 @@ public struct APNSSigner {
 
         var derEncodedSignature: UnsafeMutablePointer<UInt8>?
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
-
         guard let derCopy = derEncodedSignature, derLength > 0 else {
             throw APNSError.SigningError.invalidASN1
         }

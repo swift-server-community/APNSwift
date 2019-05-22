@@ -21,16 +21,8 @@ import NIOSSL
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
-let url = URL(fileURLWithPath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-let data: Data
-do {
-    data = try Data(contentsOf: url)
-} catch {
-    throw APNSError.SigningError.certificateFileDoesNotExist
-}
-var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
-byteBuffer.writeBytes(data)
-let signer = try! APNSSigner.init(buffer: byteBuffer)
+
+let signer = try! APNSSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
 
 let apnsConfig = APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        teamIdentifier: "ABBM6U9RM5",

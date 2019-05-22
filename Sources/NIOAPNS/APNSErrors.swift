@@ -63,5 +63,6 @@ public struct APNSError {
         case invalidAuthKey
         case invalidASN1
         case certificateFileDoesNotExist
+        case invalidSignatureData
     }
 }

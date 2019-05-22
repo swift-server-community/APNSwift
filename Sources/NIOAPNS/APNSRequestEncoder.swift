@@ -63,8 +63,10 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         do {
             let digestValues = try jwt.getDigest()
             let signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
-            let data = signature.getData(at: 0, length: signature.readableBytes)
-            token = digestValues.digest + "." + data!.base64EncodedURLString()
+            guard let data = signature.getData(at: 0, length: signature.readableBytes) else {
+                throw APNSError.SigningError.invalidSignatureData
+            }
+            token = digestValues.digest + "." + data.base64EncodedURLString()
         } catch {
             promise?.fail(error)
             context.close(promise: nil)
