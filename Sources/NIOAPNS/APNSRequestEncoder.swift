@@ -29,15 +29,17 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
     let configuration: APNSConfiguration
     let deviceToken: String
     let priority: Int?
-    let expiration: Int?
+    let expiration: Date?
     let collapseIdentifier: String?
+    let topic: String?
 
-    init(deviceToken: String, configuration: APNSConfiguration, expiration: Int?, priority: Int?, collapseIdentifier: String?) {
+    init(deviceToken: String, configuration: APNSConfiguration, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
         self.configuration = configuration
         self.deviceToken = deviceToken
         self.expiration = expiration
         self.priority = priority
         self.collapseIdentifier = collapseIdentifier
+        self.topic = topic
     }
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
@@ -47,12 +49,17 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
         reqHead.headers.add(name: "content-type", value: "application/json")
         reqHead.headers.add(name: "user-agent", value: "APNS/swift-nio")
         reqHead.headers.add(name: "content-length", value: buffer.readableBytes.description)
-        reqHead.headers.add(name: "apns-topic", value: configuration.topic)
+        if let notificationSpecificTopic = self.topic {
+            reqHead.headers.add(name: "apns-topic", value: notificationSpecificTopic)
+        } else {
+            reqHead.headers.add(name: "apns-topic", value: configuration.topic)
+        }
+        
         if let priority = self.priority {
             reqHead.headers.add(name: "apns-priority", value: String(priority))
         }
-        if let epochTime = self.expiration {
-            reqHead.headers.add(name: "apns-expiration", value: String(epochTime))
+        if let epochTime = self.expiration?.timeIntervalSince1970 {
+            reqHead.headers.add(name: "apns-expiration", value: String(Int(epochTime)))
         }
         if let collapseId = self.collapseIdentifier {
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)

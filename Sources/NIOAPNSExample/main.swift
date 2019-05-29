@@ -54,8 +54,8 @@ let string = String(bytes: temp, encoding: .utf8)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
 do {
-    let expiry = Int(Date().addingTimeInterval(5).timeIntervalSince1970)
-    try apns.send(notification, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
+    let expiry = Date().addingTimeInterval(5)
+    try apns.send(notification, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
 } catch {
     print(error)
 }

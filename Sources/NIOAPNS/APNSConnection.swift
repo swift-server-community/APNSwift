@@ -53,7 +53,7 @@ public final class APNSConnection {
         self.configuration = configuration
     }
 
-    public func send<Notification>(_ notification: Notification, to deviceToken: String, expiration: Int? = nil, priority: Int? = nil, collapseIdentifier: String? = nil) -> EventLoopFuture<Void>
+    public func send<Notification>(_ notification: Notification, to deviceToken: String, with customEncoder: JSONEncoder? = nil, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void>
         where Notification: APNSNotification {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
@@ -67,7 +67,13 @@ public final class APNSConnection {
         }
 
         let responsePromise = channel.eventLoop.makePromise(of: Void.self)
-        let data = try! JSONEncoder().encode(notification)
+        let data: Data
+        if let customEncoder = customEncoder {
+            data = try! customEncoder.encode(notification)
+        } else {
+            data = try! JSONEncoder().encode(notification)
+        }
+        
         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
         buffer.writeBytes(data)
         let context = APNSRequestContext(
