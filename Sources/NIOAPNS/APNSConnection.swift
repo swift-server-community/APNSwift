@@ -80,10 +80,12 @@ public final class APNSConnection {
             request: buffer,
             responsePromise: responsePromise
         )
+
         return streamPromise.futureResult.flatMap { stream in
-            stream.writeAndFlush(context)
-        }.flatMap {
-            responsePromise.futureResult
+            responsePromise.futureResult.whenComplete { _ in }
+            return stream.writeAndFlush(context)
+            }.flatMap {
+                responsePromise.futureResult
         }
     }
 
