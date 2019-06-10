@@ -15,7 +15,7 @@ To install `NIOSAPNS`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kylebrowning/swift-nio-http2-apns.git", .upToNextMinor(from: "0.1.0")
+    .package(url: "https://github.com/kylebrowning/swift-nio-apns.git", .upToNextMinor(from: "1.0.0")
 ]
 ```
 
