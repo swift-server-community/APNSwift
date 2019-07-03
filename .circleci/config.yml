@@ -6,6 +6,7 @@ jobs:
       - image: swift:5.0
     steps:
       - checkout
+      - run: apt-get update
       - run: apt-get -y install openssl libssl-dev libssl-doc
       - run: swift build
       - run: swift test
@@ -14,6 +15,7 @@ jobs:
       - image: swift:5.0
     steps:
       - checkout
+      - run: apt-get update
       - run: apt-get -y install openssl libssl-dev libssl-doc
       - run: swift build -c release
 
