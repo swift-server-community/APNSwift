@@ -13,17 +13,17 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-@testable import NIOAPNS
+@testable import APNSwift
 import NIO
 
-class APNSConfigurationTests: XCTestCase {
+class APNSwiftConfigurationTests: XCTestCase {
 
-    func configuration(environment: APNSConfiguration.Environment) throws {
+    func configuration(environment: APNSwiftConfiguration.Environment) throws {
         var buffer = ByteBufferAllocator().buffer(capacity: appleECP8PrivateKey.count)
         buffer.writeString(appleECP8PrivateKey)
-        let signer = try APNSSigner.init(buffer: buffer)
+        let signer = try APNSwiftSigner.init(buffer: buffer)
 
-        let apnsConfiguration = APNSConfiguration(keyIdentifier: "MY_KEY_ID", teamIdentifier: "MY_TEAM_ID", signer: signer, topic: "MY_TOPIC", environment: environment)
+        let apnsConfiguration = APNSwiftConfiguration(keyIdentifier: "MY_KEY_ID", teamIdentifier: "MY_TEAM_ID", signer: signer, topic: "MY_TOPIC", environment: environment)
 
         switch environment {
         case .production:
@@ -48,11 +48,11 @@ class APNSConfigurationTests: XCTestCase {
     func testSignature() throws {
         var buffer = ByteBufferAllocator().buffer(capacity: appleECP8PrivateKey.count)
         buffer.writeString(appleECP8PrivateKey)
-        let signer = try APNSSigner.init(buffer: buffer)
+        let signer = try APNSwiftSigner.init(buffer: buffer)
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
         let date = Date()
-        let jwt = APNSJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
+        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
         let digestValues = try jwt.getDigest()
         let _ = try signer.sign(digest: digestValues.fixedDigest)
 

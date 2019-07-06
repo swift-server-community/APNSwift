@@ -15,7 +15,7 @@
 import Foundation
 
 /// This is an enum that provides the possible responses from Apple
-public struct APNSError {
+public struct APNSwiftError {
     public enum ResponseError: Error {
         case badRequest(ResponseErrorMessage)
     }

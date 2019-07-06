@@ -16,7 +16,7 @@ import NIO
 import NIOHTTP1
 
 /// Internal `ChannelInboundHandler` that parses `HTTPClientResponsePart` to `HTTPResponse`.
-internal final class APNSResponseDecoder {
+internal final class APNSwiftResponseDecoder {
     private enum State {
         /// Waiting to parse the next response.
         case ready
@@ -27,14 +27,14 @@ internal final class APNSResponseDecoder {
     private var state: State = .ready
 }
 
-/// This extension allows our APNSResponseDecoder to parse our the body that Apple provides
+/// This extension allows our APNSwiftResponseDecoder to parse our the body that Apple provides
 
-extension APNSResponseDecoder: ChannelInboundHandler {
+extension APNSwiftResponseDecoder: ChannelInboundHandler {
     /// See `ChannelInboundHandler.InboundIn`.
     typealias InboundIn = HTTPClientResponsePart
 
     /// See `ChannelInboundHandler.OutboundOut`.
-    typealias OutboundOut = APNSResponse
+    typealias OutboundOut = APNSwiftResponse
 
     /// See `ChannelInboundHandler.channelRead(context:data:)`.
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -49,7 +49,7 @@ extension APNSResponseDecoder: ChannelInboundHandler {
             existing.writeBuffer(&body)
             state = .parsingBody(head, existing)
         case (.end(.none), let .parsingBody(head, data)):
-            context.fireChannelRead(wrapOutboundOut(APNSResponse(header: head, byteBuffer: data)))
+            context.fireChannelRead(wrapOutboundOut(APNSwiftResponse(header: head, byteBuffer: data)))
             state = .ready
         default:
             assertionFailure("Unexpected state! Decoder state: \(state) HTTPResponsePart: \(response)")

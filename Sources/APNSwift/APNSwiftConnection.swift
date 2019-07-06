@@ -17,8 +17,8 @@ import NIO
 import NIOHTTP2
 import NIOSSL
 
-public final class APNSConnection {
-    public static func connect(configuration: APNSConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSConnection> {
+public final class APNSwiftConnection {
+    public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSwiftConnection> {
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
@@ -38,30 +38,30 @@ public final class APNSConnection {
 
         return bootstrap.connect(host: configuration.url.host!, port: 443).flatMap { channel in
             return channel.pipeline.handler(type: HTTP2StreamMultiplexer.self).map { multiplexer in
-                return APNSConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+                return APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
             }
         }
     }
 
     public let multiplexer: HTTP2StreamMultiplexer
     public let channel: Channel
-    public let configuration: APNSConfiguration
+    public let configuration: APNSwiftConfiguration
 
-    public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSConfiguration) {
+    public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
         self.channel = channel
         self.multiplexer = multiplexer
         self.configuration = configuration
     }
 
     public func send<Notification>(_ notification: Notification, to deviceToken: String, with customEncoder: JSONEncoder? = nil, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void>
-        where Notification: APNSNotification {
+        where Notification: APNSwiftNotification {
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
-                APNSResponseDecoder(),
-                APNSStreamHandler(),
+                APNSwiftRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
+                APNSwiftResponseDecoder(),
+                APNSwiftStreamHandler(),
             ]
             return channel.pipeline.addHandlers(handlers)
         }
@@ -76,7 +76,7 @@ public final class APNSConnection {
         
         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
         buffer.writeBytes(data)
-        let context = APNSRequestContext(
+        let context = APNSwiftRequestContext(
             request: buffer,
             responsePromise: responsePromise
         )
