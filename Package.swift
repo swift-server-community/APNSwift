@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "nio-apns",
+    name: "apnswift",
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
         .library(name: "APNSwift", targets: ["APNSwift"]),
