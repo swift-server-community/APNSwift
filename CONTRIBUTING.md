@@ -7,7 +7,7 @@ that your contributions are licensed under the [Apache 2.0 license](https://www.
 
 Please ensure to specify the following:
 
-* NIOApns commit hash
+* APNSwift commit hash
 * Simplest possible steps to reproduce
     * A pull request with a failing test case is preferred, but it's just as fine to write it in the issue description
 * Environment Information

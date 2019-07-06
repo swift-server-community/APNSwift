@@ -1,10 +1,10 @@
 # Code of Conduct
-To be a truly great community, NIOApns needs to welcome developers from all walks of life,
+To be a truly great community, APNSwift needs to welcome developers from all walks of life,
 with different backgrounds, and with a wide range of experience. A diverse and friendly
 community will have more great ideas, more unique perspectives, and produce more great 
-code. We will work diligently to make the NIOApns community welcoming to everyone.
+code. We will work diligently to make the APNSwift community welcoming to everyone.
 
-To give clarity of what is expected of our members, NIOApns has adopted the code of conduct 
+To give clarity of what is expected of our members, APNSwift has adopted the code of conduct 
 defined by [contributor-covenant.org](https://www.contributor-covenant.org). This document is used across many open source 
 communities, and we think it articulates our values well. The full text is copied below:
 

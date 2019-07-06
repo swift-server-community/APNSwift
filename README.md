@@ -2,13 +2,13 @@
 [![Build](https://img.shields.io/circleci/project/github/kylebrowning/swift-nio-apns/master.svg?logo=circleci)](https://circleci.com/gh/kylebrowning/swift-nio-apns/tree/master)
 [![Swift](https://img.shields.io/badge/Swift-5.0-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
 
-# NIOApns
+# APNSwift
 
 A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms.
 
 ## Installation
 
-To install `NIOSAPNS`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies). Though you may want to consider using master branch until approved by the SSWG.
+To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies). Though you may want to consider using master branch until approved by the SSWG.
 
 ```swift
 dependencies: [

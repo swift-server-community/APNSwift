@@ -1,9 +1,9 @@
 #!/bin/bash
 ##===----------------------------------------------------------------------===##
 ##
-## This source file is part of the NIOApns open source project
+## This source file is part of the APNSwift open source project
 ##
-## Copyright (c) 2019 the NIOApns project authors
+## Copyright (c) 2019 the APNSwift project authors
 ## Licensed under Apache License v2.0
 ##
 ## See LICENSE.txt for license information
@@ -19,7 +19,7 @@ contributors=$( cd "$here"/.. && git shortlog -es | cut -f2 | sed 's/^/- /' )
 
 cat > "$here/../CONTRIBUTORS.txt" <<- EOF
 	For the purpose of tracking copyright, this is the list of individuals and
-	organizations who have contributed source code to NIOApns.
+	organizations who have contributed source code to APNSwift.
 
 	For employees of an organization/company where the copyright of work done
 	by employees of that company is held by the company itself, only the company
