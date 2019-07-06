@@ -18,10 +18,10 @@ import NIOHTTP2
 import NIOSSL
 
 /// This is structure that provides the system with common configuration.
-public struct APNSConfiguration {
+public struct APNSwiftConfiguration {
     public var keyIdentifier: String
     public var teamIdentifier: String
-    public var signer: APNSSigner
+    public var signer: APNSwiftSigner
     public var topic: String
     public var environment: Environment
     public var tlsConfiguration: TLSConfiguration
@@ -49,7 +49,7 @@ public struct APNSConfiguration {
 
      ### Usage Example: ###
      ````
-     let apnsConfig = try APNSConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+     let apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
          teamIdentifier: "ABBM6U9RM5",
          signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
          topic: "com.grasscove.Fern",
@@ -57,7 +57,7 @@ public struct APNSConfiguration {
      )
      ````
      */
-    public init(keyIdentifier: String, teamIdentifier: String, signer: APNSSigner, topic: String, environment: APNSConfiguration.Environment) {
+    public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
         self.topic = topic
@@ -67,7 +67,7 @@ public struct APNSConfiguration {
     }
 }
 
-extension APNSConfiguration {
+extension APNSwiftConfiguration {
     public enum Environment {
         case production
         case sandbox

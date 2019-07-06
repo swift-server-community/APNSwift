@@ -16,7 +16,7 @@ import Foundation
 import CAPNSOpenSSL
 import NIO
 
-public struct APNSSigner {
+public struct APNSwiftSigner {
     private let buffer: ByteBuffer
     public init(buffer: ByteBuffer) throws {
         self.buffer = buffer
@@ -25,7 +25,7 @@ public struct APNSSigner {
     // this is a blocking init and should be done at the start of application not on an event loop.
     public init(filePath: String) throws {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else {
-            throw APNSError.SigningError.certificateFileDoesNotExist
+            throw APNSwiftError.SigningError.certificateFileDoesNotExist
         }
         var mutableByteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
         mutableByteBuffer.writeBytes(data)
@@ -41,7 +41,7 @@ public struct APNSSigner {
         assert(res >= 0, "BIO_puts failed")
 
         guard let opaquePointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
-            throw APNSError.SigningError.invalidAuthKey
+            throw APNSwiftError.SigningError.invalidAuthKey
         }
         defer { EC_KEY_free(opaquePointer) }
         
@@ -53,7 +53,7 @@ public struct APNSSigner {
         var derEncodedSignature: UnsafeMutablePointer<UInt8>?
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
         guard let derCopy = derEncodedSignature, derLength > 0 else {
-            throw APNSError.SigningError.invalidASN1
+            throw APNSwiftError.SigningError.invalidASN1
         }
 
         var derBytes = ByteBufferAllocator().buffer(capacity: Int(derLength))

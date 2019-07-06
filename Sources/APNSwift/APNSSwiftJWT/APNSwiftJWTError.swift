@@ -12,9 +12,19 @@
 //
 //===----------------------------------------------------------------------===//
 
-import NIO
+import Foundation
+internal enum APNSwiftJWTError {
+    case encodingFailed
+    case tokenWasNotGeneratedCorrectly
+}
 
-public struct APNSRequestContext {
-    let request: ByteBuffer
-    let responsePromise: EventLoopPromise<Void>
+extension APNSwiftJWTError: LocalizedError {
+    internal var errorDescription: String? {
+        switch self {
+        case .encodingFailed:
+            return "The JWT Header or Payload can't be encoded."
+        case .tokenWasNotGeneratedCorrectly:
+            return "The JWT token was not generated correctly."
+        }
+    }
 }

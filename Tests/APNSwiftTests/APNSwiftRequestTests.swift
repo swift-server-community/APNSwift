@@ -14,13 +14,13 @@
 
 import Foundation
 import XCTest
-@testable import NIOAPNS
+@testable import APNSwift
 
 
-final class APNSRequestTests: XCTestCase {
+final class APNSwiftRequestTests: XCTestCase {
 
     func testAlertEncoding() throws {
-        let alert = APSPayload.APSAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
+        let alert = APNSwiftPayload.APNSwiftAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
                           titleLocArgs: ["titlelocarg1"], actionLocKey: "actionkey", locKey: "lockey", locArgs: ["locarg1"], launchImage: "launchImage")
 
         let jsonData = try JSONEncoder().encode(alert)
@@ -59,7 +59,7 @@ final class APNSRequestTests: XCTestCase {
     }
 
     func testMinimalAlertEncoding() throws {
-        let alert = APSPayload.APSAlert(title: "title", body: "body")
+        let alert = APNSwiftPayload.APNSwiftAlert(title: "title", body: "body")
 
         let jsonData = try JSONEncoder().encode(alert)
 

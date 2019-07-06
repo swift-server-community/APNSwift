@@ -16,7 +16,7 @@ import Foundation
 import CAPNSOpenSSL
 import NIO
 
-internal struct APNSJWT: Codable {
+internal struct APNSwiftJWT: Codable {
     private struct Payload: Codable {
         /// iss
         public let teamID: String

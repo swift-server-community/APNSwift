@@ -14,7 +14,7 @@
 
 import Foundation
 import XCTest
-@testable import NIOAPNS
+@testable import APNSwift
 
 final class JWTTests: XCTestCase {
     func createDecodedData(with string: String) -> Data? {
@@ -30,7 +30,7 @@ final class JWTTests: XCTestCase {
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
         let date = Date()
-        let jwt = APNSJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
+        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
         let token = try jwt.getDigest()
 
         let part = token.digest.split(separator: ".")

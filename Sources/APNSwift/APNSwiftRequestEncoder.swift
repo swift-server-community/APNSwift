@@ -18,22 +18,22 @@ import NIOHTTP1
 import NIOHTTP2
 
 /// The class provides the HTTP2 interface to Swift NIO 2
-internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
-    where Notification: APNSNotification {
+internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandler
+    where Notification: APNSwiftNotification {
     /// See `ChannelOutboundHandler.OutboundIn`.
     typealias OutboundIn = ByteBuffer
 
     /// See `ChannelOutboundHandler.OutboundOut`.
     typealias OutboundOut = HTTPClientRequestPart
 
-    let configuration: APNSConfiguration
+    let configuration: APNSwiftConfiguration
     let deviceToken: String
     let priority: Int?
     let expiration: Date?
     let collapseIdentifier: String?
     let topic: String?
 
-    init(deviceToken: String, configuration: APNSConfiguration, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
+    init(deviceToken: String, configuration: APNSwiftConfiguration, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
         self.configuration = configuration
         self.deviceToken = deviceToken
         self.expiration = expiration
@@ -65,13 +65,13 @@ internal final class APNSRequestEncoder<Notification>: ChannelOutboundHandler
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        let jwt = APNSJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
+        let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
         var token: String
         do {
             let digestValues = try jwt.getDigest()
             let signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
             guard let data = signature.getData(at: 0, length: signature.readableBytes) else {
-                throw APNSError.SigningError.invalidSignatureData
+                throw APNSwiftError.SigningError.invalidSignatureData
             }
             token = digestValues.digest + "." + data.base64EncodedURLString()
         } catch {
