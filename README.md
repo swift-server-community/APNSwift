@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Build](https://img.shields.io/circleci/project/github/kylebrowning/swift-nio-apns/master.svg?logo=circleci)](https://circleci.com/gh/kylebrowning/swift-nio-apns/tree/master)
+[![Build](https://img.shields.io/circleci/project/github/kylebrowning/APNSSwift/master.svg?logo=circleci)](https://circleci.com/gh/kylebrowning/APNSSwift/tree/master)
 [![Swift](https://img.shields.io/badge/Swift-5.0-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
 
 # APNSwift
@@ -12,7 +12,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kylebrowning/swift-nio-apns.git", from: "1.0.0-alpha.1")
+    .package(url: "https://github.com/kylebrowning/APNSwift.git", from: "1.0.0-alpha.2")
 ]
 ```
 
