@@ -1,10 +1,10 @@
 import XCTest
 
-import NIOAPNSJWTTests
-import NIOAPNSTests
+import APNSwiftJWTTests
+import APNSwiftTests
 
 var tests = [XCTestCaseEntry]()
-tests += NIOAPNSJWTTests.allTests()
-tests += NIOAPNSTests.allTests()
+tests += APNSwiftJWTTests.allTests()
+tests += APNSwiftTests.allTests()
 
 XCTMain(tests)
