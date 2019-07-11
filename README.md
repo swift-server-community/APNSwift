@@ -12,7 +12,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kylebrowning/APNSwift.git", from: "1.0.0-alpha.2")
+    .package(url: "https://github.com/kylebrowning/APNSwift.git", from: "1.0.0")
 ]
 ```
 
