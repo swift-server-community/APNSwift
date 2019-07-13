@@ -33,16 +33,15 @@ public struct APNSwiftPayload: Encodable {
 
     /**
      Initialize an APNSwiftPayload
-     - Parameters:
-       - alert: The alert which will be display to the user.
-       - badge: The number the push notification will bump the apps badge number to.
-       - sound: A normal, or critical alert.
-       - hasContentAvailable: When this key is present, the system wakes up your app in the background and
+     - Parameter alert: The alert which will be display to the user.
+     - Parameter badge: The number the push notification will bump the apps badge number to.
+     - Parameter sound: A normal, or critical alert.
+     - Parameter hasContentAvailable: When this key is present, the system wakes up your app in the background and
      delivers the notification to its app delegate.
-       - hasMutableContent: When this key is present, the system will pass your notification to the
+     - Parameter hasMutableContent: When this key is present, the system will pass your notification to the
      notification service app extension before delivery.
-       - category: provide this string to define a category for your app.
-       - threadID: Provide a thread value to group notifications.
+     - Parameter category: provide this string to define a category for your app.
+     - Parameter threadID: Provide a thread value to group notifications.
 
      For more information see:
      [Payload Key Reference](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#)
@@ -85,20 +84,19 @@ public struct APNSwiftPayload: Encodable {
 
         /**
          This structure provides the data structure for an APNS Alert
-         - Parameters:
-         - title: The title to be displayed to the user.
-         - subtitle: The subtitle to be displayed to the user.
-         - body: The body of the push notification.
-         - titleLocKey: The key to a title string in the Localizable.strings file for the current
+         - Parameter title: The title to be displayed to the user.
+         - Parameter subtitle: The subtitle to be displayed to the user.
+         - Parameter body: The body of the push notification.
+         - Parameter titleLocKey: The key to a title string in the Localizable.strings file for the current
          localization.
-         - titleLocArgs: Variable string values to appear in place of the format specifiers in
+         - Parameter titleLocArgs: Variable string values to appear in place of the format specifiers in
          title-loc-key.
-         - actionLocKey: The string is used as a key to get a localized string in the current localization
+         - Parameter actionLocKey: The string is used as a key to get a localized string in the current localization
          to use for the right button’s title instead of “View”.
-         - locKey: A key to an alert-message string in a Localizable.strings file for the current
+         - Parameter locKey: A key to an alert-message string in a Localizable.strings file for the current
          localization (which is set by the user’s language preference).
-         - locArgs: Variable string values to appear in place of the format specifiers in loc-key.
-         - launchImage: The filename of an image file in the app bundle, with or without the filename
+         - Parameter locArgs: Variable string values to appear in place of the format specifiers in loc-key.
+         - Parameter launchImage: The filename of an image file in the app bundle, with or without the filename
          extension.
 
          For more information see:
@@ -141,10 +139,9 @@ public struct APNSwiftPayload: Encodable {
 
         /**
          Initialize an APNSSoundDictionary
-         - Parameters:
-         - critical: The critical alert flag. Set to true to enable the critical alert.
-         - sound: The apps path to a sound file.
-         - volume: The volume for the critical alert’s sound. Set this to a value between 0.0 (silent) and 1.0 (full volume).
+         - Parameter critical: The critical alert flag. Set to true to enable the critical alert.
+         - Parameter sound: The apps path to a sound file.
+         - Parameter volume: The volume for the critical alert’s sound. Set this to a value between 0.0 (silent) and 1.0 (full volume).
 
          For more information see:
          [Payload Key Reference](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#)
@@ -162,9 +159,8 @@ public struct APNSwiftPayload: Encodable {
     }
     /**
      An enum to define how to use sound.
-     - Parameters:
-     - string: use this for a normal alert sound
-     - critical: use for a critical alert type
+     - Parameter string: use this for a normal alert sound
+     - Parameter critical: use for a critical alert type
      */
     public enum APNSwiftSoundType: Encodable {
         case normal(String)
