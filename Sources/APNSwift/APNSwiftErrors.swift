@@ -19,7 +19,7 @@ public struct APNSwiftError {
     public enum ResponseError: Error {
         case badRequest(ResponseErrorMessage)
     }
-    // This is used to decode the response from Apple.
+    /// This is used to decode the response from Apple.
     public struct ResponseStruct: Codable {
         public let reason: ResponseErrorMessage
     }
