@@ -33,10 +33,10 @@ public struct APNSwiftSigner {
     }
 
     internal func sign(digest: ByteBuffer) throws -> ByteBuffer {
-        let bio = BIO_new(BIO_s_mem())
+                let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
         let res = buffer.withUnsafeReadableBytes { ptr in
-            Int(BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self)))
+            Int(BIO_write(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self), Int32(ptr.count)))
         }
         assert(res >= 0, "BIO_puts failed")
 
@@ -57,10 +57,7 @@ public struct APNSwiftSigner {
         }
 
         var derBytes = ByteBufferAllocator().buffer(capacity: Int(derLength))
-        for b in 0 ..< Int(derLength) {
-            derBytes.writeBytes([derCopy[b]])
-        }
-
+        derBytes.writeBytes(UnsafeBufferPointer<UInt8>(start: derCopy, count: Int(derLength)))
         return derBytes
     }
 }
