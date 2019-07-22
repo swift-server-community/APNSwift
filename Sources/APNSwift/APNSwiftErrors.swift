@@ -60,7 +60,6 @@ public struct APNSwiftError {
         }
     }
     public enum SigningError: Error {
-        case invalidMemoryAssignment
         case invalidAuthKey
         case invalidASN1
         case certificateFileDoesNotExist

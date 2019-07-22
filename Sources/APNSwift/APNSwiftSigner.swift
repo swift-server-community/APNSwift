@@ -40,10 +40,7 @@ public struct APNSwiftSigner {
                 Int(BIO_write(bio, newBoundPtr, CInt(ptr.count)))
             })
         }
-        guard let result = res else {
-            throw APNSwiftError.SigningError.invalidMemoryAssignment
-        }
-        assert(result >= 0, "BIO_puts failed")
+        assert(res! >= 0, "BIO_write failed")
 
         guard let opaquePointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
             throw APNSwiftError.SigningError.invalidAuthKey
