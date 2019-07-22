@@ -36,7 +36,7 @@ public struct APNSwiftSigner {
         let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
         let res = buffer.withUnsafeReadableBytes { ptr in
-            Int(BIO_write(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self), Int32(ptr.count)))
+            Int(BIO_write(bio, ptr.baseAddress?.bindMemory(to: Int8.self, capacity: ptr.count), Int32(ptr.count)))
         }
         assert(res >= 0, "BIO_puts failed")
 
