@@ -33,7 +33,7 @@ public struct APNSwiftSigner {
     }
 
     internal func sign(digest: ByteBuffer) throws -> ByteBuffer {
-                let bio = BIO_new(BIO_s_mem())
+        let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
         let res = buffer.withUnsafeReadableBytes { ptr in
             Int(BIO_write(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self), Int32(ptr.count)))
