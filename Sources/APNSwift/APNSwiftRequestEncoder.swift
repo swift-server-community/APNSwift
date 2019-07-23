@@ -27,7 +27,7 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
     typealias OutboundOut = HTTPClientRequestPart
 
     let configuration: APNSwiftConfiguration
-    let bearerToken: APNSwiftBearerToken
+    var bearerToken: APNSwiftBearerToken
     let deviceToken: String
     let priority: Int?
     let expiration: Date?
@@ -68,7 +68,11 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        reqHead.headers.add(name: "authorization", value: "bearer \(bearerToken.token())")
+        guard let token = bearerToken.token() else {
+            promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
+            return
+        }
+        reqHead.headers.add(name: "authorization", value: "bearer \(token)")
         context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.end(nil)), promise: promise)

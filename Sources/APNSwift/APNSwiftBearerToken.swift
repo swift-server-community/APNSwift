@@ -1,70 +1,49 @@
+//===----------------------------------------------------------------------===//
 //
-//  APNSwiftBearerToken.swift
-//  APNSwift
+// This source file is part of the APNSwift open source project
 //
-//  Created by Benjamin Ingmire on 7/23/19.
+// Copyright (c) 2019 the APNSwift project authors
+// Licensed under Apache License v2.0
 //
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of APNSwift project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
 
 import Foundation
 
-public class APNSwiftBearerToken
-{
+public struct APNSwiftBearerToken {
     let configuration: APNSwiftConfiguration
     let timeout: TimeInterval
-    var cachedToken : (TimeInterval, String) = (Date().timeIntervalSince1970, "") //JWT found in position 1
+    var createdAt: TimeInterval?
+    private var cachedToken: String?
     
-    public init(configuration: APNSwiftConfiguration, timeout: TimeInterval)
-    {
+    public init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
         self.configuration = configuration
         self.timeout = timeout
     }
     
-    func token() -> String
-    {
-        let getToken = getFreshestToken()
-        return getToken.1
+    public mutating func token() -> String? {
+        let now = Date().timeIntervalSince1970
+        guard let existingToken = cachedToken, let timeCreated = createdAt, (now - timeCreated) <= timeout else {
+            cachedToken = try? createToken()
+            createdAt = now
+            return cachedToken
+        }
+        return existingToken
     }
     
-    func getFreshestToken()-> (TimeInterval, String)
-    {
-        if self.cachedToken.1 == ""
-        {
-            self.cachedToken = (Date().timeIntervalSince1970, self.createToken())
-        }
-        else
-        {
-            let now = Date().timeIntervalSince1970
-            let diff = now - self.cachedToken.0
-            if diff >= timeout
-            {
-                //refresh the token
-                self.cachedToken = (Date().timeIntervalSince1970, self.createToken())
-            }
-        }
-        return self.cachedToken
-    }
-    
-    func createToken() -> String
-    {
+    private func createToken() throws -> String {
         let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: timeout)
         var token: String
-        do {
-            let digestValues = try jwt.getDigest()
-            let signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
-            guard let data = signature.getData(at: 0, length: signature.readableBytes) else {
-                throw APNSwiftError.SigningError.invalidSignatureData
-            }
-            token = digestValues.digest + "." + data.base64EncodedURLString()
-        } catch {
-            var ErrorStack = String()
-            Thread.callStackSymbols.forEach {
-                ErrorStack = "\(ErrorStack)\n" + $0
-            }
-            print(ErrorStack)
-            token = ""
+        let digestValues = try jwt.getDigest()
+        var signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
+        guard let data = signature.readData(length: signature.readableBytes) else {
+            throw APNSwiftError.SigningError.invalidSignatureData
         }
+        token = digestValues.digest + "." + data.base64EncodedURLString()
         return token
     }
 }
-
-
