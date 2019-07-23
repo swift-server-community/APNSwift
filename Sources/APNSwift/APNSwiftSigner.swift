@@ -36,9 +36,9 @@ public struct APNSwiftSigner {
         let bio = BIO_new(BIO_s_mem())
         defer { BIO_free(bio) }
         let res = buffer.withUnsafeReadableBytes { ptr in
-            Int(BIO_puts(bio, ptr.baseAddress?.assumingMemoryBound(to: Int8.self)))
+            BIO_write(bio, ptr.baseAddress, CInt(ptr.count))
         }
-        assert(res >= 0, "BIO_puts failed")
+        assert(res >= 0, "BIO_write failed")
 
         guard let opaquePointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
             throw APNSwiftError.SigningError.invalidAuthKey
@@ -50,17 +50,14 @@ public struct APNSwiftSigner {
         }
         defer { ECDSA_SIG_free(sig) }
 
-        var derEncodedSignature: UnsafeMutablePointer<UInt8>?
+        var derEncodedSignature: UnsafeMutablePointer<CUnsignedChar>?
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
         guard let derCopy = derEncodedSignature, derLength > 0 else {
             throw APNSwiftError.SigningError.invalidASN1
         }
 
         var derBytes = ByteBufferAllocator().buffer(capacity: Int(derLength))
-        for b in 0 ..< Int(derLength) {
-            derBytes.writeBytes([derCopy[b]])
-        }
-
+        derBytes.writeBytes(UnsafeBufferPointer<CUnsignedChar>(start: derCopy, count: Int(derLength)))
         return derBytes
     }
 }
