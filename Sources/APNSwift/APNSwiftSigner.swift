@@ -50,14 +50,14 @@ public struct APNSwiftSigner {
         }
         defer { ECDSA_SIG_free(sig) }
 
-        var derEncodedSignature: UnsafeMutablePointer<UInt8>?
+        var derEncodedSignature: UnsafeMutablePointer<CUnsignedChar>?
         let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
         guard let derCopy = derEncodedSignature, derLength > 0 else {
             throw APNSwiftError.SigningError.invalidASN1
         }
 
         var derBytes = ByteBufferAllocator().buffer(capacity: Int(derLength))
-        derBytes.writeBytes(UnsafeBufferPointer<UInt8>(start: derCopy, count: Int(derLength)))
+        derBytes.writeBytes(UnsafeBufferPointer<CUnsignedChar>(start: derCopy, count: Int(derLength)))
         return derBytes
     }
 }
