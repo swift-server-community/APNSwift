@@ -76,6 +76,7 @@ public final class APNSwiftConnection {
     /**
      APNSwiftConnection send method. Sends a notification to the desired deviceToken.
      - Parameter notification: the notification meta data and alert to send.
+     - Parameter bearerToken: the bearer token to authenitcate our request
      - Parameter deviceToken: device token to send alert to.
      - Parameter encoder: customer JSON encoder if needed.
      - Parameter expiration: a date that the notificaiton expires.
@@ -89,16 +90,17 @@ public final class APNSwiftConnection {
      ```
      let apns = APNSwiftConnection.connect()
      let expiry = Date().addingTimeInterval(5)
-     try apns.send(notification, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
+     let bearerToken = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
+     try apns.send(notification, bearerToken: bearerToken,to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
-    public func send<Notification>(_ notification: Notification, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void>
+    public func send<Notification>(_ notification: Notification, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void>
         where Notification: APNSwiftNotification {
             let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
             multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
                 let handlers: [ChannelHandler] = [
                     HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                    APNSwiftRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
+                    APNSwiftRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, bearerToken: bearerToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
                     APNSwiftResponseDecoder(),
                     APNSwiftStreamHandler(),
                 ]
