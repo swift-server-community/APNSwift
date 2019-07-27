@@ -27,14 +27,17 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
     typealias OutboundOut = HTTPClientRequestPart
 
     let configuration: APNSwiftConfiguration
+    var bearerToken: APNSwiftBearerToken
     let deviceToken: String
     let priority: Int?
     let expiration: Date?
     let collapseIdentifier: String?
     let topic: String?
-
-    init(deviceToken: String, configuration: APNSwiftConfiguration, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
+    
+    
+    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
         self.configuration = configuration
+        self.bearerToken = bearerToken
         self.deviceToken = deviceToken
         self.expiration = expiration
         self.priority = priority
@@ -65,18 +68,8 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: 60 * 60)
-        var token: String
-        do {
-            let digestValues = try jwt.getDigest()
-            let signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
-            guard let data = signature.getData(at: 0, length: signature.readableBytes) else {
-                throw APNSwiftError.SigningError.invalidSignatureData
-            }
-            token = digestValues.digest + "." + data.base64EncodedURLString()
-        } catch {
-            promise?.fail(error)
-            context.close(promise: nil)
+        guard let token = bearerToken.token else {
+            promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
             return
         }
         reqHead.headers.add(name: "authorization", value: "bearer \(token)")
