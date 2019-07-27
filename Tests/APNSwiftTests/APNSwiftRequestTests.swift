@@ -204,6 +204,37 @@ final class APNSwiftRequestTests: XCTestCase {
         XCTAssertThrowsError(try channel.writeOutbound(buffer), String(error.localizedDescription))
 
     }
+    func testErrorsFromAPNS() throws {
+        let error = APNSwiftError.ResponseStruct(reason: .unregistered)
+        let encodedData = try JSONEncoder().encode(error)
+        let allocator = ByteBufferAllocator()
+        var errorBuffer = allocator.buffer(capacity: encodedData.count)
+        errorBuffer.writeBytes(encodedData)
+        
+        let responsefromAPNS = APNSwiftResponse(header: .init(version: .init(major: 2, minor: 0), status: .badRequest), byteBuffer: errorBuffer)
+        
+        let channel = EmbeddedChannel(handler: APNSwiftStreamHandler())
+        let responsePromise = channel.eventLoop.makePromise(of: Void.self)
+        let context = APNSwiftRequestContext(
+           request: errorBuffer,
+           responsePromise: responsePromise
+        )
+        try channel.writeOutbound(context)
+        try channel.writeInbound(responsefromAPNS)
+        responsePromise.futureResult.whenComplete { temp in
+            switch temp {
+            case .failure(let error):
+                let error = error as! APNSwiftError.ResponseError
+                if error != APNSwiftError.ResponseError.badRequest(.unregistered) {
+                    XCTFail("wrong response")
+                }
+            default:
+                XCTFail("should fail")
+            }
+        }
+        
+    }
+    
 
     static var allTests = [
         ("testAlertEncoding", testAlertEncoding),
