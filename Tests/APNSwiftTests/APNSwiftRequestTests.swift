@@ -225,11 +225,12 @@ final class APNSwiftRequestTests: XCTestCase {
             switch temp {
             case .failure(let error):
                 let error = error as! APNSwiftError.ResponseError
-                if error != APNSwiftError.ResponseError.badRequest(.unregistered) {
-                    XCTFail("wrong response")
+                let expected = APNSwiftError.ResponseError.badRequest(.unregistered)
+                if error != expected {
+                    XCTFail("response is: \(error), should be: \(expected)")
                 }
             default:
-                XCTFail("should fail")
+                XCTFail("response should not success")
             }
         }
         
