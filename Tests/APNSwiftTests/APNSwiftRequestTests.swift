@@ -189,7 +189,8 @@ final class APNSwiftRequestTests: XCTestCase {
                                                signer: signer,
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
-        let channel = EmbeddedChannel(handler: APNSwiftRequestEncoder<BasicNotification>(deviceToken: deviceToken, configuration: apnsConfig, expiration: nil, priority: nil, collapseIdentifier: nil))
+        let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
+        let channel = EmbeddedChannel(handler: APNSwiftRequestEncoder<BasicNotification>(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, expiration: nil, priority: nil, collapseIdentifier: nil))
 
         // pretend to connect the connect (nothing real will happen)
         XCTAssertNoThrow(try channel.connect(to: .init(ipAddress: "1.2.3.4", port: 5)).wait())
@@ -233,7 +234,6 @@ final class APNSwiftRequestTests: XCTestCase {
                 XCTFail("response should not success")
             }
         }
-        
     }
     
 
