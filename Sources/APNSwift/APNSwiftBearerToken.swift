@@ -25,14 +25,16 @@ public struct APNSwiftBearerToken {
         self.timeout = timeout
     }
     
-    public mutating func token() -> String? {
-        let now = Date().timeIntervalSince1970
-        guard let existingToken = cachedToken, let timeCreated = createdAt, (now - timeCreated) <= timeout else {
-            cachedToken = try? createToken()
-            createdAt = now
-            return cachedToken
+    public var token: String? {
+        mutating get {
+            let now = Date().timeIntervalSince1970
+            guard let existingToken = cachedToken, let timeCreated = createdAt, (now - timeCreated) <= timeout else {
+                cachedToken = try? createToken()
+                createdAt = now
+                return cachedToken
+            }
+            return existingToken
         }
-        return existingToken
     }
     
     private func createToken() throws -> String {

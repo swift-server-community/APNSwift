@@ -68,7 +68,7 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        guard let token = bearerToken.token() else {
+        guard let token = bearerToken.token else {
             promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
             return
         }
