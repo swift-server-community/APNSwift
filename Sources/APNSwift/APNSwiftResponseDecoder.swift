@@ -22,6 +22,8 @@ internal final class APNSwiftResponseDecoder {
         case ready
         /// Currently parsing the response's body.
         case parsingBody(HTTPResponseHead, ByteBuffer?)
+        /// Finished
+        case end(HTTPHeaders)
     }
 
     private var state: State = .ready
@@ -51,6 +53,9 @@ extension APNSwiftResponseDecoder: ChannelInboundHandler {
         case (.end(.none), let .parsingBody(head, data)):
             context.fireChannelRead(wrapOutboundOut(APNSwiftResponse(header: head, byteBuffer: data)))
             state = .ready
+        case (let .end(headers), let .parsingBody(head, data)):
+            context.fireChannelRead(wrapOutboundOut(APNSwiftResponse(header: head, byteBuffer: data)))
+            state = .end(headers!)
         default:
             assertionFailure("Unexpected state! Decoder state: \(state) HTTPResponsePart: \(response)")
         }
