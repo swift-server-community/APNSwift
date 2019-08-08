@@ -45,19 +45,26 @@ public struct APNSwiftSigner {
         }
         defer { EC_KEY_free(opaquePointer) }
         
-        let sig = digest.withUnsafeReadableBytes { ptr in
-            ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.readableBytes), opaquePointer)
+        let sig = try digest.withUnsafeReadableBytes { ptr -> UnsafeMutablePointer<ECDSA_SIG> in
+            guard let sig = ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.readableBytes), opaquePointer) else {
+                throw APNSwiftError.SigningError.invalidSignatureData
+            }
+            return sig
         }
         defer { ECDSA_SIG_free(sig) }
 
-        var derEncodedSignature: UnsafeMutablePointer<CUnsignedChar>?
-        let derLength = i2d_ECDSA_SIG(sig, &derEncodedSignature)
-        guard let derCopy = derEncodedSignature, derLength > 0 else {
-            throw APNSwiftError.SigningError.invalidASN1
-        }
+        let r = sig.pointee.r
+        let s = sig.pointee.s
 
-        var derBytes = ByteBufferAllocator().buffer(capacity: Int(derLength))
-        derBytes.writeBytes(UnsafeBufferPointer<CUnsignedChar>(start: derCopy, count: Int(derLength)))
+        var rb = [UInt8](repeating: 0, count: Int(BN_num_bits(r)+7)/8)
+        var sb = [UInt8](repeating: 0, count: Int(BN_num_bits(s)+7)/8)
+        let lenr = Int(BN_bn2bin(r, &rb))
+        let lens = Int(BN_bn2bin(s, &sb))
+
+        let finalSig = Array(rb[0..<lenr] + sb[0..<lens])
+        
+        var derBytes = ByteBufferAllocator().buffer(capacity: Int(finalSig.count))
+        derBytes.writeBytes(UnsafeBufferPointer<CUnsignedChar>(start: finalSig, count: Int(finalSig.count)))
         return derBytes
     }
 }
