@@ -55,7 +55,7 @@ final class JWTTests: XCTestCase {
         }
     }
     
-    func testJWTSiging() throws {
+    func testJWTSigning() throws {
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
         let date = Date()
@@ -79,7 +79,7 @@ cc94a66VttRZgVg6jE/ju+2mdHP7JWLmcQ==
     
     static var allTests = [
         ("testJWTEncodingAndSign", testJWTEncoding),
-        ("testJWTSiging", testJWTSiging),
+        ("testJWTSigning", testJWTSigning),
     ]
 }
 
