@@ -45,16 +45,22 @@ public struct APNSwiftSigner {
         }
         defer { EC_KEY_free(opaquePointer) }
         
-        let sig = try digest.withUnsafeReadableBytes { ptr -> UnsafeMutablePointer<ECDSA_SIG> in
+        let sig = try digest.withUnsafeReadableBytes { ptr -> OpaquePointer in
             guard let sig = ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.readableBytes), opaquePointer) else {
                 throw APNSwiftError.SigningError.invalidSignatureData
             }
-            return sig
+            return .init(sig)
         }
-        defer { ECDSA_SIG_free(sig) }
+        defer { ECDSA_SIG_free(.init(sig)) }
 
-        let r = sig.pointee.r
-        let s = sig.pointee.s
+        let pr = UnsafeMutablePointer<UnsafePointer<BIGNUM>?>.allocate(capacity: 1)
+        let ps = UnsafeMutablePointer<UnsafePointer<BIGNUM>?>.allocate(capacity: 1)
+        
+        // as this method is `get0` there is no requirement to free those pointers: ECDSA_SIG will free them for us.
+        CAPNSOpenSSL_ECDSA_SIG_get0(.init(sig), pr, ps)
+        
+        let r = pr.pointee
+        let s = ps.pointee
 
         var rb = [UInt8](repeating: 0, count: Int(BN_num_bits(r)+7)/8)
         var sb = [UInt8](repeating: 0, count: Int(BN_num_bits(s)+7)/8)
@@ -63,8 +69,8 @@ public struct APNSwiftSigner {
 
         let finalSig = Array(rb[0..<lenr] + sb[0..<lens])
         
-        var derBytes = ByteBufferAllocator().buffer(capacity: Int(finalSig.count))
-        derBytes.writeBytes(UnsafeBufferPointer<CUnsignedChar>(start: finalSig, count: Int(finalSig.count)))
-        return derBytes
+        var byteBuffer = ByteBufferAllocator().buffer(capacity: finalSig.count)
+        byteBuffer.writeBytes(finalSig)
+        return byteBuffer
     }
 }
