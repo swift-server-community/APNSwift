@@ -59,15 +59,16 @@ public struct APNSwiftSigner {
         // as this method is `get0` there is no requirement to free those pointers: ECDSA_SIG will free them for us.
         CAPNSOpenSSL_ECDSA_SIG_get0(.init(sig), &r, &s)
         
-        var rb = [UInt8](repeating: 0, count: Int(BN_num_bits(r)+7)/8)
-        var sb = [UInt8](repeating: 0, count: Int(BN_num_bits(s)+7)/8)
-        let lenr = Int(BN_bn2bin(r, &rb))
-        let lens = Int(BN_bn2bin(s, &sb))
-
-        let finalSig = Array(rb[0..<lenr] + sb[0..<lens])
+        var byteBuffer = ByteBufferAllocator().buffer(capacity: Int(BN_num_bits(r)+7)/8 + Int(BN_num_bits(s)+7)/8)
         
-        var byteBuffer = ByteBufferAllocator().buffer(capacity: finalSig.count)
-        byteBuffer.writeBytes(finalSig)
+        byteBuffer.writeWithUnsafeMutableBytes { (p) -> Int in
+            return Int(BN_bn2bin(r, p.baseAddress?.assumingMemoryBound(to: UInt8.self)))
+        }
+        
+        byteBuffer.writeWithUnsafeMutableBytes { (p) -> Int in
+            return Int(BN_bn2bin(s, p.baseAddress?.assumingMemoryBound(to: UInt8.self)))
+        }
+        
         return byteBuffer
     }
 }
