@@ -46,7 +46,7 @@ public struct APNSwiftSigner {
         defer { EC_KEY_free(opaquePointer) }
         
         let sig = try digest.withUnsafeReadableBytes { ptr -> OpaquePointer in
-            guard let sig = ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(digest.readableBytes), opaquePointer) else {
+            guard let sig = ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(ptr.count), opaquePointer) else {
                 throw APNSwiftError.SigningError.invalidSignatureData
             }
             return .init(sig)
