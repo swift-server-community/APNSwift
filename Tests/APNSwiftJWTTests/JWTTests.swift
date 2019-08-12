@@ -14,6 +14,7 @@
 
 import Foundation
 import XCTest
+import NIO
 @testable import APNSwift
 
 final class JWTTests: XCTestCase {
@@ -53,8 +54,32 @@ final class JWTTests: XCTestCase {
             XCTFail("Payload can't be decoded")
         }
     }
+    
+    func testJWTSigning() throws {
+        let teamID = "8RX5AF8F6Z"
+        let keyID = "9N8238KQ6Z"
+        let date = Date()
+        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
+        
+        let privateKey = """
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIEY5/amzr1QgHrLNZ8eHu926YERGWqB6QaDpNFcGxjsToAoGCCqGSM49
+AwEHoUQDQgAEdbP7WQ/U4e5/CAqoBxatQb/5CEgJ070yMNGmWg5O6v2Q4M0l4CXK
+cc94a66VttRZgVg6jE/ju+2mdHP7JWLmcQ==
+-----END EC PRIVATE KEY-----
+"""
+        
+        var buffer = ByteBufferAllocator().buffer(capacity: privateKey.count)
+        buffer.writeString(privateKey)
+        
+        let signer = try APNSwiftSigner(buffer: buffer)
+        let sig = try signer.sign(digest: try jwt.getDigest().fixedDigest)
+        XCTAssertEqual(sig.readableBytes, 64) // len(r) + len(s) == 64 byte
+    }
+    
     static var allTests = [
         ("testJWTEncodingAndSign", testJWTEncoding),
+        ("testJWTSigning", testJWTSigning),
     ]
 }
 
