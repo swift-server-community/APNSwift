@@ -14,7 +14,7 @@
 
 import Foundation
 
-public struct APNSwiftBearerToken {
+public class APNSwiftBearerToken {
     let configuration: APNSwiftConfiguration
     let timeout: TimeInterval
     var createdAt: TimeInterval?
@@ -26,7 +26,7 @@ public struct APNSwiftBearerToken {
     }
     
     public var token: String? {
-        mutating get {
+        get {
             let now = Date().timeIntervalSince1970
             guard let existingToken = cachedToken, let timeCreated = createdAt, (now - timeCreated) <= timeout else {
                 cachedToken = try? createToken()

@@ -27,7 +27,7 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
     typealias OutboundOut = HTTPClientRequestPart
 
     let configuration: APNSwiftConfiguration
-    var bearerToken: APNSwiftBearerToken
+    let bearerToken: APNSwiftBearerToken
     let deviceToken: String
     let priority: Int?
     let expiration: Date?
