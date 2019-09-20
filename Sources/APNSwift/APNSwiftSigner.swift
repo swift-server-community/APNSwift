@@ -40,29 +40,34 @@ public struct APNSwiftSigner {
         }
         assert(res >= 0, "BIO_write failed")
 
-        guard let opaquePointer = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
+        guard let privateKeyPtr = OpaquePointer.make(optional: PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
             throw APNSwiftError.SigningError.invalidAuthKey
         }
-        defer { EC_KEY_free(opaquePointer) }
+        defer { EC_KEY_free(privateKeyPtr) }
         
         let sig = try digest.withUnsafeReadableBytes { ptr -> OpaquePointer in
-            guard let sig = ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(ptr.count), opaquePointer) else {
+            guard let sig = ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), Int32(ptr.count), privateKeyPtr) else {
                 throw APNSwiftError.SigningError.invalidSignatureData
             }
             return .init(sig)
         }
         defer { ECDSA_SIG_free(.init(sig)) }
 
-        var r : UnsafePointer<BIGNUM>? = nil
-        var s : UnsafePointer<BIGNUM>? = nil
+        var r : OpaquePointer? = nil
+        var s : OpaquePointer? = nil
         
         // as this method is `get0` there is no requirement to free those pointers: ECDSA_SIG will free them for us.
-        CAPNSOpenSSL_ECDSA_SIG_get0(.init(sig), &r, &s)
+        withUnsafeMutablePointer(to: &r) { rPtr in
+            withUnsafeMutablePointer(to: &s) { sPtr in
+                CAPNSOpenSSL_ECDSA_SIG_get0(.init(sig), .make(optional: rPtr), .make(optional: sPtr))
+            }
+        }
         
-        var rb = [UInt8](repeating: 0, count: Int(BN_num_bits(r)+7)/8)
-        var sb = [UInt8](repeating: 0, count: Int(BN_num_bits(s)+7)/8)
-        let lenr = Int(BN_bn2bin(r, &rb))
-        let lens = Int(BN_bn2bin(s, &sb))
+        
+        var rb = [UInt8](repeating: 0, count: Int(BN_num_bits(.make(optional: r))+7)/8)
+        var sb = [UInt8](repeating: 0, count: Int(BN_num_bits(.make(optional: s))+7)/8)
+        let lenr = Int(BN_bn2bin(.make(optional: r), &rb))
+        let lens = Int(BN_bn2bin(.make(optional: s), &sb))
 
         var signatureBytes = ByteBufferAllocator().buffer(capacity: lenr + lens)
         signatureBytes.writeBytes(rb[0..<lenr])
