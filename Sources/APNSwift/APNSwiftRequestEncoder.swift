@@ -72,7 +72,11 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
             promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
             return
         }
-        reqHead.headers.add(name: "authorization", value: "bearer \(token)")
+        // Only use token auth if private key is nil
+        if configuration.tlsConfiguration.privateKey == nil {
+            reqHead.headers.add(name: "authorization", value: "bearer \(token)")
+        }
+        
         context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.end(nil)), promise: promise)
