@@ -33,9 +33,10 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
     let expiration: Date?
     let collapseIdentifier: String?
     let topic: String?
+    let pushType: String?
     
     
-    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
+    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?, pushType: String?) {
         self.configuration = configuration
         self.bearerToken = bearerToken
         self.deviceToken = deviceToken
@@ -43,6 +44,7 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
         self.priority = priority
         self.collapseIdentifier = collapseIdentifier
         self.topic = topic
+        self.pushType = pushType
     }
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
@@ -66,6 +68,9 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
         }
         if let collapseId = self.collapseIdentifier {
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
+        }
+        if let pushType = self.pushType {
+            reqHead.headers.add(name: "apns-push-type", value: pushType)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
         guard let token = bearerToken.token else {
