@@ -36,7 +36,7 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
     let pushType: APNSwiftConnection.PushType?
     
     
-    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil, pushType: APNSwiftConnection.PushType? = nil) {
+    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil, pushType: APNSwiftConnection.PushType?) {
         self.configuration = configuration
         self.bearerToken = bearerToken
         self.deviceToken = deviceToken
@@ -45,6 +45,11 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
         self.collapseIdentifier = collapseIdentifier
         self.topic = topic
         self.pushType = pushType
+    }
+    
+    convenience init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?) {
+        self.init(deviceToken: deviceToken, configuration: configuration, bearerToken: bearerToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, pushType: .alert)
+        
     }
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
