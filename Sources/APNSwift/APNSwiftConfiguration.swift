@@ -63,7 +63,8 @@ public struct APNSwiftConfiguration {
         self.topic = topic
         self.signer = signer
         self.environment = environment
-        tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
+        self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
+
     }
 }
 

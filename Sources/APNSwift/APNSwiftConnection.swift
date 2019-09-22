@@ -117,7 +117,6 @@ public final class APNSwiftConnection {
             )
             
             return streamPromise.futureResult.flatMap { stream in
-                responsePromise.futureResult.whenComplete { _ in }
                 return stream.writeAndFlush(context)
             }.flatMap {
                 responsePromise.futureResult
