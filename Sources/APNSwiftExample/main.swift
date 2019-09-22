@@ -56,12 +56,7 @@ let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
 
 do {
     let expiry = Date().addingTimeInterval(5)
-    try apns.send(notification, bearerToken: token, to: "b693f99efa926bcf9977adae75bc88a97988365f49e4c6abf94aa659a4d87a6b", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token, to: "b693f99efa926bcf9977adae75bc88a97988365f49e4c6abf94aa659a4d87a6b", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "b693f99efa926bcf9977adae75bc88a97988365f49e4c6abf94aa659a4d87a6b", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "b693f99efa926bcf9977adae75bc88a97988365f49e4c6abf94aa659a4d87a6b", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "b693f99efa926bcf9977adae75bc88a97988365f49e4c6abf94aa659a4d87a6b", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "b693f99efa926bcf9977adae75bc88a97988365f49e4c6abf94aa659a4d87a6b", expiration: expiry, priority: 10).wait()
+    try apns.send(notification, bearerToken: token, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
 } catch {
     print(error)
 }
