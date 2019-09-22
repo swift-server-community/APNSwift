@@ -23,13 +23,6 @@ import XCTest
 
 final class APNSwiftRequestTests: XCTestCase {
 
-    struct BasicNotification: APNSwiftNotification {
-        let aps: APNSwiftPayload
-
-        init(aps: APNSwiftPayload) {
-            self.aps = aps
-        }
-    }
     func testAlertEncoding() throws {
         let alert = APNSwiftPayload.APNSwiftAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
                           titleLocArgs: ["titlelocarg1"], actionLocKey: "actionkey", locKey: "lockey", locArgs: ["locarg1"], launchImage: "launchImage")
@@ -178,7 +171,14 @@ final class APNSwiftRequestTests: XCTestCase {
     }
     
     func testInvalidAuthKey() throws {
-        let deviceToken = ""
+        struct BasicNotification: APNSwiftNotification {
+            let aps: APNSwiftPayload
+
+            init(aps: APNSwiftPayload) {
+                self.aps = aps
+            }
+        }
+                let deviceToken = ""
         let allocator = ByteBufferAllocator()
         var signerBuffer = allocator.buffer(capacity: invalidAuthKey.count)
         signerBuffer.writeString(invalidAuthKey)
@@ -190,7 +190,8 @@ final class APNSwiftRequestTests: XCTestCase {
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
         let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
-        let channel = EmbeddedChannel(handler: APNSwiftRequestEncoder<BasicNotification>(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, expiration: nil, priority: nil, collapseIdentifier: nil))
+        let handler: APNSwiftRequestEncoder<BasicNotification> = APNSwiftRequestEncoder<BasicNotification>(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, expiration: nil, priority: nil, collapseIdentifier: nil)
+        let channel = EmbeddedChannel(handler: handler)
 
         // pretend to connect the connect (nothing real will happen)
         XCTAssertNoThrow(try channel.connect(to: .init(ipAddress: "1.2.3.4", port: 5)).wait())
