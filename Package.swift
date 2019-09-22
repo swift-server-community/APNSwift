@@ -23,6 +23,7 @@ let package = Package(
         ),
 
         .target(name: "APNSwiftExample", dependencies: ["APNSwift"]),
+        .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
         .testTarget(name: "APNSwiftJWTTests", dependencies: ["APNSwift"]),
         .testTarget(name: "APNSwiftTests", dependencies: ["APNSwift"]),
         .target(name: "APNSwift", dependencies: ["NIO",
@@ -30,6 +31,7 @@ let package = Package(
                                                 "NIOHTTP1",
                                                 "NIOHTTP2",
                                                 "NIOFoundationCompat",
-                                                "CAPNSOpenSSL"]),
+                                                "CAPNSOpenSSL",
+                                                "NIOTLS"]),
     ]
 )

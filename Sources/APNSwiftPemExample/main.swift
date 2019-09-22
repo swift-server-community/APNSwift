@@ -22,13 +22,18 @@ import NIOSSL
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
-let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8")
+//let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
 
-let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+var apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        teamIdentifier: "ABBM6U9RM5",
-                                       signer: signer,
+                                       signer: APNSwiftSigner.init(buffer: ByteBufferAllocator().buffer(capacity: Data().count)),
                                        topic: "com.grasscove.Fern",
                                        environment: .sandbox)
+
+let key = try NIOSSLPrivateKey(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey", format: .pem)
+apnsConfig.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+apnsConfig.tlsConfiguration.certificateVerification = .noHostnameVerification
+apnsConfig.tlsConfiguration.certificateChain = try! [.certificate(.init(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem", format: .pem))]
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 
@@ -57,6 +62,11 @@ let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
 do {
     let expiry = Date().addingTimeInterval(5)
     try apns.send(notification, bearerToken: token, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    try apns.send(notification, bearerToken: token, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
 } catch {
     print(error)
 }

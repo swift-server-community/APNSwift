@@ -16,6 +16,48 @@ import Foundation
 import NIO
 import NIOHTTP2
 import NIOSSL
+import NIOTLS
+
+private final class WaitForTLSUpHandler: ChannelInboundHandler {
+    typealias InboundIn = Never
+
+    struct TLSNegotiationError: Error {
+        var wrongProtocolNegotiated: String?
+    }
+
+    private let allDonePromise: EventLoopPromise<Void>
+
+    init(allDonePromise: EventLoopPromise<Void>) {
+        self.allDonePromise = allDonePromise
+    }
+
+    func errorCaught(context: ChannelHandlerContext, error: Error) {
+        // this is an unknown error, this is unexpected, let's fail everything and close the connection.
+        self.allDonePromise.fail(error)
+        context.close(promise: nil)
+    }
+
+    func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
+        if let event = event as? TLSUserEvent {
+            switch event {
+            case .handshakeCompleted(negotiatedProtocol: "h2"):
+                self.allDonePromise.succeed(())
+            case .handshakeCompleted(negotiatedProtocol: let proto):
+                self.allDonePromise.fail(TLSNegotiationError(wrongProtocolNegotiated: proto))
+                context.close(promise: nil)
+            case .shutdownCompleted:
+                context.fireUserInboundEventTriggered(event)
+            }
+        } else {
+            context.fireUserInboundEventTriggered(event)
+        }
+    }
+
+    func channelInactive(context: ChannelHandlerContext) {
+        // there's always the possibility that we just get a close which we need to handle.
+        self.allDonePromise.fail(ChannelError.eof)
+    }
+}
 
 public final class APNSwiftConnection {
     
@@ -39,26 +81,25 @@ public final class APNSwiftConnection {
      */
     
     public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSwiftConnection> {
-        let bootstrap = ClientBootstrap(group: eventLoop)
-            .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
-            .channelInitializer { channel in
-                do {
-                    let sslContext = try NIOSSLContext(configuration: configuration.tlsConfiguration)
-                    let sslHandler = try NIOSSLClientHandler(context: sslContext, serverHostname: configuration.url.host)
-                    return channel.pipeline.addHandler(sslHandler).flatMap {
-                        channel.configureHTTP2Pipeline(mode: .client) { _, _ in
-                            fatalError("server push not supported")
-                        }.map { _ in }
+        struct UnsupportedServerPushError: Error {}
+
+        let sslContext = try! NIOSSLContext(configuration: configuration.tlsConfiguration)
+        let connectionFullyUpPromise = eventLoop.makePromise(of: Void.self)
+
+        let tcpConnection = ClientBootstrap(group: eventLoop).connect(host: configuration.url.host!, port: 443)
+        tcpConnection.cascadeFailure(to: connectionFullyUpPromise)
+        return tcpConnection.flatMap { channel in
+            let sslHandler = try! NIOSSLClientHandler(context: sslContext,
+                                                     serverHostname: configuration.url.host)
+            return channel.pipeline.addHandlers([sslHandler,
+                                                 WaitForTLSUpHandler(allDonePromise: connectionFullyUpPromise)]).flatMap {
+                channel.configureHTTP2Pipeline(mode: .client) { channel, _ in
+                    return channel.eventLoop.makeFailedFuture(UnsupportedServerPushError())
+                }.flatMap { multiplexer in
+                    connectionFullyUpPromise.futureResult.map {
+                        return APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
                     }
-                } catch {
-                    channel.close(mode: .all, promise: nil)
-                    return channel.eventLoop.makeFailedFuture(error)
                 }
-        }
-        
-        return bootstrap.connect(host: configuration.url.host!, port: 443).flatMap { channel in
-            return channel.pipeline.handler(type: HTTP2StreamMultiplexer.self).map { multiplexer in
-                return APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
             }
         }
     }
@@ -117,7 +158,6 @@ public final class APNSwiftConnection {
             )
             
             return streamPromise.futureResult.flatMap { stream in
-                responsePromise.futureResult.whenComplete { _ in }
                 return stream.writeAndFlush(context)
             }.flatMap {
                 responsePromise.futureResult

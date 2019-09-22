@@ -77,11 +77,15 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
             reqHead.headers.add(name: "apns-push-type", value: pushType.rawValue)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        guard let token = bearerToken.token else {
-            promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
-            return
+        // Only use token auth if private key is nil
+        if configuration.tlsConfiguration.privateKey == nil {
+            guard let token = bearerToken.token else {
+                promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
+                return
+            }
+            reqHead.headers.add(name: "authorization", value: "bearer \(token)")
         }
-        reqHead.headers.add(name: "authorization", value: "bearer \(token)")
+
         context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.end(nil)), promise: promise)
