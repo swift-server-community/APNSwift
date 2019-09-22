@@ -30,6 +30,7 @@ let package = Package(
                                                 "NIOHTTP1",
                                                 "NIOHTTP2",
                                                 "NIOFoundationCompat",
-                                                "CAPNSOpenSSL"]),
+                                                "CAPNSOpenSSL",
+                                                "NIOTLS"]),
     ]
 )
