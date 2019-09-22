@@ -178,7 +178,7 @@ final class APNSwiftRequestTests: XCTestCase {
                 self.aps = aps
             }
         }
-                let deviceToken = ""
+        let deviceToken = ""
         let allocator = ByteBufferAllocator()
         var signerBuffer = allocator.buffer(capacity: invalidAuthKey.count)
         signerBuffer.writeString(invalidAuthKey)
@@ -190,7 +190,7 @@ final class APNSwiftRequestTests: XCTestCase {
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
         let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
-        let handler: APNSwiftRequestEncoder<BasicNotification> = APNSwiftRequestEncoder<BasicNotification>(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, expiration: nil, priority: nil, collapseIdentifier: nil)
+        let handler: APNSwiftRequestEncoder = .init(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, pushType: .alert, expiration: nil, priority: nil, collapseIdentifier: nil, topic: nil)
         let channel = EmbeddedChannel(handler: handler)
 
         // pretend to connect the connect (nothing real will happen)
