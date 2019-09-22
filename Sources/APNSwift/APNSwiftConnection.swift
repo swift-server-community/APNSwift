@@ -94,13 +94,12 @@ public final class APNSwiftConnection {
      try apns.send(notification, bearerToken: bearerToken,to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
-    public func send<Notification>(_ notification: Notification, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void>
-        where Notification: APNSwiftNotification {
+    public func send<Notification: APNSwiftNotification>(_ notification: Notification, pushType: APNSwiftConnection.PushType, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
             let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
             multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
                 let handlers: [ChannelHandler] = [
                     HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                    APNSwiftRequestEncoder<Notification>(deviceToken: deviceToken, configuration: self.configuration, bearerToken: bearerToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier),
+                    APNSwiftRequestEncoder(deviceToken: deviceToken, configuration: self.configuration, bearerToken: bearerToken, pushType: pushType, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic),
                     APNSwiftResponseDecoder(),
                     APNSwiftStreamHandler(),
                 ]
@@ -123,6 +122,9 @@ public final class APNSwiftConnection {
             }.flatMap {
                 responsePromise.futureResult
             }
+    }
+    public func send<Notification: APNSwiftNotification>(_ notification: Notification, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
+        return self.send(notification, pushType: .alert, bearerToken: bearerToken, to: deviceToken, with: encoder, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
     }
     
     var onClose: EventLoopFuture<Void> {

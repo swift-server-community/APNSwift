@@ -18,8 +18,7 @@ import NIOHTTP1
 import NIOHTTP2
 
 /// The class provides the HTTP2 interface to Swift NIO 2
-internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandler
-    where Notification: APNSwiftNotification {
+internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
     /// See `ChannelOutboundHandler.OutboundIn`.
     typealias OutboundIn = ByteBuffer
 
@@ -33,9 +32,10 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
     let expiration: Date?
     let collapseIdentifier: String?
     let topic: String?
+    let pushType: APNSwiftConnection.PushType?
     
     
-    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
+    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, pushType: APNSwiftConnection.PushType, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?) {
         self.configuration = configuration
         self.bearerToken = bearerToken
         self.deviceToken = deviceToken
@@ -43,6 +43,12 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
         self.priority = priority
         self.collapseIdentifier = collapseIdentifier
         self.topic = topic
+        self.pushType = pushType
+    }
+    
+    convenience init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
+        self.init(deviceToken: deviceToken, configuration: configuration, bearerToken: bearerToken, pushType: .alert, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
+        
     }
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
@@ -66,6 +72,9 @@ internal final class APNSwiftRequestEncoder<Notification>: ChannelOutboundHandle
         }
         if let collapseId = self.collapseIdentifier {
             reqHead.headers.add(name: "apns-collapse-id", value: collapseId)
+        }
+        if let pushType = self.pushType {
+            reqHead.headers.add(name: "apns-push-type", value: pushType.rawValue)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
         guard let token = bearerToken.token else {
