@@ -70,8 +70,9 @@ public struct APNSwiftSigner {
         let lens = Int(BN_bn2bin(.make(optional: s), &sb))
 
         var signatureBytes = ByteBufferAllocator().buffer(capacity: lenr + lens)
-        signatureBytes.writeBytes(rb[0..<lenr])
-        signatureBytes.writeBytes(sb[0..<lens])
+        let allZeroes = Array(repeating: UInt8(0), count: 32)
+        signatureBytes.writeBytes([allZeroes, rb].joined().suffix(32))
+        signatureBytes.writeBytes([allZeroes, sb].joined().suffix(32))
         return signatureBytes
     }
 }
