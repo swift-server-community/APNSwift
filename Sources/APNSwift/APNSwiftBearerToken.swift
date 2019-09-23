@@ -28,7 +28,7 @@ public class APNSwiftBearerToken {
         self.deadline = deadline
         self.timeout = TimeInterval(deadline.nanoseconds / 1000000000)
     }
-    convenience init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
+    public convenience init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
         self.init(configuration: configuration, deadline: TimeAmount.seconds(Int64(timeout)))
     }
     

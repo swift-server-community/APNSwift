@@ -189,7 +189,7 @@ final class APNSwiftRequestTests: XCTestCase {
                                                signer: signer,
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
-        let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: .seconds(50))
+        let token = APNSwiftBearerToken(configuration: apnsConfig, deadline: .seconds(50))
         let handler: APNSwiftRequestEncoder = .init(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, pushType: .alert, expiration: nil, priority: nil, collapseIdentifier: nil, topic: nil)
         let channel = EmbeddedChannel(handler: handler)
 
@@ -251,7 +251,7 @@ final class APNSwiftRequestTests: XCTestCase {
                                                environment: .sandbox)
         let loop = EmbeddedEventLoop()
         var createdToken: String = ""
-        let bearerToken = APNSwiftBearerToken(configuration: apnsConfig, timeout: .seconds(10))
+        let bearerToken = APNSwiftBearerToken(configuration: apnsConfig, deadline: .seconds(10))
         createdToken = bearerToken.token!
         let cachedToken = createdToken
         let task = loop.scheduleTask(in: .seconds(20)) { bearerToken.token!}
