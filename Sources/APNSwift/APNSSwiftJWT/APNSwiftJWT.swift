@@ -47,7 +47,7 @@ internal struct APNSwiftJWT: Codable {
 
     private let payload: Payload
 
-    internal init(keyID: String, teamID: String, issueDate: Date, expireDuration _: TimeInterval) {
+    internal init(keyID: String, teamID: String, issueDate: Date) {
         header = Header(keyID: keyID)
         let iat = Int(issueDate.timeIntervalSince1970.rounded())
         payload = Payload(teamID: teamID, issueDate: iat)

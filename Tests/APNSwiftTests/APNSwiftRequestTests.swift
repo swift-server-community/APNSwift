@@ -189,7 +189,7 @@ final class APNSwiftRequestTests: XCTestCase {
                                                signer: signer,
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
-        let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
+        let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: .seconds(50))
         let handler: APNSwiftRequestEncoder = .init(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, pushType: .alert, expiration: nil, priority: nil, collapseIdentifier: nil, topic: nil)
         let channel = EmbeddedChannel(handler: handler)
 
@@ -237,6 +237,43 @@ final class APNSwiftRequestTests: XCTestCase {
         }
     }
     
+    func testTokenProviderUpdate() {
+        
+        let allocator = ByteBufferAllocator()
+        var signerBuffer = allocator.buffer(capacity: validAuthKey.count)
+        signerBuffer.writeString(validAuthKey)
+        let signer = try! APNSwiftSigner.init(buffer: signerBuffer)
+
+        let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+                                               teamIdentifier: "ABBM6U9RM5",
+                                               signer: signer,
+                                               topic: "com.grasscove.Fern",
+                                               environment: .sandbox)
+        let loop = EmbeddedEventLoop()
+        var createdToken: String = ""
+        let bearerToken = APNSwiftBearerToken(configuration: apnsConfig, timeout: .seconds(10))
+        createdToken = bearerToken.token!
+        let cachedToken = createdToken
+        let task = loop.scheduleTask(in: .seconds(20)) { bearerToken.token!}
+        task.futureResult.whenSuccess {
+            createdToken = $0
+            XCTAssertTrue(createdToken == $0)
+        }
+
+        loop.advanceTime(by: .seconds(2))
+        
+        XCTAssertTrue(cachedToken == createdToken)
+        // Total time passed is 9 seconds
+        // Token should not have changed
+        loop.advanceTime(by: .seconds(7))
+        XCTAssertTrue(cachedToken == createdToken)
+        
+        loop.advanceTime(by: .seconds(15))
+        // total passed time is 24 seconds,
+        // Token should be different.
+        XCTAssertFalse(cachedToken == createdToken)
+    }
+    
 
     static var allTests = [
         ("testAlertEncoding", testAlertEncoding),
@@ -244,7 +281,9 @@ final class APNSwiftRequestTests: XCTestCase {
         ("testResponseDecoderBasics", testResponseDecoderBasics),
         ("testResponseDecoderHappyWithReceivingTheBodyInMultipleChunks", testResponseDecoderHappyWithReceivingTheBodyInMultipleChunks),
         ("testResponseDecoderAcceptsTrailers", testResponseDecoderAcceptsTrailers),
-        ("testInvalidAuthKey", testInvalidAuthKey)
+        ("testInvalidAuthKey", testInvalidAuthKey),
+        ("testTokenProviderUpdate", testTokenProviderUpdate)
+        
     ]
     let validAuthKey = """
     -----BEGIN PRIVATE KEY-----

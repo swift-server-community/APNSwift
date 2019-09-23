@@ -13,39 +13,43 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+import NIO
 
-public struct APNSwiftBearerToken {
+public class APNSwiftBearerToken {
     let configuration: APNSwiftConfiguration
     let timeout: TimeInterval
     var createdAt: TimeInterval?
+    private var deadline: TimeAmount
+    private var tokenCreatedAt: TimeAmount?
     private var cachedToken: String?
     
-    public init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
+    public init(configuration: APNSwiftConfiguration, deadline: TimeAmount) {
         self.configuration = configuration
-        self.timeout = timeout
+        self.deadline = deadline
+        self.timeout = TimeInterval(deadline.nanoseconds / 1000000000)
+    }
+    convenience init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
+        self.init(configuration: configuration, deadline: TimeAmount.seconds(Int64(timeout)))
     }
     
     public var token: String? {
-        mutating get {
-            let now = Date().timeIntervalSince1970
-            guard let existingToken = cachedToken, let timeCreated = createdAt, (now - timeCreated) <= timeout else {
-                cachedToken = try? createToken()
-                createdAt = now
-                return cachedToken
-            }
-            return existingToken
+        let now = TimeAmount.nanoseconds(Int64(NIODeadline.now().uptimeNanoseconds))
+        guard let existingToken = cachedToken, let timeCreated = tokenCreatedAt, (now - timeCreated) >= deadline else {
+            cachedToken = try? createToken()
+            createdAt = Date().timeIntervalSince1970
+            tokenCreatedAt = now
+            return cachedToken
         }
+        return existingToken
     }
     
     private func createToken() throws -> String {
-        let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: timeout)
-        var token: String
+        let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date())
         let digestValues = try jwt.getDigest()
         var signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
         guard let data = signature.readData(length: signature.readableBytes) else {
             throw APNSwiftError.SigningError.invalidSignatureData
         }
-        token = digestValues.digest + "." + data.base64EncodedURLString()
-        return token
+        return digestValues.digest + "." + data.base64EncodedURLString()
     }
 }

@@ -31,7 +31,7 @@ final class JWTTests: XCTestCase {
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
         let date = Date()
-        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
+        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date)
         let token = try jwt.getDigest()
 
         let part = token.digest.split(separator: ".")
@@ -59,7 +59,7 @@ final class JWTTests: XCTestCase {
         let teamID = "8RX5AF8F6Z"
         let keyID = "9N8238KQ6Z"
         let date = Date()
-        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date, expireDuration: 10.0)
+        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date)
         
         let privateKey = """
 -----BEGIN EC PRIVATE KEY-----
