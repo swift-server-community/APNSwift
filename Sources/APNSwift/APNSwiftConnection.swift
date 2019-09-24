@@ -124,10 +124,12 @@ public final class APNSwiftConnection {
     }
     
     @available(*, deprecated, message: "APNSwiftConnection is initialized internally now.")
-    public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
-        self.channel = channel
-        self.multiplexer = multiplexer
-        self.configuration = configuration
+    public convenience init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
+        var tokenFactory: APNSwiftBearerTokenFactory? = nil
+        if configuration.tlsConfiguration.privateKey == nil {
+            tokenFactory = try? APNSwiftBearerTokenFactory(eventLoop: channel.eventLoop, configuration: configuration)
+        }
+        self.init(channel: channel, multiplexer: multiplexer, configuration: configuration, bearerTokenFactory: tokenFactory)
     }
     
     /**
