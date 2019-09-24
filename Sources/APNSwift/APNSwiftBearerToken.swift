@@ -39,7 +39,7 @@ public struct APNSwiftBearerToken {
     }
     
     private func createToken() throws -> String {
-        let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date(), expireDuration: timeout)
+        let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date())
         var token: String
         let digestValues = try jwt.getDigest()
         var signature = try configuration.signer.sign(digest: digestValues.fixedDigest)
