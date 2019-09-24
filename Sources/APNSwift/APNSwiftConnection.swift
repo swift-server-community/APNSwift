@@ -173,6 +173,7 @@ public final class APNSwiftConnection {
                 responsePromise.futureResult
             }
     }
+    @available(*, deprecated, message: "Bearer Tokens are handled internally now, and no longer exposed.")
     public func send<Notification: APNSwiftNotification>(_ notification: Notification, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
         return self.send(notification, pushType: .alert, to: deviceToken, with: encoder, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
     }
