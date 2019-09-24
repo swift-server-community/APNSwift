@@ -15,7 +15,7 @@
 import Foundation
 import NIO
 
-public class APNSwiftBearerToken {
+public struct APNSwiftBearerToken {
     let configuration: APNSwiftConfiguration
     let timeout: TimeInterval
     var createdAt: TimeInterval?
@@ -28,19 +28,21 @@ public class APNSwiftBearerToken {
         self.deadline = deadline
         self.timeout = TimeInterval(deadline.nanoseconds / 1000000000)
     }
-    public convenience init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
+    public init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
         self.init(configuration: configuration, deadline: TimeAmount.seconds(Int64(timeout)))
     }
     
     public var token: String? {
-        let now = TimeAmount.nanoseconds(Int64(NIODeadline.now().uptimeNanoseconds))
-        guard let existingToken = cachedToken, let timeCreated = tokenCreatedAt, (now - timeCreated) >= deadline else {
-            cachedToken = try? createToken()
-            createdAt = Date().timeIntervalSince1970
-            tokenCreatedAt = now
-            return cachedToken
+        mutating get {
+            let now = TimeAmount.nanoseconds(Int64(DispatchTime.now().uptimeNanoseconds))
+            guard let existingToken = cachedToken, let timeCreated = tokenCreatedAt, (now - timeCreated) <= deadline else {
+                self.cachedToken = try? createToken()
+                self.createdAt = Date().timeIntervalSince1970
+                self.tokenCreatedAt = now
+                return cachedToken
+            }
+            return existingToken
         }
-        return existingToken
     }
     
     private func createToken() throws -> String {

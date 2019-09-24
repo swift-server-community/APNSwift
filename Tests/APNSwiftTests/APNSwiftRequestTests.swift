@@ -251,30 +251,29 @@ final class APNSwiftRequestTests: XCTestCase {
                                                environment: .sandbox)
         let loop = EmbeddedEventLoop()
         var createdToken: String = ""
-        let bearerToken = APNSwiftBearerToken(configuration: apnsConfig, deadline: .seconds(10))
+        var bearerToken = APNSwiftBearerToken(configuration: apnsConfig, deadline: .minutes(60))
         createdToken = bearerToken.token!
         let cachedToken = createdToken
-        let task = loop.scheduleTask(in: .seconds(20)) { bearerToken.token!}
+        let task = loop.scheduleTask(in: .minutes(65)) {
+            bearerToken.token!
+        }
         task.futureResult.whenSuccess {
             createdToken = $0
+            print("future: \(DispatchTime.now().uptimeNanoseconds)")
             XCTAssertTrue(createdToken == $0)
         }
 
         loop.advanceTime(by: .seconds(2))
         
         XCTAssertTrue(cachedToken == createdToken)
-        // Total time passed is 9 seconds
-        // Token should not have changed
+
         loop.advanceTime(by: .seconds(7))
         XCTAssertTrue(cachedToken == createdToken)
         
-        loop.advanceTime(by: .seconds(15))
-        // total passed time is 24 seconds,
-        // Token should be different.
+        loop.advanceTime(by: .minutes(70))
         XCTAssertFalse(cachedToken == createdToken)
+        
     }
-    
-
     static var allTests = [
         ("testAlertEncoding", testAlertEncoding),
         ("testMinimalAlertEncoding", testMinimalAlertEncoding),
