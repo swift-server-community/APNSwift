@@ -26,7 +26,7 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
     typealias OutboundOut = HTTPClientRequestPart
 
     let configuration: APNSwiftConfiguration
-    var bearerToken: APNSwiftBearerToken
+    var bearerToken: String?
     let deviceToken: String
     let priority: Int?
     let expiration: Date?
@@ -35,7 +35,7 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
     let pushType: APNSwiftConnection.PushType?
     
     
-    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, pushType: APNSwiftConnection.PushType, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?) {
+    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: String?, pushType: APNSwiftConnection.PushType, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?) {
         self.configuration = configuration
         self.bearerToken = bearerToken
         self.deviceToken = deviceToken
@@ -46,7 +46,7 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
         self.pushType = pushType
     }
     
-    convenience init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: APNSwiftBearerToken, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
+    convenience init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: String, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil) {
         self.init(deviceToken: deviceToken, configuration: configuration, bearerToken: bearerToken, pushType: .alert, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
         
     }
@@ -77,13 +77,9 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
             reqHead.headers.add(name: "apns-push-type", value: pushType.rawValue)
         }
         reqHead.headers.add(name: "host", value: configuration.url.host!)
-        // Only use token auth if private key is nil
-        if configuration.tlsConfiguration.privateKey == nil {
-            guard let token = bearerToken.token else {
-                promise?.fail(APNSwiftError.SigningError.invalidSignatureData)
-                return
-            }
-            reqHead.headers.add(name: "authorization", value: "bearer \(token)")
+        // Only use token auth if bearer token is present.
+        if let bearerToken = self.bearerToken {
+            reqHead.headers.add(name: "authorization", value: "bearer \(bearerToken)")
         }
 
         context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)

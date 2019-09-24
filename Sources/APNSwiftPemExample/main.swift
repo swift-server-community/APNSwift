@@ -57,16 +57,15 @@ let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), ha
 let temp = try! JSONEncoder().encode(aps)
 let string = String(bytes: temp, encoding: .utf8)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-let token = APNSwiftBearerToken(configuration: apnsConfig, timeout: 50.0)
 
 do {
     let expiry = Date().addingTimeInterval(5)
-    try apns.send(notification, bearerToken: token, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    try apns.send(notification, bearerToken: token,  to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    for _ in 1...5 {
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    }
 } catch {
     print(error)
 }
