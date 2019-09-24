@@ -104,9 +104,7 @@ public final class APNSwiftConnection {
                         }
                     }
                     return connectionFullyUpPromise.futureResult.map { () -> APNSwiftConnection in
-                        let connection = APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
-                        connection.bearerTokenFactory = tokenFactory
-                        return connection
+                        return APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration, bearerTokenFactory: tokenFactory)
                     }
                 }
             }
@@ -118,6 +116,14 @@ public final class APNSwiftConnection {
     public let configuration: APNSwiftConfiguration
     private var bearerTokenFactory: APNSwiftBearerTokenFactory?
     
+    private init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration, bearerTokenFactory: APNSwiftBearerTokenFactory?) {
+        self.channel = channel
+        self.multiplexer = multiplexer
+        self.configuration = configuration
+        self.bearerTokenFactory = bearerTokenFactory
+    }
+    
+    @available(*, deprecated, message: "APNSwiftConnection is initialized internally now.")
     public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
         self.channel = channel
         self.multiplexer = multiplexer
