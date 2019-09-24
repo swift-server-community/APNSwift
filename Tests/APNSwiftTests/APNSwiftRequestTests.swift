@@ -189,9 +189,10 @@ final class APNSwiftRequestTests: XCTestCase {
                                                signer: signer,
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
-        let token = APNSwiftBearerToken(configuration: apnsConfig, deadline: .seconds(50))
-        let handler: APNSwiftRequestEncoder = .init(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: token, pushType: .alert, expiration: nil, priority: nil, collapseIdentifier: nil, topic: nil)
-        let channel = EmbeddedChannel(handler: handler)
+        let loop = EmbeddedEventLoop()
+        let bearerToken = try! APNSwiftBearerTokenFactory(eventLoop: loop, configuration: apnsConfig)
+        let handler: APNSwiftRequestEncoder = .init(deviceToken: deviceToken, configuration: apnsConfig, bearerToken: bearerToken.currentBearerToken, pushType: .alert, expiration: nil, priority: nil, collapseIdentifier: nil, topic: nil)
+        let channel = EmbeddedChannel(handler: handler, loop: loop)
 
         // pretend to connect the connect (nothing real will happen)
         XCTAssertNoThrow(try channel.connect(to: .init(ipAddress: "1.2.3.4", port: 5)).wait())
@@ -250,28 +251,30 @@ final class APNSwiftRequestTests: XCTestCase {
                                                topic: "com.grasscove.Fern",
                                                environment: .sandbox)
         let loop = EmbeddedEventLoop()
-        var createdToken: String = ""
-        var bearerToken = APNSwiftBearerToken(configuration: apnsConfig, deadline: .minutes(60))
-        createdToken = bearerToken.token!
-        let cachedToken = createdToken
-        let task = loop.scheduleTask(in: .minutes(65)) {
-            bearerToken.token!
-        }
-        task.futureResult.whenSuccess {
-            createdToken = $0
-            print("future: \(DispatchTime.now().uptimeNanoseconds)")
-            XCTAssertTrue(createdToken == $0)
-        }
+        let bearerToken = try! APNSwiftBearerTokenFactory(eventLoop: loop, configuration: apnsConfig)
+        let cachedToken = bearerToken.currentBearerToken
+
 
         loop.advanceTime(by: .seconds(2))
         
-        XCTAssertTrue(cachedToken == createdToken)
+        XCTAssertTrue(cachedToken == bearerToken.currentBearerToken)
 
         loop.advanceTime(by: .seconds(7))
-        XCTAssertTrue(cachedToken == createdToken)
+        XCTAssertTrue(cachedToken == bearerToken.currentBearerToken)
         
-        loop.advanceTime(by: .minutes(70))
-        XCTAssertFalse(cachedToken == createdToken)
+        loop.advanceTime(by: .minutes(45))
+        XCTAssertTrue(cachedToken == bearerToken.currentBearerToken)
+        // Advanced past 55 minute mark.
+        loop.advanceTime(by: .minutes(10))
+        XCTAssertFalse(cachedToken == bearerToken.currentBearerToken)
+        // should have changed
+        let newCachedToken = bearerToken.currentBearerToken
+        loop.advanceTime(by: .minutes(15))
+        // Should not have changed
+        XCTAssertTrue(newCachedToken == bearerToken.currentBearerToken)
+        loop.advanceTime(by: .minutes(55))
+        // Should have changed
+        XCTAssertFalse(newCachedToken == bearerToken.currentBearerToken)
         
     }
     static var allTests = [

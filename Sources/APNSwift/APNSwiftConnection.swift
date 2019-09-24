@@ -85,7 +85,6 @@ public final class APNSwiftConnection {
 
         let sslContext = try! NIOSSLContext(configuration: configuration.tlsConfiguration)
         let connectionFullyUpPromise = eventLoop.makePromise(of: Void.self)
-
         let tcpConnection = ClientBootstrap(group: eventLoop).connect(host: configuration.url.host!, port: 443)
         tcpConnection.cascadeFailure(to: connectionFullyUpPromise)
         return tcpConnection.flatMap { channel in
@@ -96,8 +95,18 @@ public final class APNSwiftConnection {
                 channel.configureHTTP2Pipeline(mode: .client) { channel, _ in
                     return channel.eventLoop.makeFailedFuture(UnsupportedServerPushError())
                 }.flatMap { multiplexer in
-                    connectionFullyUpPromise.futureResult.map {
-                        return APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+                    var tokenFactory: APNSwiftBearerTokenFactory? = nil
+                    if configuration.tlsConfiguration.privateKey == nil {
+                        do {
+                            tokenFactory = try APNSwiftBearerTokenFactory(eventLoop: eventLoop, configuration: configuration)
+                        } catch {
+                            return channel.eventLoop.makeFailedFuture(APNSwiftError.SigningError.invalidSignatureData)
+                        }
+                    }
+                    return connectionFullyUpPromise.futureResult.map { () -> APNSwiftConnection in
+                        let connection = APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration)
+                        connection.bearerTokenFactory = tokenFactory
+                        return connection
                     }
                 }
             }
@@ -107,6 +116,7 @@ public final class APNSwiftConnection {
     public let multiplexer: HTTP2StreamMultiplexer
     public let channel: Channel
     public let configuration: APNSwiftConfiguration
+    private var bearerTokenFactory: APNSwiftBearerTokenFactory?
     
     public init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
         self.channel = channel
@@ -135,12 +145,12 @@ public final class APNSwiftConnection {
      try apns.send(notification, bearerToken: bearerToken,to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
-    public func send<Notification: APNSwiftNotification>(_ notification: Notification, pushType: APNSwiftConnection.PushType, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
+    public func send<Notification: APNSwiftNotification>(_ notification: Notification, pushType: APNSwiftConnection.PushType, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
             let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
             multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
                 let handlers: [ChannelHandler] = [
                     HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                    APNSwiftRequestEncoder(deviceToken: deviceToken, configuration: self.configuration, bearerToken: bearerToken, pushType: pushType, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic),
+                    APNSwiftRequestEncoder(deviceToken: deviceToken, configuration: self.configuration, bearerToken: self.bearerTokenFactory?.currentBearerToken, pushType: pushType, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic),
                     APNSwiftResponseDecoder(),
                     APNSwiftStreamHandler(),
                 ]
@@ -164,7 +174,7 @@ public final class APNSwiftConnection {
             }
     }
     public func send<Notification: APNSwiftNotification>(_ notification: Notification, bearerToken: APNSwiftBearerToken, to deviceToken: String, with encoder: JSONEncoder = JSONEncoder(), expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
-        return self.send(notification, pushType: .alert, bearerToken: bearerToken, to: deviceToken, with: encoder, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
+        return self.send(notification, pushType: .alert, to: deviceToken, with: encoder, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
     }
     
     var onClose: EventLoopFuture<Void> {
@@ -172,6 +182,10 @@ public final class APNSwiftConnection {
     }
     
     public func close() -> EventLoopFuture<Void> {
+        channel.eventLoop.execute {
+            self.bearerTokenFactory?.cancel()
+            self.bearerTokenFactory = nil
+        }
         return channel.close(mode: .all)
     }
 }

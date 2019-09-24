@@ -15,6 +15,7 @@
 import Foundation
 import NIO
 
+@available(*, deprecated, message: "Bearer Tokens are handled internally now, and no longer exposed.")
 public struct APNSwiftBearerToken {
     let configuration: APNSwiftConfiguration
     let timeout: TimeInterval
