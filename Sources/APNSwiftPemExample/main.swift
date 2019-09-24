@@ -57,7 +57,6 @@ let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), ha
 let temp = try! JSONEncoder().encode(aps)
 let string = String(bytes: temp, encoding: .utf8)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-let token = APNSwiftBearerToken(configuration: apnsConfig, deadline: .microseconds(50))
 
 do {
     let expiry = Date().addingTimeInterval(5)
