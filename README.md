@@ -9,7 +9,7 @@ A non-blocking Swift module for sending remote Apple Push Notification requests 
 
 ## Installation
 
-To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies). Though you may want to consider using master branch until approved by the SSWG.
+To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies).
 
 ```swift
 dependencies: [
@@ -28,13 +28,17 @@ let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        topic: "com.grasscove.Fern",
                                        environment: .sandbox)
 
+struct BasicNotification: APNSwiftNotification {
+    var aps: APNSwiftPayload
+}
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
+let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
 let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
-let notification = APNSwiftNotification(aps: aps)
-let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
+let notification = BasicNotification(aps: aps)
+let res = apns.send(notification, pushType: .alert, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e")
 try apns.close().wait()
 try group.syncShutdownGracefully()
+exit(0)
 ```
 
 
@@ -122,16 +126,9 @@ let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
 
 ```swift
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-let url = URL(fileURLWithPath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-let data: Data
-do {
-    data = try Data(contentsOf: url)
-} catch {
-    throw APNSwiftError.SigningError.certificateFileDoesNotExist
-}
-var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
-byteBuffer.writeBytes(data)
-let signer = try! APNSwiftSigner.init(buffer: byteBuffer)
+var verbose = true
+
+let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8")
 
 let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        teamIdentifier: "ABBM6U9RM5",
@@ -140,12 +137,43 @@ let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        environment: .sandbox)
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
-let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
-let notification = BasicNotification(aps: aps)
-let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
+
+if verbose {
+    print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
+}
+
+struct AcmeNotification: APNSwiftNotification {
+    let acme2: [String]
+    let aps: APNSwiftPayload
+
+    init(acme2: [String], aps: APNSwiftPayload) {
+        self.acme2 = acme2
+        self.aps = aps
+    }
+}
+
+let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
+let apsSound = APNSwiftPayload.APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
+let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
+let temp = try! JSONEncoder().encode(aps)
+let string = String(bytes: temp, encoding: .utf8)
+let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
+
+do {
+    let expiry = Date().addingTimeInterval(5)
+    for _ in 1...5 {
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
+    }
+} catch {
+    print(error)
+}
+
 try apns.close().wait()
 try group.syncShutdownGracefully()
+exit(0)
 ```
 
 ### Custom Notification Data
@@ -168,6 +196,20 @@ let apns: APNSwiftConnection: = ...
 let aps: APNSwiftPayload = ...
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
+```
+
+### Using PEM instead of P8
+```swift
+var apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+                                       teamIdentifier: "ABBM6U9RM5",
+                                       signer: APNSwiftSigner.init(buffer: ByteBufferAllocator().buffer(capacity: Data().count)),
+                                       topic: "com.grasscove.Fern",
+                                       environment: .sandbox)
+
+let key = try NIOSSLPrivateKey(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey", format: .pem)
+apnsConfig.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+apnsConfig.tlsConfiguration.certificateVerification = .noHostnameVerification
+apnsConfig.tlsConfiguration.certificateChain = try! [.certificate(.init(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem", format: .pem))]
 ```
 
 #### Original pitch and discussion on API
