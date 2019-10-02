@@ -157,12 +157,12 @@ public final class APNSwiftConnection {
         let data: Data = try! encoder.encode(notification)        
         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
         buffer.writeBytes(data)
-        return send(withByteBuffer: buffer, pushType: pushType, to: deviceToken)
+        return send(rawBytes: buffer, pushType: pushType, to: deviceToken)
     }
     
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
-    public func send(withByteBuffer buffer: ByteBuffer, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
+    public func send(rawBytes payload: ByteBuffer, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
             let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
             multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
                 let handlers: [ChannelHandler] = [
@@ -176,7 +176,7 @@ public final class APNSwiftConnection {
             
             let responsePromise = channel.eventLoop.makePromise(of: Void.self)
             let context = APNSwiftRequestContext(
-                request: buffer,
+                request: payload,
                 responsePromise: responsePromise
             )
             
