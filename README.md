@@ -211,6 +211,17 @@ apnsConfig.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
 apnsConfig.tlsConfiguration.certificateVerification = .noHostnameVerification
 apnsConfig.tlsConfiguration.certificateChain = try! [.certificate(.init(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem", format: .pem))]
 ```
+### Need a completely custom arbtirary payload and dont like being typecast?
+APNSwift provides the ability to send rawBytes `ByteBuffer` as a payload.
+This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+```swift
+let notificationJsonPayload = ...
+let data: Data = try! encoder.encode(notificationJsonPayload)
+var buffer = ByteBufferAllocator().buffer(capacity: data.count)
+buffer.writeBytes(data)
+try apns.send(rawBytes: buffer, pushType: .alert, to: "<DEVICETOKEN>")
+```
 
 #### Original pitch and discussion on API
 
