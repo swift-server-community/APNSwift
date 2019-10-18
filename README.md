@@ -1,7 +1,7 @@
 [![sswg:sandbox|94x20](https://img.shields.io/badge/sswg-sandbox-lightgrey.svg)](https://github.com/swift-server/sswg/blob/master/process/incubation.md#sandbox-level)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Build](https://img.shields.io/circleci/project/github/kylebrowning/APNSwift/master.svg?logo=circleci)](https://circleci.com/gh/kylebrowning/APNSwift/tree/master)
-[![Swift](https://img.shields.io/badge/Swift-5.0-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-5.1-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
 
 # APNSwift
 
@@ -13,7 +13,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kylebrowning/APNSwift.git", .upToNextMinor(from: "1.2.0"))
+    .package(url: "https://github.com/kylebrowning/APNSwift.git", .upToNextMinor(from: "1.3.0"))
 ]
 ```
 
