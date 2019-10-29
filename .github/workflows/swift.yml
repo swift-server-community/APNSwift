@@ -14,4 +14,4 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Use ssl version ${{ matrix.ssl_version }}
-      run: sudo apt-get install openlssl@${{ matrix.ssl_version }}
+      run: sudo apt-get install libssl@${{ matrix.ssl_version }}
