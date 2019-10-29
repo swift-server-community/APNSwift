@@ -1,0 +1,17 @@
+name: test
+
+on:
+- pull_request
+jobs:
+  test:
+    name: Test APNSwift with SSL ${{ matrix.ssl_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        ssl_version: ['1.0', '1.1']
+        os: [ubuntu-18.04, ubuntu-16.04]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use ssl version ${{ matrix.ssl_version }}
+      run: sudo apt-get install openlssl@${{ matrix.ssl_version }}
