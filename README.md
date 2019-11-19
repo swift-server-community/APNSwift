@@ -20,6 +20,7 @@ dependencies: [
 ## Getting Started
 
 ```swift
+let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
 
 let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
