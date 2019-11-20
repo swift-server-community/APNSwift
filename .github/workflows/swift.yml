@@ -43,4 +43,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - run: swift test --sanitize=address
+    - run: ASAN_OPTIONS=detect_leaks=0 swift test --sanitize=address
