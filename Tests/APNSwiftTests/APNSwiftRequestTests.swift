@@ -222,6 +222,7 @@ final class APNSwiftRequestTests: XCTestCase {
                 XCTFail("response should not success")
             }
         }
+        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
     }
     
     func testTokenProviderUpdate() {
@@ -261,6 +262,7 @@ final class APNSwiftRequestTests: XCTestCase {
         loop.advanceTime(by: .minutes(55))
         // Should have changed
         XCTAssertFalse(newCachedToken == bearerToken.currentBearerToken)
+        bearerToken.cancel()
         
     }
     static var allTests = [
