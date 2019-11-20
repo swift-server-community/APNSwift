@@ -1,17 +1,46 @@
 name: test
-
 on:
 - pull_request
 jobs:
-  test:
-    name: Test APNSwift with SSL ${{ matrix.ssl_version }} and ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        ssl_version: ['1.0', '1.1']
-        os: [ubuntu-18.04, ubuntu-16.04]
-
+  xenial-5-1:
+    container:
+      image: vapor/swift:5.1-xenial
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Use ssl version ${{ matrix.ssl_version }}
-      run: sudo apt-get install libssl-dev
+    - uses: actions/checkout@master
+    - run: swift test
+  xenial-5-0:
+    container:
+      image: vapor/swift:5.0-xenial
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: swift test
+  bionic-5-1:
+    container:
+      image: vapor/swift:5.1-bionic
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: swift test
+  bionic-5-0:
+    container:
+      image: vapor/swift:5.0-bionic
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: swift test
+  thread:
+    container:
+      image: vapor/swift:5.1-bionic
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: swift test --sanitize=thread
+  thread:
+    container:
+      image: vapor/swift:5.1-bionic
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: swift test --sanitize=address
