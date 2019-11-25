@@ -249,7 +249,7 @@ final class APNSwiftRequestTests: XCTestCase {
                     XCTFail("response is: \(error), should be: \(expected)")
                 }
             default:
-                XCTFail("response should not success")
+                XCTFail("response should not succeed")
             }
         }
         let leftovers = try channel.finish()
