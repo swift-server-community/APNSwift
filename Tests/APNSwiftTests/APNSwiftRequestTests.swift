@@ -243,8 +243,8 @@ final class APNSwiftRequestTests: XCTestCase {
         responsePromise.futureResult.whenComplete { temp in
             switch temp {
             case .failure(let error):
-                let error = error as! APNSwiftError.Internal
-                let expected = APNSwiftError.Internal.handlerRemovedBeforeFullfilled
+                let error = error as! NoResponseReceivedBeforeConnectionEnded
+                let expected = NoResponseReceivedBeforeConnectionEnded()
                 if error != expected {
                     XCTFail("response is: \(error), should be: \(expected)")
                 }
@@ -252,8 +252,8 @@ final class APNSwiftRequestTests: XCTestCase {
                 XCTFail("response should not succeed")
             }
         }
-        let leftovers = try channel.finish()
-        XCTAssertTrue(leftovers.hasLeftOvers)
+        XCTAssertNoThrow(XCTAssertNotNil(try channel.readOutbound()))
+        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
     }
     
     func testTokenProviderUpdate() {

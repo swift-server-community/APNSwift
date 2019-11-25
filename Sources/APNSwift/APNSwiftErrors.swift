@@ -14,6 +14,9 @@
 
 import Foundation
 
+/// An error for when the connections ends, but we still have promises in our queue.
+public struct NoResponseReceivedBeforeConnectionEnded: Error, Equatable {}
+
 /// This is an enum that provides the possible responses from Apple
 public struct APNSwiftError: Equatable {
     public enum ResponseError: Error, Equatable {
@@ -58,10 +61,6 @@ public struct APNSwiftError: Equatable {
         public var description: String {
             return rawValue
         }
-    }
-    
-    public enum Internal: Error {
-        case handlerRemovedBeforeFullfilled
     }
     
     public enum SigningError: Error {
