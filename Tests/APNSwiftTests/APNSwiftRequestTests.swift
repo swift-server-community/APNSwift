@@ -219,10 +219,41 @@ final class APNSwiftRequestTests: XCTestCase {
                     XCTFail("response is: \(error), should be: \(expected)")
                 }
             default:
+                XCTFail("response should not succeed")
+            }
+        }
+        XCTAssertNoThrow(XCTAssertNotNil(try channel.readOutbound()))
+        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
+
+    }
+    
+    func testErrorsFromAPNSLeak() throws {
+        let encodedData = try JSONEncoder().encode(["test string"])
+        let allocator = ByteBufferAllocator()
+        var errorBuffer = allocator.buffer(capacity: encodedData.count)
+        errorBuffer.writeBytes(encodedData)
+              
+        let channel = EmbeddedChannel(handler: APNSwiftStreamHandler())
+        let responsePromise = channel.eventLoop.makePromise(of: Void.self)
+        let context = APNSwiftRequestContext(
+           request: errorBuffer,
+           responsePromise: responsePromise
+        )
+        try channel.writeOutbound(context)
+        responsePromise.futureResult.whenComplete { temp in
+            switch temp {
+            case .failure(let error):
+                let error = error as! APNSwiftError.Internal
+                let expected = APNSwiftError.Internal.handlerRemovedBeforeFullfilled
+                if error != expected {
+                    XCTFail("response is: \(error), should be: \(expected)")
+                }
+            default:
                 XCTFail("response should not success")
             }
         }
-        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
+        let leftovers = try channel.finish()
+        XCTAssertTrue(leftovers.hasLeftOvers)
     }
     
     func testTokenProviderUpdate() {

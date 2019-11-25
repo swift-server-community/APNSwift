@@ -59,6 +59,11 @@ public struct APNSwiftError: Equatable {
             return rawValue
         }
     }
+    
+    public enum Internal: Error {
+        case handlerRemovedBeforeFullfilled
+    }
+    
     public enum SigningError: Error {
         case invalidAuthKey
         case invalidASN1

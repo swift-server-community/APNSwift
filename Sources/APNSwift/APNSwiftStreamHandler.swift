@@ -46,4 +46,10 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
         queue.insert(input, at: 0)
         context.write(wrapOutboundOut(input.request), promise: promise)
     }
+    
+    func handlerRemoved(context: ChannelHandlerContext) {
+        queue.forEach { context in
+            context.responsePromise.fail(APNSwiftError.Internal.handlerRemovedBeforeFullfilled)
+        }
+    }
 }
