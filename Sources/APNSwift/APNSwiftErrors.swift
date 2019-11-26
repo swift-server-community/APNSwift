@@ -16,6 +16,7 @@ import Foundation
 
 /// An error for when the connections ends, but we still have promises in our queue.
 public struct NoResponseReceivedBeforeConnectionEnded: Error, Equatable {}
+/// An error where a request was made to Apple, but the response body buffer was nil
 public struct NoResponseBodyFromApple: Error, Equatable {}
 
 /// This is an enum that provides the possible responses from Apple
