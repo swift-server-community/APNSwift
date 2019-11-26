@@ -36,10 +36,10 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
             if var buffer = res.byteBuffer, let data = buffer.readData(length: buffer.readableBytes) {
                 do {
                     let error = try JSONDecoder().decode(APNSwiftError.ResponseStruct.self, from: data)
+                    return current.responsePromise.fail(APNSwiftError.ResponseError.badRequest(error.reason))
                 } catch {
-                    current.responsePromise.fail(error)
+                    return current.responsePromise.fail(error)
                 }
-                return current.responsePromise.fail(APNSwiftError.ResponseError.badRequest(error.reason))
             } else {
                 return current.responsePromise.fail(ResponseFromAppleMissing())
             }
