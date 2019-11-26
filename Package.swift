@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "APNSwift", targets: ["APNSwift"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.8.0")),
+        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.10.1")),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "2.4.0")),
         .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.6.0")),
     ],
