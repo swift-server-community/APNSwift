@@ -48,7 +48,7 @@ public struct APNSwiftConfiguration {
      `file`, `data`, or `custom`.
        - topic: The bundle identifier for these push notifications.
        - environment: The environment to use, sandbox, or production.
-       - logger: a logger for debugging/monitoring purposes
+       - loggerType: The logger you wish to use, .createDefault, or .custom(Logger)
 
      ### Usage Example: ###
      ````
@@ -57,7 +57,7 @@ public struct APNSwiftConfiguration {
          signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
          topic: "com.grasscove.Fern",
          environment: .sandbox,
-         logger:
+         loggerType: .custom(logger)
      )
      ````
      */
