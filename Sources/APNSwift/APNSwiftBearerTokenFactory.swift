@@ -26,8 +26,10 @@ internal final class APNSwiftBearerTokenFactory {
         self.eventLoop = eventLoop
         self.eventLoop.assertInEventLoop()
         self.configuration = configuration
+        self.configuration.logger.info("Token - making new token")
         self.currentBearerToken = try APNSwiftBearerTokenFactory.makeNewBearerToken(configuration: configuration)
         self.updateTask = eventLoop.scheduleRepeatedTask(initialDelay: .minutes(55), delay: .minutes(55)) { task in
+            self.configuration.logger.info("Token - updating token")
             self.currentBearerToken = try APNSwiftBearerTokenFactory.makeNewBearerToken(configuration: configuration)
         }
     }
@@ -37,6 +39,7 @@ internal final class APNSwiftBearerTokenFactory {
         self.cancelled = true
         self.updateTask?.cancel()
         self.updateTask = nil
+        self.configuration.logger.info("Token - killed")
     }
 
     deinit {

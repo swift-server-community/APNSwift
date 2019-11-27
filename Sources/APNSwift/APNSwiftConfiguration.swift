@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+import Logging
 import NIO
 import NIOHTTP2
 import NIOSSL
@@ -25,6 +26,7 @@ public struct APNSwiftConfiguration {
     public var topic: String
     public var environment: Environment
     public var tlsConfiguration: TLSConfiguration
+    internal var logger: Logger
 
     public var url: URL {
         switch environment {
@@ -46,6 +48,7 @@ public struct APNSwiftConfiguration {
      `file`, `data`, or `custom`.
        - topic: The bundle identifier for these push notifications.
        - environment: The environment to use, sandbox, or production.
+       - logger: a logger for debugging/monitoring purposes
 
      ### Usage Example: ###
      ````
@@ -53,18 +56,29 @@ public struct APNSwiftConfiguration {
          teamIdentifier: "ABBM6U9RM5",
          signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
          topic: "com.grasscove.Fern",
-         environment: .sandbox
+         environment: .sandbox,
+         logger:
      )
      ````
      */
     public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment) {
+        self.init(keyIdentifier: keyIdentifier, teamIdentifier: teamIdentifier, signer: signer, topic: topic, environment: environment, loggerType: .createDefault)
+    }
+    
+    public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment, loggerType: LoggerType = .createDefault) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
         self.topic = topic
         self.signer = signer
         self.environment = environment
         self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
-
+        switch loggerType {
+        case .createDefault:
+            self.logger = Logger(label: "com.apnswift")
+            logger.logLevel = .critical
+        case .custom (let logger):
+            self.logger = logger
+        }
     }
 }
 
@@ -72,6 +86,13 @@ extension APNSwiftConfiguration {
     public enum Environment {
         case production
         case sandbox
+    }
+}
+
+extension APNSwiftConfiguration {
+    public enum LoggerType {
+        case createDefault
+        case custom(Logger)
     }
 }
 
