@@ -73,10 +73,9 @@ public struct APNSwiftConfiguration {
         self.environment = environment
         self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
         
-        if let logger = logger {
+        if var logger = logger {
+            logger[metadataKey: "origin"] = "APNSwift"
             self.logger = logger
-        } else {
-            self.logger = Logger(label: "com.apnswift")
         }
     }
 }
