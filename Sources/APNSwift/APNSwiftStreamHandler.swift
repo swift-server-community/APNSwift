@@ -32,24 +32,24 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
     }
 
     func channelRead(context _: ChannelHandlerContext, data: NIOAny) {
-        self.configuration?.logger.info("Response - received")
+        self.configuration?.logger?.debug("Response - received", metadata: ["origin": "APNSwift"])
         let res = unwrapInboundIn(data)
         guard let current = self.queue.popLast() else { return }
         guard res.header.status == .ok else {
             guard let buffer = res.byteBuffer else {
-                self.configuration?.logger.info("Response - no response body")
+                self.configuration?.logger?.warning("Response - no response body", metadata: ["origin": "APNSwift"])
                 return current.responsePromise.fail(NoResponseBodyFromApple())
             }
             do {
                 let error = try JSONDecoder().decode(APNSwiftError.ResponseStruct.self, from: buffer)
-                self.configuration?.logger.info("Response - bad request \(error.reason)")
+                self.configuration?.logger?.warning("Response - bad request \(error.reason)", metadata: ["origin": "APNSwift"])
                 return current.responsePromise.fail(APNSwiftError.ResponseError.badRequest(error.reason))
             } catch {
-                self.configuration?.logger.info("Response - failed \(error.localizedDescription)")
+                self.configuration?.logger?.warning("Response - failed \(error.localizedDescription)", metadata: ["origin": "APNSwift"])
                 return current.responsePromise.fail(error)
             }
         }
-        self.configuration?.logger.info("Response - successful")
+        self.configuration?.logger?.info("Response - successful", metadata: ["origin": "APNSwift"])
         current.responsePromise.succeed(Void())
     }
 

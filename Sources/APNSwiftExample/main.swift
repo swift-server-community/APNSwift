@@ -27,13 +27,13 @@ let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Desktop/AuthKey_
 
 // optional
 var logger = Logger(label: "com.apnswift")
-logger.logLevel = .info
+logger.logLevel = .debug
 let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        teamIdentifier: "ABBM6U9RM5",
                                        signer: signer,
                                        topic: "com.grasscove.Fern",
                                        environment: .sandbox,
-                                       loggerType: .custom(logger))
+                                       logger: logger)
 
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()

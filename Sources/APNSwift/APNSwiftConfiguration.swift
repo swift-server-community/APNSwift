@@ -26,7 +26,7 @@ public struct APNSwiftConfiguration {
     public var topic: String
     public var environment: Environment
     public var tlsConfiguration: TLSConfiguration
-    internal var logger: Logger
+    internal var logger: Logger?
 
     public var url: URL {
         switch environment {
@@ -48,7 +48,7 @@ public struct APNSwiftConfiguration {
      `file`, `data`, or `custom`.
        - topic: The bundle identifier for these push notifications.
        - environment: The environment to use, sandbox, or production.
-       - loggerType: The logger you wish to use, .createDefault, or .custom(Logger)
+       - logger: The logger you wish to use, if nil, one will be created
 
      ### Usage Example: ###
      ````
@@ -57,27 +57,26 @@ public struct APNSwiftConfiguration {
          signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
          topic: "com.grasscove.Fern",
          environment: .sandbox,
-         loggerType: .custom(logger)
+         loggerType: logger)
      )
      ````
      */
     public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment) {
-        self.init(keyIdentifier: keyIdentifier, teamIdentifier: teamIdentifier, signer: signer, topic: topic, environment: environment, loggerType: .createDefault)
+        self.init(keyIdentifier: keyIdentifier, teamIdentifier: teamIdentifier, signer: signer, topic: topic, environment: environment, logger: nil)
     }
     
-    public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment, loggerType: LoggerType = .createDefault) {
+    public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
         self.topic = topic
         self.signer = signer
         self.environment = environment
         self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
-        switch loggerType {
-        case .createDefault:
-            self.logger = Logger(label: "com.apnswift")
-            logger.logLevel = .critical
-        case .custom (let logger):
+        
+        if let logger = logger {
             self.logger = logger
+        } else {
+            self.logger = Logger(label: "com.apnswift")
         }
     }
 }
@@ -89,12 +88,6 @@ extension APNSwiftConfiguration {
     }
 }
 
-extension APNSwiftConfiguration {
-    public enum LoggerType {
-        case createDefault
-        case custom(Logger)
-    }
-}
 
 extension APNSwiftConnection {
     public enum PushType: String {
