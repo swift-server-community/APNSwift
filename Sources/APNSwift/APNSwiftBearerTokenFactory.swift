@@ -12,7 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-
 import Foundation
 import NIO
 internal final class APNSwiftBearerTokenFactory {

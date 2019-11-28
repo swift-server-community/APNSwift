@@ -12,9 +12,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Foundation
 import NIO
 import NIOFoundationCompat
-import Foundation
 
 /// This is a class created the handles our stream.
 /// It checks for a good request to APNS Servers.
@@ -25,7 +25,7 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
 
     var queue: [APNSwiftRequestContext]
     let configuration: APNSwiftConfiguration?
-    
+
     init(configuration: APNSwiftConfiguration? = nil) {
         queue = []
         self.configuration = configuration
@@ -58,7 +58,7 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
         queue.insert(input, at: 0)
         context.write(wrapOutboundOut(input.request), promise: promise)
     }
-    
+
     func handlerRemoved(context: ChannelHandlerContext) {
         while let context = queue.popLast() {
             context.responsePromise.fail(NoResponseReceivedBeforeConnectionEnded())

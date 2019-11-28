@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
 import CAPNSOpenSSL
+import Foundation
 import NIO
 
 internal struct APNSwiftJWT: Codable {
@@ -77,7 +77,7 @@ internal struct APNSwiftJWT: Codable {
         assert(res == 1, "SHA256_Update failed")
         var buffer = ByteBufferAllocator().buffer(capacity: Int(SHA256_DIGEST_LENGTH))
         res = message.withUnsafeReadableBytes { data in
-            return buffer.withUnsafeMutableWritableBytes { mptr in
+            buffer.withUnsafeMutableWritableBytes { mptr in
                 SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
             }
         }

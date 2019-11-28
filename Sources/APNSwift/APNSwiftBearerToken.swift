@@ -20,12 +20,12 @@ public struct APNSwiftBearerToken {
     let timeout: TimeInterval
     var createdAt: TimeInterval?
     private var cachedToken: String?
-    
+
     public init(configuration: APNSwiftConfiguration, timeout: TimeInterval) {
         self.configuration = configuration
         self.timeout = timeout
     }
-    
+
     public var token: String? {
         mutating get {
             let now = Date().timeIntervalSince1970
@@ -37,7 +37,7 @@ public struct APNSwiftBearerToken {
             return existingToken
         }
     }
-    
+
     private func createToken() throws -> String {
         let jwt = APNSwiftJWT(keyID: configuration.keyIdentifier, teamID: configuration.teamIdentifier, issueDate: Date())
         var token: String

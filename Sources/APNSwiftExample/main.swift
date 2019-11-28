@@ -12,10 +12,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+import APNSwift
 import Foundation
 import Logging
 import NIO
-import APNSwift
 import NIOHTTP1
 import NIOHTTP2
 import NIOSSL
@@ -34,7 +34,6 @@ let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        topic: "com.grasscove.Fern",
                                        environment: .sandbox,
                                        logger: logger)
-
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 

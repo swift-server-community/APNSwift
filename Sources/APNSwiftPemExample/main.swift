@@ -12,9 +12,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+import APNSwift
 import Foundation
 import NIO
-import APNSwift
 import NIOHTTP1
 import NIOHTTP2
 import NIOSSL
@@ -26,7 +26,7 @@ var verbose = true
 
 var apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                        teamIdentifier: "ABBM6U9RM5",
-                                       signer: APNSwiftSigner.init(buffer: ByteBufferAllocator().buffer(capacity: Data().count)),
+                                       signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: Data().count)),
                                        topic: "com.grasscove.Fern",
                                        environment: .sandbox)
 
