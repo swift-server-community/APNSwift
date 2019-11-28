@@ -11,6 +11,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.10.1")),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "2.4.0")),
         .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.6.0")),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
     ],
     targets: [
         .systemLibrary(
@@ -26,7 +27,8 @@ let package = Package(
         .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
         .testTarget(name: "APNSwiftJWTTests", dependencies: ["APNSwift"]),
         .testTarget(name: "APNSwiftTests", dependencies: ["APNSwift"]),
-        .target(name: "APNSwift", dependencies: ["NIO",
+        .target(name: "APNSwift", dependencies: ["Logging",
+                                                "NIO",
                                                 "NIOSSL",
                                                 "NIOHTTP1",
                                                 "NIOHTTP2",

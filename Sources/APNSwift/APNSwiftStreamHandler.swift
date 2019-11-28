@@ -24,25 +24,32 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
     typealias OutboundIn = APNSwiftRequestContext
 
     var queue: [APNSwiftRequestContext]
-
-    init() {
+    let configuration: APNSwiftConfiguration?
+    
+    init(configuration: APNSwiftConfiguration? = nil) {
         queue = []
+        self.configuration = configuration
     }
 
     func channelRead(context _: ChannelHandlerContext, data: NIOAny) {
+        self.configuration?.logger?.debug("Response - received")
         let res = unwrapInboundIn(data)
         guard let current = self.queue.popLast() else { return }
         guard res.header.status == .ok else {
             guard let buffer = res.byteBuffer else {
+                self.configuration?.logger?.warning("Response - no response body")
                 return current.responsePromise.fail(NoResponseBodyFromApple())
             }
             do {
                 let error = try JSONDecoder().decode(APNSwiftError.ResponseStruct.self, from: buffer)
+                self.configuration?.logger?.warning("Response - bad request \(error.reason)")
                 return current.responsePromise.fail(APNSwiftError.ResponseError.badRequest(error.reason))
             } catch {
+                self.configuration?.logger?.warning("Response - failed \(error.localizedDescription)")
                 return current.responsePromise.fail(error)
             }
         }
+        self.configuration?.logger?.info("Response - successful")
         current.responsePromise.succeed(Void())
     }
 

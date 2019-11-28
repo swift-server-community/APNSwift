@@ -53,6 +53,7 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
     func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+        self.configuration.logger?.debug("Request - building")
         let buffer: ByteBuffer = unwrapOutboundIn(data)
         var reqHead = HTTPRequestHead(version: .init(major: 2, minor: 0), method: .POST, uri: "/3/device/\(deviceToken)")
         reqHead.headers.add(name: "content-type", value: "application/json")
@@ -81,9 +82,10 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
         if let bearerToken = self.bearerToken {
             reqHead.headers.add(name: "authorization", value: "bearer \(bearerToken)")
         }
-
+        self.configuration.logger?.trace("Request - built")
         context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.end(nil)), promise: promise)
+        self.configuration.logger?.trace("Request - sent")
     }
 }
