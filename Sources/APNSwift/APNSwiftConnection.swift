@@ -82,7 +82,7 @@ public final class APNSwiftConnection {
     
     public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSwiftConnection> {
         struct UnsupportedServerPushError: Error {}
-        configuration.logger?.info("Connection - starting")
+        configuration.logger?.debug("Connection - starting")
         let sslContext = try! NIOSSLContext(configuration: configuration.tlsConfiguration)
         let connectionFullyUpPromise = eventLoop.makePromise(of: Void.self)
         let tcpConnection = ClientBootstrap(group: eventLoop).connect(host: configuration.url.host!, port: 443)
@@ -129,7 +129,7 @@ public final class APNSwiftConnection {
         self.multiplexer = multiplexer
         self.configuration = configuration
         self.bearerTokenFactory = bearerTokenFactory
-        configuration.logger?.info("APNSwift Connection - up")
+        configuration.logger?.info("Connection - up")
     }
     
     @available(*, deprecated, message: "APNSwiftConnection is initialized internally now.")
