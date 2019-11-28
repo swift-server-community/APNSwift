@@ -57,7 +57,7 @@ public struct APNSwiftConfiguration {
          signingMode: .file(path: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8"),
          topic: "com.grasscove.Fern",
          environment: .sandbox,
-         loggerType: logger)
+         logger: logger)
      )
      ````
      */
