@@ -97,7 +97,7 @@ public final class APNSwiftConnection {
                     configuration.logger?.warning("Connection - failed \(error)")
                     return channel.eventLoop.makeFailedFuture(error)
                 }.flatMap { multiplexer in
-                    var tokenFactory: APNSwiftBearerTokenFactory? = nil
+                    var tokenFactory: APNSwiftBearerTokenFactory?
                     configuration.logger?.debug("Connection - token factory setup")
                     if configuration.tlsConfiguration.privateKey == nil {
                         do {
@@ -134,7 +134,7 @@ public final class APNSwiftConnection {
 
     @available(*, deprecated, message: "APNSwiftConnection is initialized internally now.")
     public convenience init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
-        var tokenFactory: APNSwiftBearerTokenFactory? = nil
+        var tokenFactory: APNSwiftBearerTokenFactory?
         if configuration.tlsConfiguration.privateKey == nil {
             tokenFactory = try? APNSwiftBearerTokenFactory(eventLoop: channel.eventLoop, configuration: configuration)
         }

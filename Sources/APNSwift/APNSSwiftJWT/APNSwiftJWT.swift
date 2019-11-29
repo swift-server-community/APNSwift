@@ -76,7 +76,7 @@ internal struct APNSwiftJWT: Codable {
         }
         assert(res == 1, "SHA256_Update failed")
         var buffer = ByteBufferAllocator().buffer(capacity: Int(SHA256_DIGEST_LENGTH))
-        res = message.withUnsafeReadableBytes { data in
+        res = message.withUnsafeReadableBytes { _ in
             buffer.withUnsafeMutableWritableBytes { mptr in
                 SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
             }

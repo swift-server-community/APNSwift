@@ -53,8 +53,8 @@ public struct APNSwiftSigner {
         }
         defer { ECDSA_SIG_free(.init(sig)) }
 
-        var r: OpaquePointer? = nil
-        var s: OpaquePointer? = nil
+        var r: OpaquePointer?
+        var s: OpaquePointer?
 
         // as this method is `get0` there is no requirement to free those pointers: ECDSA_SIG will free them for us.
         withUnsafeMutablePointer(to: &r) { rPtr in
