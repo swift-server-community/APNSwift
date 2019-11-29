@@ -1,7 +1,5 @@
 disabled_rules: # rule identifiers to exclude from running
-  - function_body_length
   - identifier_name
-  - type_name
   - nesting
   - force_try
   - todo

@@ -61,7 +61,7 @@ public struct APNSwiftPayload: Encodable {
         self.category = category
         self.threadID = threadID
     }
-    
+
     public init(alert: APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwiftSoundType? = nil, hasContentAvailable: Bool = false, hasMutableContent: Bool = false, category: String? = nil, threadID: String? = nil) {
         self.alert = alert
         self.badge = badge
