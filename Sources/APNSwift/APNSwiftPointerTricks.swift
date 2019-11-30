@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-// MARK:- Awful code begins here
+// MARK: - Awful code begins here
 // Hello dear reader. Let me explain what we're doing here.
 //
 // From OpenSSL 1.0 to OpenSSL 1.1 one of the major breaking changes was the so-called
@@ -98,7 +98,6 @@ extension OpaquePointer {
         return ptr.map(OpaquePointer.init)
     }
 }
-
 
 extension OpaquePointer {
     func convert<T>() -> UnsafePointer<T> {

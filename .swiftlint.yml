@@ -1,0 +1,54 @@
+disabled_rules: # rule identifiers to exclude from running
+  - identifier_name
+  - nesting
+  - force_try
+  - todo
+  - no_extension_access_modifier
+opt_in_rules:
+  - operator_usage_whitespace
+  - closure_spacing
+  - cyclomatic_complexity
+  - compiler_protocol_init
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - empty_count
+  - empty_parameters
+  - empty_parentheses_with_trailing_closure
+  - explicit_init
+  - explicit_self
+  - first_where
+  - for_where
+  - implicit_getter
+  - implicit_return
+  - is_disjoint
+  - generic_type_name
+  - large_tuple
+  - nimble_operator
+  - notification_center_detachment
+  - overridden_super_call
+  - prohibited_super_call
+  - redundant_nil_coalescing
+  - redundant_string_enum_value
+  - sorted_imports
+  - statement_position
+  - unneeded_parentheses_in_closure_argument
+  - yoda_condition
+
+included: # paths to include during linting. `--path` is ignored if present.
+  - Sources
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - .build
+
+analyzer_rules: # Rules run by `swiftlint analyze` (experimental)
+  - unused_declaration
+  - unused_import
+
+line_length: 600
+
+type_body_length:
+  - 850 # warning
+  - 1000 # error
+file_length:
+  - 850 # warning
+  - 1000 # error
+reporter: "xcode" # reporter type (xcode, json, csv, checkstyle)

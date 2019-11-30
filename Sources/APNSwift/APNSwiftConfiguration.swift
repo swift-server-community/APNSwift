@@ -64,7 +64,7 @@ public struct APNSwiftConfiguration {
     public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment) {
         self.init(keyIdentifier: keyIdentifier, teamIdentifier: teamIdentifier, signer: signer, topic: topic, environment: environment, logger: nil)
     }
-    
+
     public init(keyIdentifier: String, teamIdentifier: String, signer: APNSwiftSigner, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) {
         self.keyIdentifier = keyIdentifier
         self.teamIdentifier = teamIdentifier
@@ -72,7 +72,7 @@ public struct APNSwiftConfiguration {
         self.signer = signer
         self.environment = environment
         self.tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
-        
+
         if var logger = logger {
             logger[metadataKey: "origin"] = "APNSwift"
             self.logger = logger
@@ -86,7 +86,6 @@ extension APNSwiftConfiguration {
         case sandbox
     }
 }
-
 
 extension APNSwiftConnection {
     public enum PushType: String {

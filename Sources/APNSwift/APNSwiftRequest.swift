@@ -51,12 +51,23 @@ public struct APNSwiftPayload: Encodable {
      let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav))
      ````
      */
+    @available(*, deprecated, message: "Changed initializer to use non optional booleans.")
     public init(alert: APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwiftSoundType? = nil, hasContentAvailable: Bool? = nil, hasMutableContent: Bool? = nil, category: String? = nil, threadID: String? = nil) {
         self.alert = alert
         self.badge = badge
         self.sound = sound
         self.contentAvailable = hasContentAvailable ?? false ?  1 : 0
         self.mutableContent = hasMutableContent ?? false  ? 1 : 0
+        self.category = category
+        self.threadID = threadID
+    }
+
+    public init(alert: APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwiftSoundType? = nil, hasContentAvailable: Bool = false, hasMutableContent: Bool = false, category: String? = nil, threadID: String? = nil) {
+        self.alert = alert
+        self.badge = badge
+        self.sound = sound
+        self.contentAvailable = hasContentAvailable ? 1 : 0
+        self.mutableContent = hasMutableContent ? 1 : 0
         self.category = category
         self.threadID = threadID
     }
@@ -179,4 +190,3 @@ extension APNSwiftPayload.APNSwiftSoundType {
         }
     }
 }
-
