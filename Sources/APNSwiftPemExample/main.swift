@@ -22,18 +22,12 @@ import NIOSSL
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
-//let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-
-var apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                       teamIdentifier: "ABBM6U9RM5",
-                                       signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: Data().count)),
-                                       topic: "com.grasscove.Fern",
-                                       environment: .sandbox)
-
-let key = try NIOSSLPrivateKey(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey", format: .pem)
-apnsConfig.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-apnsConfig.tlsConfiguration.certificateVerification = .noHostnameVerification
-apnsConfig.tlsConfiguration.certificateChain = try! [.certificate(.init(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem", format: .pem))]
+var apnsConfig = try APNSwiftConfiguration(
+    privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
+    pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem",
+    topic: "com.grasscove.Fern",
+    environment: .sandbox
+)
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 
