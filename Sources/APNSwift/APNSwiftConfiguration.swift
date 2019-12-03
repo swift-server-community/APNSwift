@@ -78,6 +78,34 @@ public struct APNSwiftConfiguration {
             self.logger = logger
         }
     }
+    /**
+        Call this function to create a new Configuration for APNSWift with a PEM Key. Warning it is blocking!
+
+        - Parameters:
+          - privateKeyPath: The path to your private key
+          - pemPath: The path to pem file.
+          - topic: The bundle identifier for these push notifications.
+          - environment: The environment to use, sandbox, or production.
+          - logger: The logger you wish to use, if nil, one will be created
+
+        ### Usage Example: ###
+        ```
+            var apnsConfig = try APNSwiftConfiguration(
+                privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
+                pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem",
+                topic: "com.grasscove.Fern",
+                environment: .sandbox
+            )
+        )
+        ```
+        */
+    public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) throws {
+        try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
+        let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
+        self.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+        self.tlsConfiguration.certificateVerification = .noHostnameVerification
+        self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
+    }
 }
 
 extension APNSwiftConfiguration {
