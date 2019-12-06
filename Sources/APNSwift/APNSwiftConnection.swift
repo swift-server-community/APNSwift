@@ -170,6 +170,15 @@ public final class APNSwiftConnection {
 
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+    public func send(rawData payload: Data, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
+        var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
+        buffer.writeBytes(payload)
+
+        return send(rawBytes: buffer, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic)
+    }
+
+    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
     public func send(rawBytes payload: ByteBuffer, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
             configuration.logger?.debug("Send - starting up")
             let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
