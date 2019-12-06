@@ -200,17 +200,15 @@ let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc96055112
 ```
 
 ### Using PEM instead of P8
+#### Note: this is blocking
 ```swift
-var apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                       teamIdentifier: "ABBM6U9RM5",
-                                       signer: APNSwiftSigner.init(buffer: ByteBufferAllocator().buffer(capacity: Data().count)),
-                                       topic: "com.grasscove.Fern",
-                                       environment: .sandbox)
-
-let key = try NIOSSLPrivateKey(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey", format: .pem)
-apnsConfig.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-apnsConfig.tlsConfiguration.certificateVerification = .noHostnameVerification
-apnsConfig.tlsConfiguration.certificateChain = try! [.certificate(.init(file: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem", format: .pem))]
+var apnsConfig = try APNSwiftConfiguration(
+    privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
+    pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem",
+    topic: "com.grasscove.Fern",
+    environment: .sandbox
+)
+let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 ```
 ### Need a completely custom arbtirary payload and dont like being typecast?
 APNSwift provides the ability to send rawBytes `ByteBuffer` as a payload.
