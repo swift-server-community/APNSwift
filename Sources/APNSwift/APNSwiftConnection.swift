@@ -159,9 +159,7 @@ public final class APNSwiftConnection: APNSwiftClient {
                                                          collapseIdentifier: String? = nil,
                                                          topic: String? = nil) -> EventLoopFuture<Void> {
          let data: Data = try! encoder.encode(notification)
-         var buffer = ByteBufferAllocator().buffer(capacity: data.count)
-         buffer.writeBytes(data)
-         return self.send(rawBytes: buffer, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
+         return self.send(raw: data, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
     }
     
     @available(*, deprecated, message: "Bearer Tokens are handled internally now, and no longer exposed.")
@@ -183,7 +181,7 @@ public final class APNSwiftConnection: APNSwiftClient {
                          topic: topic)
     }
     
-    @available(*, deprecated, message: "APNSwiftConnection.send(rawBytes... now lets logger be defined.")
+    @available(*, deprecated, message: "Use send(raw... instead.")
     public func send(rawBytes payload: ByteBuffer, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
         return self.send(rawBytes: payload, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
     }

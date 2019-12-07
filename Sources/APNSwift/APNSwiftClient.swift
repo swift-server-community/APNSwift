@@ -126,9 +126,7 @@ extension APNSwiftClient {
                                                          topic: String? = nil,
                                                          logger: Logger? = nil) -> EventLoopFuture<Void> {
         let data: Data = try! encoder.encode(notification)
-        var buffer = ByteBufferAllocator().buffer(capacity: data.count)
-        buffer.writeBytes(data)
-        return send(rawBytes: buffer,
+        return self.send(raw: data,
                     pushType: pushType,
                     to: deviceToken,
                     expiration: expiration,
@@ -137,6 +135,28 @@ extension APNSwiftClient {
                     topic: topic,
                     logger: logger ?? self.logger)
     }
+    
+    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+    public func send<Bytes: Collection>(raw payload: Bytes,
+                                        pushType: APNSwiftConnection.PushType,
+                                        to deviceToken: String,
+                                        expiration: Date? = nil,
+                                        priority: Int? = nil,
+                                        collapseIdentifier: String? = nil,
+                                        topic: String? = nil,
+                                        logger: Logger? = nil) -> EventLoopFuture<Void> where Bytes.Element == UInt8 {
+        var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
+        buffer.writeBytes(payload)
+        return self.send(rawBytes: buffer,
+                    pushType: pushType,
+                    to: deviceToken,
+                    expiration: expiration,
+                    priority: priority,
+                    collapseIdentifier: collapseIdentifier,
+                    topic: topic,
+                    logger: logger ?? self.logger)
+     }
 }
 
 private struct BasicNotification: APNSwiftNotification {
