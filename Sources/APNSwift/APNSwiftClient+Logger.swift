@@ -4,7 +4,7 @@ import NIO
 
 extension APNSwiftClient {
     public func logging(to logger: Logger) -> APNSwiftClient {
-        APNSwiftClientWithCustomLogger(client: self, logger: logger)
+        return APNSwiftClientWithCustomLogger(client: self, logger: logger)
     }
 }
 
@@ -17,7 +17,7 @@ private struct APNSwiftClientWithCustomLogger: APNSwiftClient {
               collapseIdentifier: String?,
               topic: String?,
               logger: Logger?) -> EventLoopFuture<Void> {
-        self.client.send(rawBytes: payload,
+        return self.client.send(rawBytes: payload,
                          pushType: pushType,
                          to: deviceToken,
                          expiration: expiration,

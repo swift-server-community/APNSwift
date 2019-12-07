@@ -64,7 +64,6 @@ extension APNSwiftClient {
                      collapseIdentifier: String? = nil,
                      topic: String? = nil,
                      logger: Logger? = nil) -> EventLoopFuture<Void> {
-
         return self.send(APNSwiftPayload(alert: alert),
                   pushType: pushType,
                   to: deviceToken,
@@ -105,7 +104,6 @@ extension APNSwiftClient {
                      collapseIdentifier: String? = nil,
                      topic: String? = nil,
                      logger: Logger? = nil) -> EventLoopFuture<Void> {
-
         return self.send(BasicNotification(aps: payload),
                   pushType: pushType,
                   to: deviceToken,
