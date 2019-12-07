@@ -125,7 +125,7 @@ public final class APNSwiftConnection: APNSwiftClient {
     public let channel: Channel
     public let configuration: APNSwiftConfiguration
     public var logger: Logger? {
-        self.configuration.logger
+        return self.configuration.logger
     }
     private var bearerTokenFactory: APNSwiftBearerTokenFactory?
 
