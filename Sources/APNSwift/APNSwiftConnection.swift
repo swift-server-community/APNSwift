@@ -61,7 +61,22 @@ private final class WaitForTLSUpHandler: ChannelInboundHandler {
 }
 
 public final class APNSwiftConnection: APNSwiftClient {
-
+    
+    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+    public func send<Bytes>(raw payload: Bytes, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?, logger: Logger?) -> EventLoopFuture<Void> where Bytes : Collection, Bytes.Element == UInt8 {
+        
+            var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
+            buffer.writeBytes(payload)
+            return self.send(rawBytes: buffer,
+                        pushType: pushType,
+                        to: deviceToken,
+                        expiration: expiration,
+                        priority: priority,
+                        collapseIdentifier: collapseIdentifier,
+                        topic: topic,
+                        logger: logger ?? self.logger)
+    }
     /**
      APNSwift Connect method. Used to establish a connection with Apple Push Notification service.
      - Parameter configuration: APNSwiftConfiguration struct.
@@ -196,6 +211,7 @@ public final class APNSwiftConnection: APNSwiftClient {
         collapseIdentifier: String? = nil,
         topic: String? = nil,
         logger: Logger? = nil) -> EventLoopFuture<Void> {
+        
         configuration.logger?.debug("Send - starting up")
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in

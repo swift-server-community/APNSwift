@@ -9,23 +9,10 @@ extension APNSwiftClient {
 }
 
 private struct APNSwiftClientWithCustomLogger: APNSwiftClient {
-    func send(rawBytes payload: ByteBuffer,
-              pushType: APNSwiftConnection.PushType,
-              to deviceToken: String,
-              expiration: Date?,
-              priority: Int?,
-              collapseIdentifier: String?,
-              topic: String?,
-              logger: Logger?) -> EventLoopFuture<Void> {
-        return self.client.send(rawBytes: payload,
-                         pushType: pushType,
-                         to: deviceToken,
-                         expiration: expiration,
-                         priority: priority,
-                         collapseIdentifier: collapseIdentifier,
-                         topic: topic,
-                         logger: logger)
+    func send<Bytes>(raw payload: Bytes, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?, logger: Logger?) -> EventLoopFuture<Void> where Bytes : Collection, Bytes.Element == UInt8 {
+        return client.send(raw: payload, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
     }
+    
 
     let client: APNSwiftClient
     let logger: Logger?
