@@ -17,46 +17,6 @@ public protocol APNSwiftClient {
 }
 
 extension APNSwiftClient {
-    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
-    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
-    public func send<Bytes>(raw payload: Bytes,
-                            pushType: APNSwiftConnection.PushType,
-                            to deviceToken: String,
-                            expiration: Date?,
-                            priority: Int?,
-                            collapseIdentifier: String?,
-                            topic: String?,
-                            logger: Logger?) -> EventLoopFuture<Void>
-                                where Bytes : Collection, Bytes.Element == UInt8 {
-            var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
-            buffer.writeBytes(payload)
-            return self.send(rawBytes: buffer,
-                        pushType: pushType,
-                        to: deviceToken,
-                        expiration: expiration,
-                        priority: priority,
-                        collapseIdentifier: collapseIdentifier,
-                        topic: topic,
-                        logger: logger ?? self.logger)
-    }
-
-    public func send<Notification: APNSwiftNotification>(_ notification: Notification,
-                                                         pushType: APNSwiftConnection.PushType,
-                                                         to deviceToken: String,
-                                                         with encoder: JSONEncoder = JSONEncoder(),
-                                                         expiration: Date? = nil,
-                                                         priority: Int? = nil,
-                                                         collapseIdentifier: String? = nil,
-                                                         topic: String? = nil) -> EventLoopFuture<Void> {
-        do {
-            let data: Data = try encoder.encode(notification)
-            return self.send(raw: data, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
-        } catch {
-            return self.eventLoop.makeFailedFuture(error)
-        }
-    }
-
-
     /**
      APNSwiftConnection send method. Sends a notification to the desired deviceToken.
      - Parameter payload: the alert to send.
@@ -157,24 +117,72 @@ extension APNSwiftClient {
      try apns.send(notification, pushType: .alert, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
-    public func send<Notification: APNSwiftNotification>(_ notification: Notification,
-                                                         pushType: APNSwiftConnection.PushType,
-                                                         to deviceToken: String,
-                                                         with encoder: JSONEncoder = JSONEncoder(),
-                                                         expiration: Date? = nil,
-                                                         priority: Int? = nil,
-                                                         collapseIdentifier: String? = nil,
-                                                         topic: String? = nil,
-                                                         logger: Logger? = nil) -> EventLoopFuture<Void> {
-        let data: Data = try! encoder.encode(notification)
-        return self.send(raw: data,
-                    pushType: pushType,
-                    to: deviceToken,
-                    expiration: expiration,
-                    priority: priority,
-                    collapseIdentifier: collapseIdentifier,
-                    topic: topic,
-                    logger: logger ?? self.logger)
+    public func send<Notification>(_ notification: Notification,
+                                     pushType: APNSwiftConnection.PushType = .alert,
+                                     to deviceToken: String,
+                                     with encoder: JSONEncoder = JSONEncoder(),
+                                     expiration: Date? = nil,
+                                     priority: Int? = nil,
+                                     collapseIdentifier: String? = nil,
+                                     topic: String? = nil,
+                                     logger: Logger? = nil) -> EventLoopFuture<Void>
+                                        where Notification: APNSwiftNotification {
+        do {
+            let data: Data = try encoder.encode(notification)
+            return self.send(raw: data,
+                             pushType: pushType,
+                             to: deviceToken,
+                             expiration: expiration,
+                             priority: priority,
+                             collapseIdentifier: collapseIdentifier,
+                             topic: topic,
+                             logger: logger ?? self.logger)
+        } catch {
+            return self.eventLoop.makeFailedFuture(error)
+        }
+    }
+
+    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+    public func send<Bytes>(raw payload: Bytes,
+                            pushType: APNSwiftConnection.PushType = .alert,
+                            to deviceToken: String,
+                            expiration: Date?,
+                            priority: Int?,
+                            collapseIdentifier: String?,
+                            topic: String?,
+                            logger: Logger? = nil) -> EventLoopFuture<Void>
+                                where Bytes : Collection, Bytes.Element == UInt8 {
+            var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
+            buffer.writeBytes(payload)
+            return self.send(rawBytes: buffer,
+                        pushType: pushType,
+                        to: deviceToken,
+                        expiration: expiration,
+                        priority: priority,
+                        collapseIdentifier: collapseIdentifier,
+                        topic: topic,
+                        logger: logger ?? self.logger)
+    }
+
+    public func send(rawBytes payload: ByteBuffer,
+                     pushType: APNSwiftConnection.PushType = .alert,
+                     to deviceToken: String,
+                     expiration: Date? = nil,
+                     priority: Int? = nil,
+                     collapseIdentifier: String? = nil,
+                     topic: String? = nil,
+                     logger: Logger? = nil)  -> EventLoopFuture<Void> {
+        return self.send(
+            rawBytes: payload,
+            pushType: pushType,
+            to: deviceToken,
+            expiration: expiration,
+            priority: priority,
+            collapseIdentifier: collapseIdentifier,
+            topic: topic,
+            logger: logger ?? self.logger
+        )
     }
 }
 

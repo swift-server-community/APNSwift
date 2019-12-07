@@ -171,21 +171,16 @@ public final class APNSwiftConnection: APNSwiftClient {
                          topic: topic)
     }
     
-    @available(*, deprecated, message: "Use send(raw... instead.")
-    public func send(rawBytes payload: ByteBuffer, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
-        return self.send(rawBytes: payload, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
-    }
-    
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
     public func send(rawBytes payload: ByteBuffer,
         pushType: APNSwiftConnection.PushType,
         to deviceToken: String,
-        expiration: Date? = nil,
-        priority: Int? = nil,
-        collapseIdentifier: String? = nil,
-        topic: String? = nil,
-        logger: Logger? = nil) -> EventLoopFuture<Void> {
+        expiration: Date?,
+        priority: Int?,
+        collapseIdentifier: String?,
+        topic: String?,
+        logger: Logger?) -> EventLoopFuture<Void> {
         
         configuration.logger?.debug("Send - starting up")
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
