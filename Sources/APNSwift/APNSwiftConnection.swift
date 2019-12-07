@@ -185,7 +185,7 @@ public final class APNSwiftConnection: APNSwiftClient {
     
     @available(*, deprecated, message: "APNSwiftConnection.send(rawBytes... now lets logger be defined.")
     public func send(rawBytes payload: ByteBuffer, pushType: APNSwiftConnection.PushType, to deviceToken: String, expiration: Date? = nil, priority: Int? = nil, collapseIdentifier: String? = nil, topic: String? = nil) -> EventLoopFuture<Void> {
-        self.send(rawBytes: payload, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
+        return self.send(rawBytes: payload, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
     }
     
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
