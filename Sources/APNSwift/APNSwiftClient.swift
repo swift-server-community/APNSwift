@@ -4,18 +4,59 @@ import NIO
 
 public protocol APNSwiftClient {
     var logger: Logger? { get }
+    var eventLoop: EventLoop { get }
 
-    func send<Bytes: Collection>(raw payload: Bytes,
+    func send(rawBytes payload: ByteBuffer,
         pushType: APNSwiftConnection.PushType,
         to deviceToken: String,
         expiration: Date?,
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        logger: Logger?) -> EventLoopFuture<Void> where Bytes.Element == UInt8
+        logger: Logger?) -> EventLoopFuture<Void>
 }
 
 extension APNSwiftClient {
+    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+    public func send<Bytes>(raw payload: Bytes,
+                            pushType: APNSwiftConnection.PushType,
+                            to deviceToken: String,
+                            expiration: Date?,
+                            priority: Int?,
+                            collapseIdentifier: String?,
+                            topic: String?,
+                            logger: Logger?) -> EventLoopFuture<Void>
+                                where Bytes : Collection, Bytes.Element == UInt8 {
+            var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
+            buffer.writeBytes(payload)
+            return self.send(rawBytes: buffer,
+                        pushType: pushType,
+                        to: deviceToken,
+                        expiration: expiration,
+                        priority: priority,
+                        collapseIdentifier: collapseIdentifier,
+                        topic: topic,
+                        logger: logger ?? self.logger)
+    }
+
+    public func send<Notification: APNSwiftNotification>(_ notification: Notification,
+                                                         pushType: APNSwiftConnection.PushType,
+                                                         to deviceToken: String,
+                                                         with encoder: JSONEncoder = JSONEncoder(),
+                                                         expiration: Date? = nil,
+                                                         priority: Int? = nil,
+                                                         collapseIdentifier: String? = nil,
+                                                         topic: String? = nil) -> EventLoopFuture<Void> {
+        do {
+            let data: Data = try encoder.encode(notification)
+            return self.send(raw: data, pushType: pushType, to: deviceToken, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
+        } catch {
+            return self.eventLoop.makeFailedFuture(error)
+        }
+    }
+
+
     /**
      APNSwiftConnection send method. Sends a notification to the desired deviceToken.
      - Parameter payload: the alert to send.
