@@ -211,15 +211,13 @@ var apnsConfig = try APNSwiftConfiguration(
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 ```
 ### Need a completely custom arbtirary payload and dont like being typecast?
-APNSwift provides the ability to send rawBytes `ByteBuffer` as a payload.
-This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+APNSwift provides the ability to send raw payloads. You can use `Data`, `ByteBuffer`, `DispatchData`, `Array`
+Though this is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
 For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
 ```swift
 let notificationJsonPayload = ...
 let data: Data = try! encoder.encode(notificationJsonPayload)
-var buffer = ByteBufferAllocator().buffer(capacity: data.count)
-buffer.writeBytes(data)
-try apns.send(rawBytes: buffer, pushType: .alert, to: "<DEVICETOKEN>")
+try apns.send(raw: data, pushType: .alert, to: "<DEVICETOKEN>")
 ```
 
 #### Original pitch and discussion on API

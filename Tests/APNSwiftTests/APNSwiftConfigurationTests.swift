@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import APNSwift
+import Logging
 import NIO
 
 class APNSwiftConfigurationTests: XCTestCase {
@@ -61,7 +62,7 @@ class APNSwiftConfigurationTests: XCTestCase {
     static var allTests = [
         ("testSandboxConfiguration", testSandboxConfiguration),
         ("testProductionConfiguration", testProductionConfiguration),
-        ("testSignature", testSignature)
+        ("testSignature", testSignature),
     ]
 
     let appleECP8PrivateKey = """
