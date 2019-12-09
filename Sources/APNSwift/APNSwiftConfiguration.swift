@@ -98,7 +98,7 @@ public struct APNSwiftConfiguration {
             )
         )
         ```
-        */
+    */
     public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) throws {
         try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
         let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
