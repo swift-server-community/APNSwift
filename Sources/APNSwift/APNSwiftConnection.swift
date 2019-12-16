@@ -81,14 +81,10 @@ public final class APNSwiftConnection: APNSwiftClient {
      */
     
     public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSwiftConnection> {
-        return connect0(configuration: configuration, on: eventLoop, logger: configuration.logger)
+        return APNSwiftConnection.connect(configuration: configuration, on: eventLoop, logger: configuration.logger)
     }
     
-    public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop, logger: Logger) -> EventLoopFuture<APNSwiftConnection> {
-        return connect0(configuration: configuration, on: eventLoop, logger: logger)
-    }
-
-    internal static func connect0(configuration: APNSwiftConfiguration, on eventLoop: EventLoop, logger: Logger?) -> EventLoopFuture<APNSwiftConnection> {
+    public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop, logger: Logger? = nil) -> EventLoopFuture<APNSwiftConnection> {
         struct UnsupportedServerPushError: Error {}
         let logger = logger ?? configuration.logger
         logger?.debug("Connection - starting")
