@@ -20,28 +20,18 @@ dependencies: [
 ## Getting Started
 
 ```swift
+struct BasicNotification: APNSwiftNotification {
+    let aps: APNSwiftPayload
+}
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-
-let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                       teamIdentifier: "ABBM6U9RM5",
-                                       signer: signer,
-                                       topic: "com.grasscove.Fern",
-                                       environment: .sandbox)
-
-struct BasicNotification: APNSwiftNotification {
-    var aps: APNSwiftPayload
-}
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
-let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
-let notification = BasicNotification(aps: aps)
-let res = apns.send(notification, pushType: .alert, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e")
+let apnsConn = try APNSwiftConnection.connect(configuration: .init(keyIdentifier: "9UC9ZLQ8YW", teamIdentifier: "ABBM6U9RM5", signer: signer, topic: "com.grasscove.Fern", environment: .sandbox), on: group.next()).wait()
+let aps = APNSwiftPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
+try apnsConn.send(BasicNotification(aps: aps), pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D").wait()
 try apns.close().wait()
 try group.syncShutdownGracefully()
 exit(0)
 ```
-
 
 ### APNSwiftConfiguration
 
