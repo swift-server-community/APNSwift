@@ -38,7 +38,7 @@ public struct APNSwiftConfiguration {
     }
 
     /**
-     Call this method to create a new Configuration.
+     Call this constructor to create a new Configuration.
 
      - Parameters:
        - keyIdentifier: The key identifier Apple gives you when you setup your APNS key.
@@ -80,7 +80,7 @@ public struct APNSwiftConfiguration {
     }
 
     /**
-        Call this method to create a new Configuration for APNSWift with a PEM Key. Warning it is blocking!
+        Call this constructor to create a new Configuration for APNSWift with a PEM Key. Warning it is blocking!
 
         - Parameters:
           - privateKeyPath: The path to your private key
@@ -88,6 +88,7 @@ public struct APNSwiftConfiguration {
           - topic: The bundle identifier for these push notifications.
           - environment: The environment to use, sandbox, or production.
           - logger: The logger you wish to use, if nil, one will be created
+          - pemPassword: The password for the PEM private key.
 
         ### Usage Example: ###
         ```
@@ -99,16 +100,23 @@ public struct APNSwiftConfiguration {
         )
         ```
     */
-    public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) throws {
+    public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil, pemPassword: Data? = nil) throws {
         try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
-        let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
+
+        let key: NIOSSLPrivateKey
+        if let pemPassword = pemPassword {
+            key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem) { $0(pemPassword) }
+        } else {
+            key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
+        }
+
         self.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
         self.tlsConfiguration.certificateVerification = .noHostnameVerification
         self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
     }
 
     /**
-        Call this method to create a new Configuration for APNSWift with a PEM Key. Warning it is blocking!
+        Call this constructor to create a new Configuration for APNSWift with a PEM Key. Warning it is blocking!
 
         - Parameters:
           - privateKeyPath: The path to your private key
