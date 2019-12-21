@@ -93,17 +93,36 @@ public struct APNSwiftConfiguration {
     ///   - topic: The bundle identifier for these push notifications
     ///   - environment: The environment to use:  `sandbox` or `production`
     ///   - logger: The logger you wish to use.  If `nil`, one will be created
-    ///   - pemPassword: The password to the private key
-    public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil, pemPassword: Data? = nil) throws {
+    public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) throws {
         try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
 
-        let key: NIOSSLPrivateKey
-        if let pemPassword = pemPassword {
-            key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem) { $0(pemPassword) }
-        } else {
-            key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
-        }
+        let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
 
+        self.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+        self.tlsConfiguration.certificateVerification = .noHostnameVerification
+        self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
+    }
+
+    /// Creates a new configuration for APNSwift with a PEM key and certificate
+    ///
+    /// If sending a PassKit push, you can set the `topic` to the empty string.
+    ///
+    /// - Note:
+    ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
+    ///   For all other types of push notifications, please switch to the newer `.p8` file format.
+    ///
+    /// - Parameters:
+    ///   - privateKeyPath: The path to your private key
+    ///   - pemPath: The path to your certificate in PEM format
+    ///   - topic: The bundle identifier for these push notifications
+    ///   - environment: The environment to use:  `sandbox` or `production`
+    ///   - logger: The logger you wish to use.  If `nil`, one will be created
+    ///   - pemPassword: The password to the private key
+    public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil, pemPassword: Data) throws {
+        try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
+
+        let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem) { $0(pemPassword) }
+        
         self.tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
         self.tlsConfiguration.certificateVerification = .noHostnameVerification
         self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
