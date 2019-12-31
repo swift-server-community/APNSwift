@@ -47,7 +47,7 @@ public struct APNSwiftConfiguration {
      signed. Since security is important keeping we extracted this logic into three options.
      `file`, `data`, or `custom`.
        - topic: The bundle identifier for these push notifications.
-       - environment: The environment to use:  `sandbox` or `production`
+       - environment: The environment to use: `sandbox` or `production`
        - logger: The logger you wish to use, if `nil`, one will be created
 
      ### Usage Example: ###
@@ -79,20 +79,31 @@ public struct APNSwiftConfiguration {
         }
     }
 
-    /// Creates a new configuration for APNSwift with a PEM key and certificate
-    ///
-    /// If sending a PassKit push, you can set the `topic` to the empty string.
-    ///
-    /// - Note:
-    ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-    ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-    ///
-    /// - Parameters:
-    ///   - privateKeyPath: The path to your private key
-    ///   - pemPath: The path to your certificate in PEM format
-    ///   - topic: The bundle identifier for these push notifications
-    ///   - environment: The environment to use:  `sandbox` or `production`
-    ///   - logger: The logger you wish to use.  If `nil`, one will be created
+    /**
+     * Creates a new configuration for APNSwift with a PEM key and certificate
+     *
+     * If sending a PassKit push, you can set the `topic` to the empty string.
+     *
+     * - Note:
+     *   You should only be using this constructor if you are sending a push due to a PassKit pass update.
+     *   For all other types of push notifications, please switch to the newer `.p8` file format.
+     *
+     * - Parameters:
+     *   - privateKeyPath: The path to your private key
+     *   - pemPath: The path to your certificate in PEM format
+     *   - topic: The bundle identifier for these push notifications
+     *   - environment: The environment to use:  `sandbox` or `production`
+     *   - logger: The logger you wish to use.  If `nil`, one will be created
+     *
+     * ### Usage Example: ###
+     * ```
+     * var apnsConfig = try APNSwiftConfiguration(
+     *     privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
+     *     pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem",
+     *     topic: "com.grasscove.Fern",
+     *     environment: .sandbox
+     * )
+     */
     public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil) throws {
         try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
 
@@ -103,21 +114,23 @@ public struct APNSwiftConfiguration {
         self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
     }
 
-    /// Creates a new configuration for APNSwift with a PEM key and certificate
-    ///
-    /// If sending a PassKit push, you can set the `topic` to the empty string.
-    ///
-    /// - Note:
-    ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-    ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-    ///
-    /// - Parameters:
-    ///   - privateKeyPath: The path to your private key
-    ///   - pemPath: The path to your certificate in PEM format
-    ///   - topic: The bundle identifier for these push notifications
-    ///   - environment: The environment to use:  `sandbox` or `production`
-    ///   - logger: The logger you wish to use.  If `nil`, one will be created
-    ///   - pemPassword: The password to the private key
+    /**
+     *  Creates a new configuration for APNSwift with a PEM key and certificate
+     *
+     * If sending a PassKit push, you can set the `topic` to the empty string.
+     *
+     * - Note:
+     *   You should only be using this constructor if you are sending a push due to a PassKit pass update.
+     *   For all other types of push notifications, please switch to the newer `.p8` file format.
+     *
+     * - Parameters:
+     *   - privateKeyPath: The path to your private key
+     *   - pemPath: The path to your certificate in PEM format
+     *   - topic: The bundle identifier for these push notifications
+     *   - environment: The environment to use:  `sandbox` or `production`
+     *   - logger: The logger you wish to use.  If `nil`, one will be created
+     *   - pemPassword: The password to the private key
+     */
     public init(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil, pemPassword: Data) throws {
         try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
 
@@ -128,28 +141,30 @@ public struct APNSwiftConfiguration {
         self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
     }
 
-    /// Creates a new configuration for APNSwift with a PEM key and certificate
-    ///
-    /// If sending a PassKit push, you can set the `topic` to the empty string.
-    ///
-    /// - Note:
-    ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-    ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-    /// - Parameters:
-    ///   - privateKeyPath: The path to your private key
-    ///   - pemPath: The path to your certificate in PEM format
-    ///   - topic: The bundle identifier for these push notifications
-    ///   - environment: The environment to use:  `sandbox` or `production`
-    ///   - logger: The logger you wish to use.  If `nil`, one will be created
-    ///   - passphraseCallback: The callback which will generate the password for the keyfile.
-    ///
-    /// ### Passhprase Generation: ###
-    ///
-    /// ```
-    /// let pwdCallback: NIOSSLPassphraseCallback = { callback in
-    ///     callback("Your password here".utf8)
-    /// }
-    /// ```
+    /**
+     * Creates a new configuration for APNSwift with a PEM key and certificate
+     *
+     * If sending a PassKit push, you can set the `topic` to the empty string.
+     *
+     * - Note:
+     *   You should only be using this constructor if you are sending a push due to a PassKit pass update.
+     *   For all other types of push notifications, please switch to the newer `.p8` file format.
+     * - Parameters:
+     *   - privateKeyPath: The path to your private key
+     *   - pemPath: The path to your certificate in PEM format
+     *   - topic: The bundle identifier for these push notifications
+     *   - environment: The environment to use:  `sandbox` or `production`
+     *   - logger: The logger you wish to use.  If `nil`, one will be created
+     *   - passphraseCallback: The callback which will generate the password for the keyfile.
+     *
+     * ### Passhprase Generation: ###
+     *
+     * ```
+     * let pwdCallback: NIOSSLPassphraseCallback = { callback in
+     *     callback("Your password here".utf8)
+     * }
+     * ```
+     */
     public init<T: Collection>(privateKeyPath: String, pemPath: String, topic: String, environment: APNSwiftConfiguration.Environment,
                                logger: Logger? = nil, passphraseCallback: @escaping NIOSSLPassphraseCallback<T>) throws
         where T.Element == UInt8 {
@@ -160,28 +175,30 @@ public struct APNSwiftConfiguration {
             self.tlsConfiguration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
     }
 
-    /// Creates a new configuration for APNSwift with a PEM key and certificate
-    ///
-    /// If sending a PassKit push, you can set the `topic` to the empty string.
-    ///
-    /// - Note:
-    ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-    ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-    /// - Parameters:
-    ///   - keyBytes: The private key bytes
-    ///   - certificateBytes: The certificate bytes in PEM format
-    ///   - topic: The bundle identifier for these push notifications
-    ///   - environment: The environment to use:  `sandbox` or `production`
-    ///   - logger: The logger you wish to use.  If `nil`, one will be created
-    ///   - passphraseCallback: The callback which will generate the password for the keyfile.
-    ///
-    /// ### Passhprase Generation: ###
-    ///
-    /// ```
-    /// let pwdCallback: NIOSSLPassphraseCallback = { callback in
-    ///     callback("Your password here".utf8)
-    /// }
-    /// ```
+    /**
+     * Creates a new configuration for APNSwift with a PEM key and certificate
+     *
+     * If sending a PassKit push, you can set the `topic` to the empty string.
+     *
+     * - Note:
+     *   You should only be using this constructor if you are sending a push due to a PassKit pass update.
+     *   For all other types of push notifications, please switch to the newer `.p8` file format.
+     * - Parameters:
+     *   - keyBytes: The private key bytes
+     *   - certificateBytes: The certificate bytes in PEM format
+     *   - topic: The bundle identifier for these push notifications
+     *   - environment: The environment to use:  `sandbox` or `production`
+     *   - logger: The logger you wish to use.  If `nil`, one will be created
+     *   - passphraseCallback: The callback which will generate the password for the keyfile.
+     *
+     * ### Passhprase Generation: ###
+     *
+     * ```
+     * let pwdCallback: NIOSSLPassphraseCallback = { callback in
+     *     callback("Your password here".utf8)
+     * }
+     * ```
+     */
     public init<T: Collection>(keyBytes: [UInt8], certificateBytes: [UInt8], topic: String, environment: APNSwiftConfiguration.Environment,
                                logger: Logger? = nil, passphraseCallback: @escaping NIOSSLPassphraseCallback<T>) throws
         where T.Element == UInt8 {
@@ -192,20 +209,22 @@ public struct APNSwiftConfiguration {
             self.tlsConfiguration.certificateChain = try [.certificate(.init(bytes: certificateBytes, format: .pem))]
     }
 
-    /// Creates a new configuration for APNSwift with a PEM key and certificate
-    ///
-    /// If sending a PassKit push, you can set the `topic` to the empty string.
-    ///
-    /// - Note:
-    ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-    ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-    /// - Parameters:
-    ///   - keyBytes: The private key bytes
-    ///   - certificateBytes: The certificate bytes in PEM format
-    ///   - topic: The bundle identifier for these push notifications
-    ///   - environment: The environment to use:  `sandbox` or `production`
-    ///   - logger: The logger you wish to use.  If `nil`, one will be created
-    ///   - pemPassword: The password for the private key
+    /**
+     * Creates a new configuration for APNSwift with a PEM key and certificate
+     *
+     * If sending a PassKit push, you can set the `topic` to the empty string.
+     *
+     * - Note:
+     *   You should only be using this constructor if you are sending a push due to a PassKit pass update.
+     *   For all other types of push notifications, please switch to the newer `.p8` file format.
+     * - Parameters:
+     *   - keyBytes: The private key bytes
+     *   - certificateBytes: The certificate bytes in PEM format
+     *   - topic: The bundle identifier for these push notifications
+     *   - environment: The environment to use:  `sandbox` or `production`
+     *   - logger: The logger you wish to use.  If `nil`, one will be created
+     *   - pemPassword: The password for the private key  
+     */
     public init(keyBytes: [UInt8], certificateBytes: [UInt8], topic: String, environment: APNSwiftConfiguration.Environment, logger: Logger? = nil, pemPassword: Data? = nil) throws {
         try self.init(keyIdentifier: "", teamIdentifier: "", signer: APNSwiftSigner(buffer: ByteBufferAllocator().buffer(capacity: 1024)), topic: topic, environment: environment, logger: logger)
 
