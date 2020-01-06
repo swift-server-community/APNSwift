@@ -181,8 +181,9 @@ public final class APNSwiftConnection: APNSwiftClient {
         collapseIdentifier: String?,
         topic: String?,
         logger: Logger?) -> EventLoopFuture<Void> {
-        
-        configuration.logger?.debug("Send - starting up")
+
+        let logger = logger ?? configuration.logger
+        logger?.debug("Send - starting up")
         let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
         multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
@@ -201,7 +202,7 @@ public final class APNSwiftConnection: APNSwiftClient {
         )
 
         return streamPromise.futureResult.flatMap { stream in
-            self.configuration.logger?.info("Send - sending")
+            logger?.info("Send - sending")
             return stream.writeAndFlush(context)
         }.flatMap {
             responsePromise.futureResult
