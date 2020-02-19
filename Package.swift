@@ -31,7 +31,6 @@ let package = Package(
         ),
 
         .target(name: "CAPNSwiftBoringSSL"),
-        .target(name: "CAPNSwiftBoringSSLShims", dependencies: ["CAPNSwiftBoringSSL"]),
         .target(name: "APNSwiftExample", dependencies: ["APNSwift"]),
         .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
         .testTarget(name: "APNSwiftJWTTests", dependencies: ["APNSwift"]),
@@ -44,7 +43,6 @@ let package = Package(
                                                 "NIOFoundationCompat",
                                                 "CAPNSOpenSSL",
                                                 "CAPNSwiftBoringSSL",
-                                                "CAPNSwiftBoringSSLShims",
                                                 "NIOTLS",
                                                 "Crypto"]),
     ],
