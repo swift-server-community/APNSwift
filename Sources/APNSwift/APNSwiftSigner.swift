@@ -53,20 +53,15 @@ public struct APNSwiftSigner {
         }
         defer { CAPNSwiftBoringSSL_ECDSA_SIG_free(.init(sig)) }
 
-        var r: OpaquePointer?
-        var s: OpaquePointer?
-
+        var rPtr: UnsafePointer<BIGNUM>?
+        var sPtr: UnsafePointer<BIGNUM>?
         // as this method is `get0` there is no requirement to free those pointers: ECDSA_SIG will free them for us.
-        withUnsafeMutablePointer(to: &r) { rPtr in
-            withUnsafeMutablePointer(to: &s) { sPtr in
-                CAPNSwiftBoringSSL_ECDSA_SIG_get0(.init(sig), .make(optional: rPtr), .make(optional: sPtr))
-            }
-        }
+        CAPNSwiftBoringSSL_ECDSA_SIG_get0(.init(sig), &rPtr, &sPtr)
 
-        var rb = [UInt8](repeating: 0, count: Int(CAPNSwiftBoringSSL_BN_num_bits(.make(optional: r)) + 7) / 8)
-        var sb = [UInt8](repeating: 0, count: Int(CAPNSwiftBoringSSL_BN_num_bits(.make(optional: s)) + 7) / 8)
-        let lenr = Int(CAPNSwiftBoringSSL_BN_bn2bin(.make(optional: r), &rb))
-        let lens = Int(CAPNSwiftBoringSSL_BN_bn2bin(.make(optional: s), &sb))
+        var rb = [UInt8](repeating: 0, count: Int(CAPNSwiftBoringSSL_BN_num_bits(rPtr) + 7) / 8)
+        var sb = [UInt8](repeating: 0, count: Int(CAPNSwiftBoringSSL_BN_num_bits(sPtr) + 7) / 8)
+        let lenr = Int(CAPNSwiftBoringSSL_BN_bn2bin(rPtr, &rb))
+        let lens = Int(CAPNSwiftBoringSSL_BN_bn2bin(sPtr, &sb))
 
         var signatureBytes = ByteBufferAllocator().buffer(capacity: lenr + lens)
         let allZeroes = Array(repeating: UInt8(0), count: 32)
