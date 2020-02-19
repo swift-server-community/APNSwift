@@ -18,7 +18,7 @@
 // http://cr.yp.to/papers.html#neoncrypto. Unrolled to 2 powers, i.e. 64 byte
 // block size
 
-#include <openssl/poly1305.h>
+#include <CAPNSwiftBoringSSL_poly1305.h>
 
 #include "../internal.h"
 

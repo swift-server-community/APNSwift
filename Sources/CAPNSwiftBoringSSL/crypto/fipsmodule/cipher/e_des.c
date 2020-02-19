@@ -54,9 +54,9 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/cipher.h>
-#include <openssl/des.h>
-#include <openssl/nid.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
+#include <CAPNSwiftBoringSSL_des.h>
+#include <CAPNSwiftBoringSSL_nid.h>
 
 #include "internal.h"
 #include "../delocate.h"

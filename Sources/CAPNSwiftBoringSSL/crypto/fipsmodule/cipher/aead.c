@@ -12,14 +12,14 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/aead.h>
+#include <CAPNSwiftBoringSSL_aead.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/cipher.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "internal.h"
 #include "../../internal.h"

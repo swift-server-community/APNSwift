@@ -108,14 +108,14 @@
 
 #include <stdio.h>
 
-#include <openssl/bio.h>
-#include <openssl/dh.h>
-#include <openssl/dsa.h>
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/pkcs7.h>
-#include <openssl/rsa.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_dh.h>
+#include <CAPNSwiftBoringSSL_dsa.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_pem.h>
+#include <CAPNSwiftBoringSSL_pkcs7.h>
+#include <CAPNSwiftBoringSSL_rsa.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 static RSA *pkey_get_rsa(EVP_PKEY *key, RSA **rsa);
 static DSA *pkey_get_dsa(EVP_PKEY *key, DSA **dsa);

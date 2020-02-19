@@ -56,10 +56,10 @@
 
 #include <string.h>
 
-#include <openssl/base64.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_base64.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 int NETSCAPE_SPKI_set_pubkey(NETSCAPE_SPKI *x, EVP_PKEY *pkey)
 {

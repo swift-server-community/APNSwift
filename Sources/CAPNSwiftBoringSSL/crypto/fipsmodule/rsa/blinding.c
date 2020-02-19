@@ -106,13 +106,13 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/rsa.h>
+#include <CAPNSwiftBoringSSL_rsa.h>
 
 #include <string.h>
 
-#include <openssl/bn.h>
-#include <openssl/mem.h>
-#include <openssl/err.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_err.h>
 
 #include "internal.h"
 #include "../../internal.h"

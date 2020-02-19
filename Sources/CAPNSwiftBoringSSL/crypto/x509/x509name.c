@@ -56,12 +56,12 @@
 
 #include <string.h>
 
-#include <openssl/asn1.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/obj.h>
-#include <openssl/stack.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_stack.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 #include "../internal.h"
 

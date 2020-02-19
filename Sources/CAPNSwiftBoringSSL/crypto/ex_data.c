@@ -106,16 +106,16 @@
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com). */
 
-#include <openssl/ex_data.h>
+#include <CAPNSwiftBoringSSL_ex_data.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/crypto.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/stack.h>
-#include <openssl/thread.h>
+#include <CAPNSwiftBoringSSL_crypto.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_stack.h>
+#include <CAPNSwiftBoringSSL_thread.h>
 
 #include "internal.h"
 

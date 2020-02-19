@@ -54,7 +54,7 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/obj.h>
+#include <CAPNSwiftBoringSSL_obj.h>
 
 #include "../internal.h"
 

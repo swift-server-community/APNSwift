@@ -54,18 +54,18 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
 
-#include <openssl/bn.h>
-#include <openssl/digest.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/mem.h>
-#include <openssl/obj.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_obj.h>
 
 #include "internal.h"
 

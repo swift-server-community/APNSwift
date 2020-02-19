@@ -12,10 +12,10 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/rand.h>
+#include <CAPNSwiftBoringSSL_rand.h>
 
-#include <openssl/type_check.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "internal.h"
 #include "../cipher/internal.h"

@@ -56,9 +56,9 @@
 
 #include <stdio.h>
 
-#include <openssl/asn1t.h>
-#include <openssl/thread.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_asn1t.h>
+#include <CAPNSwiftBoringSSL_thread.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 /*
  * X509_REQ_INFO is handled in an unusual way to get round invalid encodings.

@@ -1,3 +1,4 @@
+#define BORINGSSL_PREFIX CAPNSwiftBoringSSL
 #if defined(__arm__) && defined(__linux__)
 // This file is generated from a similarly-named Perl script in the BoringSSL
 // source tree. Do not edit by hand.
@@ -12,9 +13,9 @@
 #if !defined(OPENSSL_NO_ASM)
 #if defined(__arm__)
 #if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
+#include <CAPNSwiftBoringSSL_boringssl_prefix_symbols_asm.h>
 #endif
-#include <openssl/arm_arch.h>
+#include <CAPNSwiftBoringSSL_arm_arch.h>
 
 .text
 #if defined(__thumb2__)
@@ -1511,3 +1512,7 @@ sha1_block_data_order_armv8:
 #endif  // !OPENSSL_NO_ASM
 .section	.note.GNU-stack,"",%progbits
 #endif  // defined(__arm__) && defined(__linux__)
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
+

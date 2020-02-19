@@ -13,13 +13,13 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
 
-#include <openssl/bytestring.h>
+#include <CAPNSwiftBoringSSL_bytestring.h>
 
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
 
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "internal.h"
 #include "../internal.h"

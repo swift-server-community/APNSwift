@@ -49,14 +49,14 @@
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/aead.h>
-#include <openssl/aes.h>
-#include <openssl/cipher.h>
-#include <openssl/cpu.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/nid.h>
-#include <openssl/rand.h>
+#include <CAPNSwiftBoringSSL_aead.h>
+#include <CAPNSwiftBoringSSL_aes.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_nid.h>
+#include <CAPNSwiftBoringSSL_rand.h>
 
 #include "internal.h"
 #include "../../internal.h"

@@ -52,9 +52,9 @@
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com). */
 
-#include <openssl/bn.h>
+#include <CAPNSwiftBoringSSL_bn.h>
 
-#include <openssl/err.h>
+#include <CAPNSwiftBoringSSL_err.h>
 
 #include "internal.h"
 

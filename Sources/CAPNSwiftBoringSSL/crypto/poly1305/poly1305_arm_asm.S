@@ -1,3 +1,4 @@
+#define BORINGSSL_PREFIX CAPNSwiftBoringSSL
 #if defined(__arm__) && defined(__linux__)
 #if defined(__has_feature)
 #if __has_feature(memory_sanitizer) && !defined(OPENSSL_NO_ASM)
@@ -8,7 +9,7 @@
 #if defined(__arm__) && !defined(OPENSSL_NO_ASM) && !defined(__APPLE__)
 
 #if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
+#include <CAPNSwiftBoringSSL_boringssl_prefix_symbols_asm.h>
 #endif
 
 # This implementation was taken from the public domain, neon2 version in
@@ -2029,3 +2030,7 @@ bx lr
 .section	.note.GNU-stack,"",%progbits
 #endif
 #endif  // defined(__arm__) && defined(__linux__)
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
+

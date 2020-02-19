@@ -54,7 +54,7 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/bio.h>
+#include <CAPNSwiftBoringSSL_bio.h>
 
 #if !defined(OPENSSL_TRUSTY)
 
@@ -70,8 +70,8 @@ OPENSSL_MSVC_PRAGMA(warning(push, 3))
 OPENSSL_MSVC_PRAGMA(warning(pop))
 #endif
 
-#include <openssl/err.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "internal.h"
 #include "../internal.h"

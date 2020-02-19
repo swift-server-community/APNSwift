@@ -60,16 +60,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <openssl/base64.h>
-#include <openssl/buf.h>
-#include <openssl/des.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/mem.h>
-#include <openssl/obj.h>
-#include <openssl/pem.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_base64.h>
+#include <CAPNSwiftBoringSSL_buf.h>
+#include <CAPNSwiftBoringSSL_des.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_pem.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 #include "../internal.h"
 

@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 
 #if !defined(OPENSSL_C11_ATOMIC)

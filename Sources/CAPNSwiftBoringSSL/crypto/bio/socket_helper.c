@@ -15,8 +15,8 @@
 #undef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 
-#include <openssl/bio.h>
-#include <openssl/err.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_err.h>
 
 #if !defined(OPENSSL_TRUSTY)
 

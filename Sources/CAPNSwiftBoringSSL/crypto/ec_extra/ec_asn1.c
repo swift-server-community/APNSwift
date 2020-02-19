@@ -51,16 +51,16 @@
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com). */
 
-#include <openssl/ec.h>
+#include <CAPNSwiftBoringSSL_ec.h>
 
 #include <limits.h>
 #include <string.h>
 
-#include <openssl/bytestring.h>
-#include <openssl/bn.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/nid.h>
+#include <CAPNSwiftBoringSSL_bytestring.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_nid.h>
 
 #include "../fipsmodule/ec/internal.h"
 #include "../bytestring/internal.h"

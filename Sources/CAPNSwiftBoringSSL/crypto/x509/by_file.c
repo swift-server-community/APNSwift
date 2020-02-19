@@ -57,9 +57,9 @@
 
 #include <stdlib.h>
 
-#include <openssl/err.h>
-#include <openssl/pem.h>
-#include <openssl/thread.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_pem.h>
+#include <CAPNSwiftBoringSSL_thread.h>
 
 #ifndef OPENSSL_NO_STDIO
 

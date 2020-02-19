@@ -54,9 +54,9 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/dh.h>
+#include <CAPNSwiftBoringSSL_dh.h>
 
-#include <openssl/bn.h>
+#include <CAPNSwiftBoringSSL_bn.h>
 
 
 int DH_check_pub_key(const DH *dh, const BIGNUM *pub_key, int *out_flags) {

@@ -56,10 +56,10 @@
 
 #include <stdio.h>
 
-#include <openssl/asn1t.h>
-#include <openssl/evp.h>
-#include <openssl/obj.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_asn1t.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 /*
  * X509_CERT_AUX routines. These are used to encode additional user

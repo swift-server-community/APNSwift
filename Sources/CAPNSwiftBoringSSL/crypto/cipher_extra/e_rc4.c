@@ -57,9 +57,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/cipher.h>
-#include <openssl/nid.h>
-#include <openssl/rc4.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
+#include <CAPNSwiftBoringSSL_nid.h>
+#include <CAPNSwiftBoringSSL_rc4.h>
 
 
 static int rc4_init_key(EVP_CIPHER_CTX *ctx, const uint8_t *key,

@@ -57,20 +57,20 @@
  * The DSS routines are based on patches supplied by
  * Steven Schoch <schoch@sheba.arc.nasa.gov>. */
 
-#include <openssl/dsa.h>
+#include <CAPNSwiftBoringSSL_dsa.h>
 
 #include <string.h>
 
-#include <openssl/bn.h>
-#include <openssl/dh.h>
-#include <openssl/digest.h>
-#include <openssl/engine.h>
-#include <openssl/err.h>
-#include <openssl/ex_data.h>
-#include <openssl/mem.h>
-#include <openssl/rand.h>
-#include <openssl/sha.h>
-#include <openssl/thread.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_dh.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_engine.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_ex_data.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_sha.h>
+#include <CAPNSwiftBoringSSL_thread.h>
 
 #include "../fipsmodule/bn/internal.h"
 #include "../internal.h"

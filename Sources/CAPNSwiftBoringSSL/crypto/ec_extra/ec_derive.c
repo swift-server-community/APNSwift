@@ -12,15 +12,15 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/ec_key.h>
+#include <CAPNSwiftBoringSSL_ec_key.h>
 
 #include <string.h>
 
-#include <openssl/ec.h>
-#include <openssl/err.h>
-#include <openssl/digest.h>
-#include <openssl/hkdf.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_ec.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_hkdf.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "../fipsmodule/ec/internal.h"
 

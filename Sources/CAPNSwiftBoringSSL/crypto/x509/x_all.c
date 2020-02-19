@@ -54,17 +54,17 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 #include <limits.h>
 
-#include <openssl/asn1.h>
-#include <openssl/digest.h>
-#include <openssl/dsa.h>
-#include <openssl/evp.h>
-#include <openssl/mem.h>
-#include <openssl/rsa.h>
-#include <openssl/stack.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_dsa.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_rsa.h>
+#include <CAPNSwiftBoringSSL_stack.h>
 
 int X509_verify(X509 *a, EVP_PKEY *r)
 {

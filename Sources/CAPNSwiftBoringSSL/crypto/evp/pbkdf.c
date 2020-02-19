@@ -53,11 +53,11 @@
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com). */
 
-#include <openssl/evp.h>
+#include <CAPNSwiftBoringSSL_evp.h>
 
 #include <string.h>
 
-#include <openssl/hmac.h>
+#include <CAPNSwiftBoringSSL_hmac.h>
 
 #include "../internal.h"
 

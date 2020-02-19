@@ -54,13 +54,13 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/base64.h>
+#include <CAPNSwiftBoringSSL_base64.h>
 
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
 
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 #include "../internal.h"
 

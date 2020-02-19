@@ -54,11 +54,11 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/asn1.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
 
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 
 int ASN1_item_i2d_fp(const ASN1_ITEM *it, FILE *out, void *x)

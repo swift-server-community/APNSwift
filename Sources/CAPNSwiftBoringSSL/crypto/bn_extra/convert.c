@@ -54,17 +54,17 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/bn.h>
+#include <CAPNSwiftBoringSSL_bn.h>
 
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 
-#include <openssl/bio.h>
-#include <openssl/bytestring.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_bytestring.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "../fipsmodule/bn/internal.h"
 

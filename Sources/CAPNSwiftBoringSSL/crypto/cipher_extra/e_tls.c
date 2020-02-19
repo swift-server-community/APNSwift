@@ -16,14 +16,14 @@
 #include <limits.h>
 #include <string.h>
 
-#include <openssl/aead.h>
-#include <openssl/cipher.h>
-#include <openssl/err.h>
-#include <openssl/hmac.h>
-#include <openssl/md5.h>
-#include <openssl/mem.h>
-#include <openssl/sha.h>
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_aead.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_hmac.h>
+#include <CAPNSwiftBoringSSL_md5.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_sha.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 #include "../fipsmodule/cipher/internal.h"
 #include "../internal.h"

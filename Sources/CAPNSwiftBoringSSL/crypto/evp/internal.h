@@ -57,9 +57,9 @@
 #ifndef OPENSSL_HEADER_EVP_INTERNAL_H
 #define OPENSSL_HEADER_EVP_INTERNAL_H
 
-#include <openssl/base.h>
+#include <CAPNSwiftBoringSSL_base.h>
 
-#include <openssl/rsa.h>
+#include <CAPNSwiftBoringSSL_rsa.h>
 
 #if defined(__cplusplus)
 extern "C" {

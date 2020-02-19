@@ -19,9 +19,9 @@
 #ifndef OPENSSL_HEADER_EC_P256_X86_64_H
 #define OPENSSL_HEADER_EC_P256_X86_64_H
 
-#include <openssl/base.h>
+#include <CAPNSwiftBoringSSL_base.h>
 
-#include <openssl/bn.h>
+#include <CAPNSwiftBoringSSL_bn.h>
 
 #include "../bn/internal.h"
 

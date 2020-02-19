@@ -46,7 +46,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ==================================================================== */
 
-#include <openssl/aes.h>
+#include <CAPNSwiftBoringSSL_aes.h>
 
 #include <assert.h>
 

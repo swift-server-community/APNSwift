@@ -60,14 +60,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/conf.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/obj.h>
-#include <openssl/stack.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_asn1t.h>
+#include <CAPNSwiftBoringSSL_conf.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_stack.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 #include "internal.h"
 #include "pcy_int.h"

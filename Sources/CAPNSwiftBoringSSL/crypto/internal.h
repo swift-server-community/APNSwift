@@ -109,9 +109,9 @@
 #ifndef OPENSSL_HEADER_CRYPTO_INTERNAL_H
 #define OPENSSL_HEADER_CRYPTO_INTERNAL_H
 
-#include <openssl/ex_data.h>
-#include <openssl/stack.h>
-#include <openssl/thread.h>
+#include <CAPNSwiftBoringSSL_ex_data.h>
+#include <CAPNSwiftBoringSSL_stack.h>
+#include <CAPNSwiftBoringSSL_thread.h>
 
 #include <assert.h>
 #include <string.h>

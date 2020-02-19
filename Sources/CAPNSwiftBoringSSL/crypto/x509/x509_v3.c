@@ -54,13 +54,13 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/asn1.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/obj.h>
-#include <openssl/stack.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_stack.h>
+#include <CAPNSwiftBoringSSL_x509.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 int X509v3_get_ext_count(const STACK_OF(X509_EXTENSION) *x)
 {

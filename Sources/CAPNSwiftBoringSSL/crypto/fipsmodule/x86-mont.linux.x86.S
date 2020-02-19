@@ -1,10 +1,11 @@
+#define BORINGSSL_PREFIX CAPNSwiftBoringSSL
 #if defined(__i386__) && defined(__linux__)
 # This file is generated from a similarly-named Perl script in the BoringSSL
 # source tree. Do not edit by hand.
 
 #if defined(__i386__)
 #if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
+#include <CAPNSwiftBoringSSL_boringssl_prefix_symbols_asm.h>
 #endif
 .text
 .globl	bn_mul_mont
@@ -484,3 +485,7 @@ bn_mul_mont:
 #endif
 .section	.note.GNU-stack,"",@progbits
 #endif  // defined(__i386__) && defined(__linux__)
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
+

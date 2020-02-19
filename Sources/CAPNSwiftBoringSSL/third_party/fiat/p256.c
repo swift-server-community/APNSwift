@@ -27,13 +27,13 @@
 // 256-bit Montgomery form, generated using fiat-crypto, for 64 and 32-bit.
 // Field operations with inputs in [0,p) return outputs in [0,p).
 
-#include <openssl/base.h>
+#include <CAPNSwiftBoringSSL_base.h>
 
-#include <openssl/bn.h>
-#include <openssl/ec.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_ec.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 #include <assert.h>
 #include <string.h>

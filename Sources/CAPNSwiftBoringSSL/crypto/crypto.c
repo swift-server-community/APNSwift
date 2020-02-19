@@ -12,9 +12,9 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/crypto.h>
+#include <CAPNSwiftBoringSSL_crypto.h>
 
-#include <openssl/cpu.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
 
 #include "internal.h"
 
@@ -82,7 +82,7 @@ HIDDEN unsigned long OPENSSL_ppc64le_hwcap2 = 0;
 
 #elif defined(OPENSSL_ARM) || defined(OPENSSL_AARCH64)
 
-#include <openssl/arm_arch.h>
+#include <CAPNSwiftBoringSSL_arm_arch.h>
 
 #if defined(OPENSSL_STATIC_ARMCAP)
 

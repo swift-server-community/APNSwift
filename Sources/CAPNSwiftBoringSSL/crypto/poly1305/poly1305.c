@@ -16,11 +16,11 @@
 // (https://github.com/floodyberry/poly1305-donna) and released as public
 // domain.
 
-#include <openssl/poly1305.h>
+#include <CAPNSwiftBoringSSL_poly1305.h>
 
 #include <string.h>
 
-#include <openssl/cpu.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
 
 #include "internal.h"
 #include "../internal.h"

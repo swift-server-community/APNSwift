@@ -12,15 +12,15 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/curve25519.h>
+#include <CAPNSwiftBoringSSL_curve25519.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/bytestring.h>
-#include <openssl/mem.h>
-#include <openssl/rand.h>
-#include <openssl/sha.h>
+#include <CAPNSwiftBoringSSL_bytestring.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_sha.h>
 
 #include "../internal.h"
 #include "../../third_party/fiat/internal.h"

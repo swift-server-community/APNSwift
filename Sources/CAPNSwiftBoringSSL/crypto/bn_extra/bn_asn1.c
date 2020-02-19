@@ -12,10 +12,10 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/bn.h>
+#include <CAPNSwiftBoringSSL_bn.h>
 
-#include <openssl/bytestring.h>
-#include <openssl/err.h>
+#include <CAPNSwiftBoringSSL_bytestring.h>
+#include <CAPNSwiftBoringSSL_err.h>
 
 
 int BN_parse_asn1_unsigned(CBS *cbs, BIGNUM *ret) {

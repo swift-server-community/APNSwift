@@ -55,15 +55,15 @@
  * [including the GNU Public Licence.] */
 
 #include <ctype.h>
-#include <openssl/asn1.h>
-#include <openssl/bio.h>
-#include <openssl/digest.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/mem.h>
-#include <openssl/obj.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_x509.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 #include "internal.h"
 

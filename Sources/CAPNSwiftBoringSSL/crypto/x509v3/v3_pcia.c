@@ -35,9 +35,9 @@
  * SUCH DAMAGE.
  */
 
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_asn1t.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 
 ASN1_SEQUENCE(PROXY_POLICY) =

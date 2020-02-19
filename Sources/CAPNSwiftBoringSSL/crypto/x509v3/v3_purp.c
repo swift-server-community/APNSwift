@@ -59,13 +59,13 @@
 
 #include <string.h>
 
-#include <openssl/err.h>
-#include <openssl/digest.h>
-#include <openssl/mem.h>
-#include <openssl/obj.h>
-#include <openssl/thread.h>
-#include <openssl/x509_vfy.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_thread.h>
+#include <CAPNSwiftBoringSSL_x509_vfy.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 #include "../internal.h"
 

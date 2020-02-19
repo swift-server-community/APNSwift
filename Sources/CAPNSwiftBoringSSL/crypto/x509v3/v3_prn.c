@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 
-#include <openssl/bio.h>
-#include <openssl/conf.h>
-#include <openssl/mem.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_conf.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 /* Extension printing routines */
 

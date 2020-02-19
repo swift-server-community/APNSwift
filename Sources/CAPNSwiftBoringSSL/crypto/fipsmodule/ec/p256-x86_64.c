@@ -16,18 +16,18 @@
  *                          256 Bit Primes"
  */
 
-#include <openssl/ec.h>
+#include <CAPNSwiftBoringSSL_ec.h>
 
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
 
-#include <openssl/bn.h>
-#include <openssl/cpu.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
+#include <CAPNSwiftBoringSSL_crypto.h>
+#include <CAPNSwiftBoringSSL_err.h>
 
-#include <openssl/cpu.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
 
 #include "../bn/internal.h"
 #include "../delocate.h"

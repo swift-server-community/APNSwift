@@ -54,12 +54,12 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/cipher.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
 
 #include <assert.h>
 
-#include <openssl/digest.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 
 #define PKCS5_SALT_LEN 8

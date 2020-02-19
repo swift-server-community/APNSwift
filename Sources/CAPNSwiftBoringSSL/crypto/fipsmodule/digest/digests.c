@@ -54,15 +54,15 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/digest.h>
+#include <CAPNSwiftBoringSSL_digest.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/md4.h>
-#include <openssl/md5.h>
-#include <openssl/nid.h>
-#include <openssl/sha.h>
+#include <CAPNSwiftBoringSSL_md4.h>
+#include <CAPNSwiftBoringSSL_md5.h>
+#include <CAPNSwiftBoringSSL_nid.h>
+#include <CAPNSwiftBoringSSL_sha.h>
 
 #include "internal.h"
 #include "../delocate.h"

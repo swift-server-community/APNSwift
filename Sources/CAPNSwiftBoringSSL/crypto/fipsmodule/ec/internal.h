@@ -68,12 +68,12 @@
 #ifndef OPENSSL_HEADER_EC_INTERNAL_H
 #define OPENSSL_HEADER_EC_INTERNAL_H
 
-#include <openssl/base.h>
+#include <CAPNSwiftBoringSSL_base.h>
 
-#include <openssl/bn.h>
-#include <openssl/ex_data.h>
-#include <openssl/thread.h>
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_ex_data.h>
+#include <CAPNSwiftBoringSSL_thread.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 #include "../bn/internal.h"
 

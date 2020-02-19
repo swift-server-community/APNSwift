@@ -12,9 +12,9 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/base.h>
+#include <CAPNSwiftBoringSSL_base.h>
 
-#include <openssl/ec.h>
+#include <CAPNSwiftBoringSSL_ec.h>
 
 #include "internal.h"
 

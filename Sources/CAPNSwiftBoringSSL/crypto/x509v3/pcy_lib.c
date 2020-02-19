@@ -55,8 +55,8 @@
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com). */
 
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_x509.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 #include "pcy_int.h"
 

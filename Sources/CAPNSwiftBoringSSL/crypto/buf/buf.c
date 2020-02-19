@@ -54,12 +54,12 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/buf.h>
+#include <CAPNSwiftBoringSSL_buf.h>
 
 #include <string.h>
 
-#include <openssl/mem.h>
-#include <openssl/err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_err.h>
 
 #include "../internal.h"
 

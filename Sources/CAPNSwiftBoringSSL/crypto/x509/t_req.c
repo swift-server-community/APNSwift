@@ -56,12 +56,12 @@
 
 #include <stdio.h>
 
-#include <openssl/bn.h>
-#include <openssl/buffer.h>
-#include <openssl/err.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_buffer.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_objects.h>
+#include <CAPNSwiftBoringSSL_x509.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 
 int X509_REQ_print_fp(FILE *fp, X509_REQ *x) {

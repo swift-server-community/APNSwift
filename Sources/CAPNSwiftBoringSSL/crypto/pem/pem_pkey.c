@@ -54,19 +54,19 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/pem.h>
+#include <CAPNSwiftBoringSSL_pem.h>
 
 #include <stdio.h>
 #include <string.h>
 
-#include <openssl/dh.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/mem.h>
-#include <openssl/obj.h>
-#include <openssl/pkcs8.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_dh.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_pkcs8.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 EVP_PKEY *PEM_read_bio_PrivateKey(BIO *bp, EVP_PKEY **x, pem_password_cb *cb,
                                   void *u)

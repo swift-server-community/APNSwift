@@ -54,14 +54,14 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/bio.h>
+#include <CAPNSwiftBoringSSL_bio.h>
 
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <openssl/err.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 int BIO_printf(BIO *bio, const char *format, ...) {
   va_list args;

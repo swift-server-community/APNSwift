@@ -12,17 +12,18 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/hrss.h>
+#include <CAPNSwiftBoringSSL_hrss.h>
+#include <inttypes.h>
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <openssl/bn.h>
-#include <openssl/cpu.h>
-#include <openssl/hmac.h>
-#include <openssl/mem.h>
-#include <openssl/sha.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
+#include <CAPNSwiftBoringSSL_hmac.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_sha.h>
 
 #if defined(_MSC_VER)
 #define RESTRICT

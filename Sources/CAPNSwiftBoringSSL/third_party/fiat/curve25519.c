@@ -27,16 +27,16 @@
 //
 // The field functions are shared by Ed25519 and X25519 where possible.
 
-#include <openssl/curve25519.h>
+#include <CAPNSwiftBoringSSL_curve25519.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/cpu.h>
-#include <openssl/mem.h>
-#include <openssl/rand.h>
-#include <openssl/sha.h>
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_cpu.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_sha.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 #include "internal.h"
 #include "../../crypto/internal.h"

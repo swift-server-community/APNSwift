@@ -53,9 +53,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/digest.h>
-#include <openssl/nid.h>
-#include <openssl/sha.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_nid.h>
+#include <CAPNSwiftBoringSSL_sha.h>
 
 #include "../internal.h"
 #include "internal.h"

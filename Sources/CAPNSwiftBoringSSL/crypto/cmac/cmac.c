@@ -46,14 +46,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ==================================================================== */
 
-#include <openssl/cmac.h>
+#include <CAPNSwiftBoringSSL_cmac.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/aes.h>
-#include <openssl/cipher.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_aes.h>
+#include <CAPNSwiftBoringSSL_cipher.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "../internal.h"
 

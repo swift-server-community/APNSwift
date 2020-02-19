@@ -49,7 +49,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/type_check.h>
+#include <CAPNSwiftBoringSSL_type_check.h>
 
 #include "internal.h"
 

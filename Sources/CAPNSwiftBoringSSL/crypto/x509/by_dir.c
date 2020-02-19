@@ -59,11 +59,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <openssl/buf.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/thread.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_buf.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_thread.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 #if !defined(OPENSSL_TRUSTY)
 

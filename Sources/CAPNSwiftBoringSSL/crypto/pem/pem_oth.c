@@ -55,16 +55,16 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/pem.h>
+#include <CAPNSwiftBoringSSL_pem.h>
 
 #include <stdio.h>
 
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/evp.h>
-#include <openssl/obj.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 /* Handle 'other' PEMs: not private keys */
 

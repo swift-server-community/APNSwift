@@ -52,9 +52,9 @@
 
 #include <assert.h>
 
-#include <openssl/digest.h>
-#include <openssl/hmac.h>
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_hmac.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "internal.h"
 #include "../../internal.h"

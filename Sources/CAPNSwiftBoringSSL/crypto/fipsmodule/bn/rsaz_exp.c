@@ -16,7 +16,7 @@
 
 #if defined(RSAZ_ENABLED)
 
-#include <openssl/mem.h>
+#include <CAPNSwiftBoringSSL_mem.h>
 
 #include "internal.h"
 #include "../../internal.h"

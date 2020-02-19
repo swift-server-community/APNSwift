@@ -54,18 +54,18 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/evp.h>
+#include <CAPNSwiftBoringSSL_evp.h>
 
 #include <assert.h>
 #include <string.h>
 
-#include <openssl/dsa.h>
-#include <openssl/ec.h>
-#include <openssl/err.h>
-#include <openssl/mem.h>
-#include <openssl/nid.h>
-#include <openssl/rsa.h>
-#include <openssl/thread.h>
+#include <CAPNSwiftBoringSSL_dsa.h>
+#include <CAPNSwiftBoringSSL_ec.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_nid.h>
+#include <CAPNSwiftBoringSSL_rsa.h>
+#include <CAPNSwiftBoringSSL_thread.h>
 
 #include "internal.h"
 #include "../internal.h"

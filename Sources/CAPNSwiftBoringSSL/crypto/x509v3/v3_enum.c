@@ -57,9 +57,9 @@
 
 #include <stdio.h>
 
-#include <openssl/obj.h>
-#include <openssl/mem.h>
-#include <openssl/x509v3.h>
+#include <CAPNSwiftBoringSSL_obj.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_x509v3.h>
 
 static const ENUMERATED_NAMES crl_reasons[] = {
     {CRL_REASON_UNSPECIFIED, "Unspecified", "unspecified"},

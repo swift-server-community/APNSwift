@@ -57,9 +57,9 @@
 
 #include <stdio.h>
 
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_pem.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 IMPLEMENT_PEM_rw(X509, X509, PEM_STRING_X509, X509)

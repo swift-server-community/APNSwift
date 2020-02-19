@@ -12,20 +12,20 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/crypto.h>
+#include <CAPNSwiftBoringSSL_crypto.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <openssl/aead.h>
-#include <openssl/aes.h>
-#include <openssl/bn.h>
-#include <openssl/des.h>
-#include <openssl/ecdsa.h>
-#include <openssl/ec_key.h>
-#include <openssl/nid.h>
-#include <openssl/rsa.h>
-#include <openssl/sha.h>
+#include <CAPNSwiftBoringSSL_aead.h>
+#include <CAPNSwiftBoringSSL_aes.h>
+#include <CAPNSwiftBoringSSL_bn.h>
+#include <CAPNSwiftBoringSSL_des.h>
+#include <CAPNSwiftBoringSSL_ecdsa.h>
+#include <CAPNSwiftBoringSSL_ec_key.h>
+#include <CAPNSwiftBoringSSL_nid.h>
+#include <CAPNSwiftBoringSSL_rsa.h>
+#include <CAPNSwiftBoringSSL_sha.h>
 
 #include "../../internal.h"
 #include "../ec/internal.h"

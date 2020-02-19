@@ -12,7 +12,7 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <openssl/crypto.h>
+#include <CAPNSwiftBoringSSL_crypto.h>
 
 
 // This file exists in order to give the fipsmodule target, in non-FIPS mode,

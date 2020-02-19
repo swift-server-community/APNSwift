@@ -54,9 +54,9 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/asn1.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
 
-#include <openssl/bio.h>
+#include <CAPNSwiftBoringSSL_bio.h>
 
 /* Based on a_int.c: equivalent ENUMERATED functions */
 

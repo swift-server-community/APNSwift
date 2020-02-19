@@ -53,22 +53,22 @@
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com). */
 
-#include <openssl/pkcs8.h>
+#include <CAPNSwiftBoringSSL_pkcs8.h>
 
 #include <limits.h>
 
-#include <openssl/asn1t.h>
-#include <openssl/asn1.h>
-#include <openssl/bio.h>
-#include <openssl/buf.h>
-#include <openssl/bytestring.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/digest.h>
-#include <openssl/hmac.h>
-#include <openssl/mem.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
+#include <CAPNSwiftBoringSSL_asn1t.h>
+#include <CAPNSwiftBoringSSL_asn1.h>
+#include <CAPNSwiftBoringSSL_bio.h>
+#include <CAPNSwiftBoringSSL_buf.h>
+#include <CAPNSwiftBoringSSL_bytestring.h>
+#include <CAPNSwiftBoringSSL_err.h>
+#include <CAPNSwiftBoringSSL_evp.h>
+#include <CAPNSwiftBoringSSL_digest.h>
+#include <CAPNSwiftBoringSSL_hmac.h>
+#include <CAPNSwiftBoringSSL_mem.h>
+#include <CAPNSwiftBoringSSL_rand.h>
+#include <CAPNSwiftBoringSSL_x509.h>
 
 #include "internal.h"
 #include "../bytestring/internal.h"

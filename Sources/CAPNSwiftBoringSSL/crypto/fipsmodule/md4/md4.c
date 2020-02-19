@@ -54,7 +54,7 @@
  * copied and put under another distribution licence
  * [including the GNU Public Licence.] */
 
-#include <openssl/md4.h>
+#include <CAPNSwiftBoringSSL_md4.h>
 
 #include <stdlib.h>
 #include <string.h>

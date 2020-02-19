@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <openssl/siphash.h>
+#include <CAPNSwiftBoringSSL_siphash.h>
 
 #include "../internal.h"
 
