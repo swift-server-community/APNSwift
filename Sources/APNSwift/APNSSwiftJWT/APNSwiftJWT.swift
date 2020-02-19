@@ -60,6 +60,7 @@ internal struct APNSwiftJWT: Codable {
         return "\(headerString).\(payloadString)"
     }
 
+    #warning("This can problem be remove so we're not messing around with ByteBuffers")
     /// Sign digest with SigningMode. Use the result in your request authorization header.
     internal func getDigest() throws -> (digest: String, fixedDigest: ByteBuffer) {
         let digest = try self.digest()
