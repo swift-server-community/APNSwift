@@ -11,6 +11,6 @@ echo "================================="
 docker rmi swift-nio-apns
 docker build -t swift-nio-apns -f Dockerfile .
 
-docker run --name swift-nio-apns-tests --rm swift-nio-apns swift test \
+docker run --name swift-nio-apns-tests --rm swift-nio-apns swift test --enable-test-discovery \
   || (set +x; echo -e "\033[0;31mTests exited with non-zero exit code\033[0m"; tput bel; exit 1)
 echo "Finished tests, docker container were removed."

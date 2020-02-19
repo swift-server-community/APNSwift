@@ -1,4 +1,4 @@
-FROM swift:5.0
+FROM swift:5.1
 
 WORKDIR /code
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && apt-get -q update && \
