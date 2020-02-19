@@ -71,4 +71,8 @@ public struct APNSwiftError: Equatable {
         case certificateFileDoesNotExist
         case invalidSignatureData
     }
+    
+    public enum DigestError: Error {
+        case cannotConvertToData
+    }
 }
