@@ -35,13 +35,13 @@
 #
 # Usage:
 #   1. Run this script in the package root. It will place
-#      a local copy of the BoringSSL sources in Sources/CCryptoBoringSSL.
-#      Any prior contents of Sources/CCryptoBoringSSL will be deleted.
+#      a local copy of the BoringSSL sources in Sources/CAPNSwiftBoringSSL.
+#      Any prior contents of Sources/CAPNSwiftBoringSSL will be deleted.
 #
 set -eou pipefail
 
 HERE=$(pwd)
-DSTROOT=Sources/CCryptoBoringSSL
+DSTROOT=Sources/CAPNSwiftBoringSSL
 TMPDIR=$(mktemp -d /tmp/.workingXXXXXX)
 SRCROOT="${TMPDIR}/src/boringssl.googlesource.com/boringssl"
 CROSS_COMPILE_TARGET_LOCATION="/Library/Developer/Destinations"
@@ -78,19 +78,14 @@ function mangle_symbols {
     (
         # We need a .a: may as well get SwiftPM to give it to us.
         # Temporarily enable the product we need.
+        echo "Enabling mangled target in Package.swift"
         $sed -i -e 's/MANGLE_START/MANGLE_START*\//' -e 's/MANGLE_END/\/*MANGLE_END/' "${HERE}/Package.swift"
 
         export GOPATH="${TMPDIR}"
 
         # Begin by building for macOS.
-        swift build --product CCryptoBoringSSL --enable-test-discovery
-        go run "${SRCROOT}/util/read_symbols.go" -out "${TMPDIR}/symbols-macOS.txt" "${HERE}/.build/debug/libCCryptoBoringSSL.a"
-
-        # Now build for iOS. We use xcodebuild for this because SwiftPM doesn't
-        # meaningfully support it. Unfortunately we must archive ourselves.
-        xcodebuild -sdk iphoneos -scheme CCryptoBoringSSL -derivedDataPath "${TMPDIR}/iphoneos-deriveddata"
-        ar -r "${TMPDIR}/libCCryptoBoringSSL-ios.a" "${TMPDIR}/iphoneos-deriveddata/Build/Products/Debug-iphoneos/CCryptoBoringSSL.o"
-        go run "${SRCROOT}/util/read_symbols.go" -out "${TMPDIR}/symbols-iOS.txt" "${TMPDIR}/libCCryptoBoringSSL-ios.a"
+        swift build --product CAPNSwiftBoringSSL --enable-test-discovery
+        go run "${SRCROOT}/util/read_symbols.go" -out "${TMPDIR}/symbols-macOS.txt" "${HERE}/.build/debug/libCAPNSwiftBoringSSL.a"
 
         # Now cross compile for our targets.
         # If you have trouble with the script around this point, consider
@@ -98,12 +93,12 @@ function mangle_symbols {
         # compilers for the architectures we care about.
         for cc_target in "${CROSS_COMPILE_TARGET_LOCATION}"/*"${CROSS_COMPILE_VERSION}"*.json; do
             echo "Cross compiling for ${cc_target}"
-            swift build --product CCryptoBoringSSL --destination "${cc_target}" --enable-test-discovery
+            swift build --product CAPNSwiftBoringSSL --destination "${cc_target}" --enable-test-discovery
         done;
 
         # Now we need to generate symbol mangles for Linux. We can do this in
         # one go for all of them.
-        go run "${SRCROOT}/util/read_symbols.go" -obj-file-format elf -out "${TMPDIR}/symbols-linux-all.txt" "${HERE}"/.build/*-unknown-linux/debug/libCCryptoBoringSSL.a
+        go run "${SRCROOT}/util/read_symbols.go" -obj-file-format elf -out "${TMPDIR}/symbols-linux-all.txt" "${HERE}"/.build/*-unknown-linux/debug/libCAPNSwiftBoringSSL.a
 
         # Now we concatenate all the symbols together and uniquify it.
         cat "${TMPDIR}"/symbols-*.txt | sort | uniq > "${TMPDIR}/symbols.txt"
@@ -111,6 +106,7 @@ function mangle_symbols {
         # Use this as the input to the mangle.
         go run "${SRCROOT}/util/make_prefix_headers.go" -out "${HERE}/${DSTROOT}/include/openssl" "${TMPDIR}/symbols.txt"
 
+        echo "Disabling mangled target in Package.swift"
         # Remove the product, as we no longer need it.
         $sed -i -e 's/MANGLE_START\*\//MANGLE_START/' -e 's/\/\*MANGLE_END/MANGLE_END/' "${HERE}/Package.swift"
     )
@@ -120,11 +116,11 @@ function mangle_symbols {
 
     # Now edit the headers again to add the symbol mangling.
     echo "ADDING symbol mangling"
-    perl -pi -e '$_ .= qq(\n#define BORINGSSL_PREFIX CCryptoBoringSSL\n) if /#define OPENSSL_HEADER_BASE_H/' "$DSTROOT/include/openssl/base.h"
+    perl -pi -e '$_ .= qq(\n#define BORINGSSL_PREFIX CAPNSwiftBoringSSL\n) if /#define OPENSSL_HEADER_BASE_H/' "$DSTROOT/include/openssl/base.h"
 
     for assembly_file in $(find "$DSTROOT" -name "*.S")
     do
-        $sed -i '1 i #define BORINGSSL_PREFIX CCryptoBoringSSL' "$assembly_file"
+        $sed -i '1 i #define BORINGSSL_PREFIX CAPNSwiftBoringSSL' "$assembly_file"
     done
     namespace_inlines "$DSTROOT"
 }
@@ -245,8 +241,8 @@ echo "RENAMING header files"
 (
     # We need to rearrange a coouple of things here, the end state will be:
     # - Headers from 'include/openssl/' will be moved up a level to 'include/'
-    # - Their names will be prefixed with 'CCryptoBoringSSL_'
-    # - The headers prefixed with 'boringssl_prefix_symbols' will also be prefixed with 'CCryptoBoringSSL_'
+    # - Their names will be prefixed with 'CAPNSwiftBoringSSL_'
+    # - The headers prefixed with 'boringssl_prefix_symbols' will also be prefixed with 'CAPNSwiftBoringSSL_'
     # - Any include of another header in the 'include/' directory will use quotation marks instead of angle brackets
 
     # Let's move the headers up a level first.
@@ -254,14 +250,14 @@ echo "RENAMING header files"
     mv include/openssl/* include/
     rmdir "include/openssl"
 
-    # Now change the imports from "<openssl/X> to "<CCryptoBoringSSL_X>", apply the same prefix to the 'boringssl_prefix_symbols' headers.
-    find . -name "*.[ch]" -or -name "*.cc" -or -name "*.S" | xargs $sed -i -e 's+include <openssl/+include <CCryptoBoringSSL_+' -e 's+include <boringssl_prefix_symbols+include <CCryptoBoringSSL_boringssl_prefix_symbols+'
+    # Now change the imports from "<openssl/X> to "<CAPNSwiftBoringSSL_X>", apply the same prefix to the 'boringssl_prefix_symbols' headers.
+    find . -name "*.[ch]" -or -name "*.cc" -or -name "*.S" | xargs $sed -i -e 's+include <openssl/+include <CAPNSwiftBoringSSL_+' -e 's+include <boringssl_prefix_symbols+include <CAPNSwiftBoringSSL_boringssl_prefix_symbols+'
 
-    # Okay now we need to rename the headers adding the prefix "CCryptoBoringSSL_".
+    # Okay now we need to rename the headers adding the prefix "CAPNSwiftBoringSSL_".
     pushd include
-    find . -name "*.h" | $sed -e "s_./__" | xargs -I {} mv {} CCryptoBoringSSL_{}
+    find . -name "*.h" | $sed -e "s_./__" | xargs -I {} mv {} CAPNSwiftBoringSSL_{}
     # Finally, make sure we refer to them by their prefixed names, and change any includes from angle brackets to quotation marks.
-    find . -name "*.h" | xargs $sed -i -e 's/include "/include "CCryptoBoringSSL_/' -e 's/include <CCryptoBoringSSL_\(.*\)>/include "CCryptoBoringSSL_\1"/'
+    find . -name "*.h" | xargs $sed -i -e 's/include "/include "CAPNSwiftBoringSSL_/' -e 's/include <CAPNSwiftBoringSSL_\(.*\)>/include "CAPNSwiftBoringSSL_\1"/'
     popd
 )
 
@@ -278,12 +274,12 @@ git apply "${HERE}/scripts/patch-2-arm-arch.patch"
 
 # We need BoringSSL to be modularised
 echo "MODULARISING BoringSSL"
-cat << EOF > "$DSTROOT/include/CCryptoBoringSSL.h"
+cat << EOF > "$DSTROOT/include/CAPNSwiftBoringSSL.h"
 //===----------------------------------------------------------------------===//
 //
-// This source file is part of the ANPSwift open source project
+// This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2020 Kyle Browning and the ANPSwift project authors
+// Copyright (c) 2020 Kyle Browning and the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -292,54 +288,54 @@ cat << EOF > "$DSTROOT/include/CCryptoBoringSSL.h"
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-#ifndef C_CRYPTO_BORINGSSL_H
-#define C_CRYPTO_BORINGSSL_H
+#ifndef C_APNSWIFT_BORINGSSL_H
+#define C_APNSWIFT_BORINGSSL_H
 
-#include "CCryptoBoringSSL_aes.h"
-#include "CCryptoBoringSSL_arm_arch.h"
-#include "CCryptoBoringSSL_asn1_mac.h"
-#include "CCryptoBoringSSL_asn1t.h"
-#include "CCryptoBoringSSL_base.h"
-#include "CCryptoBoringSSL_bio.h"
-#include "CCryptoBoringSSL_blowfish.h"
-#include "CCryptoBoringSSL_boringssl_prefix_symbols.h"
-#include "CCryptoBoringSSL_boringssl_prefix_symbols_asm.h"
-#include "CCryptoBoringSSL_cast.h"
-#include "CCryptoBoringSSL_chacha.h"
-#include "CCryptoBoringSSL_cmac.h"
-#include "CCryptoBoringSSL_conf.h"
-#include "CCryptoBoringSSL_cpu.h"
-#include "CCryptoBoringSSL_curve25519.h"
-#include "CCryptoBoringSSL_des.h"
-#include "CCryptoBoringSSL_dtls1.h"
-#include "CCryptoBoringSSL_e_os2.h"
-#include "CCryptoBoringSSL_ec.h"
-#include "CCryptoBoringSSL_ec_key.h"
-#include "CCryptoBoringSSL_ecdsa.h"
-#include "CCryptoBoringSSL_err.h"
-#include "CCryptoBoringSSL_evp.h"
-#include "CCryptoBoringSSL_hkdf.h"
-#include "CCryptoBoringSSL_hmac.h"
-#include "CCryptoBoringSSL_hrss.h"
-#include "CCryptoBoringSSL_md4.h"
-#include "CCryptoBoringSSL_md5.h"
-#include "CCryptoBoringSSL_obj_mac.h"
-#include "CCryptoBoringSSL_objects.h"
-#include "CCryptoBoringSSL_opensslv.h"
-#include "CCryptoBoringSSL_ossl_typ.h"
-#include "CCryptoBoringSSL_pem.h"
-#include "CCryptoBoringSSL_pkcs12.h"
-#include "CCryptoBoringSSL_poly1305.h"
-#include "CCryptoBoringSSL_rand.h"
-#include "CCryptoBoringSSL_rc4.h"
-#include "CCryptoBoringSSL_ripemd.h"
-#include "CCryptoBoringSSL_rsa.h"
-#include "CCryptoBoringSSL_safestack.h"
-#include "CCryptoBoringSSL_sha.h"
-#include "CCryptoBoringSSL_siphash.h"
-#include "CCryptoBoringSSL_x509v3.h"
+#include "CAPNSwiftBoringSSL_aes.h"
+#include "CAPNSwiftBoringSSL_arm_arch.h"
+#include "CAPNSwiftBoringSSL_asn1_mac.h"
+#include "CAPNSwiftBoringSSL_asn1t.h"
+#include "CAPNSwiftBoringSSL_base.h"
+#include "CAPNSwiftBoringSSL_bio.h"
+#include "CAPNSwiftBoringSSL_blowfish.h"
+#include "CAPNSwiftBoringSSL_boringssl_prefix_symbols.h"
+#include "CAPNSwiftBoringSSL_boringssl_prefix_symbols_asm.h"
+#include "CAPNSwiftBoringSSL_cast.h"
+#include "CAPNSwiftBoringSSL_chacha.h"
+#include "CAPNSwiftBoringSSL_cmac.h"
+#include "CAPNSwiftBoringSSL_conf.h"
+#include "CAPNSwiftBoringSSL_cpu.h"
+#include "CAPNSwiftBoringSSL_curve25519.h"
+#include "CAPNSwiftBoringSSL_des.h"
+#include "CAPNSwiftBoringSSL_dtls1.h"
+#include "CAPNSwiftBoringSSL_e_os2.h"
+#include "CAPNSwiftBoringSSL_ec.h"
+#include "CAPNSwiftBoringSSL_ec_key.h"
+#include "CAPNSwiftBoringSSL_ecdsa.h"
+#include "CAPNSwiftBoringSSL_err.h"
+#include "CAPNSwiftBoringSSL_evp.h"
+#include "CAPNSwiftBoringSSL_hkdf.h"
+#include "CAPNSwiftBoringSSL_hmac.h"
+#include "CAPNSwiftBoringSSL_hrss.h"
+#include "CAPNSwiftBoringSSL_md4.h"
+#include "CAPNSwiftBoringSSL_md5.h"
+#include "CAPNSwiftBoringSSL_obj_mac.h"
+#include "CAPNSwiftBoringSSL_objects.h"
+#include "CAPNSwiftBoringSSL_opensslv.h"
+#include "CAPNSwiftBoringSSL_ossl_typ.h"
+#include "CAPNSwiftBoringSSL_pem.h"
+#include "CAPNSwiftBoringSSL_pkcs12.h"
+#include "CAPNSwiftBoringSSL_poly1305.h"
+#include "CAPNSwiftBoringSSL_rand.h"
+#include "CAPNSwiftBoringSSL_rc4.h"
+#include "CAPNSwiftBoringSSL_ripemd.h"
+#include "CAPNSwiftBoringSSL_rsa.h"
+#include "CAPNSwiftBoringSSL_safestack.h"
+#include "CAPNSwiftBoringSSL_sha.h"
+#include "CAPNSwiftBoringSSL_siphash.h"
+#include "CAPNSwiftBoringSSL_x509v3.h"
 
-#endif  // C_CRYPTO_BORINGSSL_H
+#endif  // C_APNSWIFT_BORINGSSL_H
 EOF
 
 echo "RECORDING BoringSSL revision"

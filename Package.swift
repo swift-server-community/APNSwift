@@ -4,14 +4,14 @@ import PackageDescription
 let package = Package(
     name: "apnswift",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .watchOS(.v6),
-        .tvOS(.v13),
+        .macOS(.v10_15)
     ],
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
         .library(name: "APNSwift", targets: ["APNSwift"]),
+        /* This target is used only for symbol mangling. It's added and removed automatically because it emits build warnings. MANGLE_START
+        .library(name: "CAPNSwiftBoringSSL", type: .static, targets: ["CAPNSwiftBoringSSL"]),
+        MANGLE_END */
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.10.1")),
@@ -30,6 +30,7 @@ let package = Package(
             ]
         ),
 
+        .target(name: "CAPNSwiftBoringSSL"),
         .target(name: "APNSwiftExample", dependencies: ["APNSwift"]),
         .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
         .testTarget(name: "APNSwiftJWTTests", dependencies: ["APNSwift"]),
@@ -43,5 +44,6 @@ let package = Package(
                                                 "CAPNSOpenSSL",
                                                 "NIOTLS",
                                                 "Crypto"]),
-    ]
+    ],
+    cxxLanguageStandard: .cxx11
 )
