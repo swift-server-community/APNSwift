@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import CAPNSwiftBoringSSL
+@_implementationOnly import CAPNSwiftBoringSSL
 import Foundation
 import NIO
 
