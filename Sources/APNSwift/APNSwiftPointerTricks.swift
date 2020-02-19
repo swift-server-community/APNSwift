@@ -47,10 +47,6 @@ extension UnsafePointer {
         self = ptr
     }
 
-    static func make(optional ptr: UnsafePointer<Pointee>?) -> UnsafePointer<Pointee>? {
-        return ptr.map(UnsafePointer<Pointee>.init)
-    }
-
     static func make(optional ptr: OpaquePointer?) -> UnsafePointer<Pointee>? {
         return ptr.map(UnsafePointer<Pointee>.init)
     }
@@ -62,22 +58,8 @@ extension UnsafeMutablePointer {
         self = x
     }
 
-    static func make(optional ptr: UnsafeMutablePointer<Pointee>?) -> UnsafeMutablePointer<Pointee>? {
-        return ptr.map(UnsafeMutablePointer<Pointee>.init)
-    }
-
     static func make(optional ptr: UnsafeMutableRawPointer?) -> UnsafeMutablePointer<Pointee>? {
         return ptr.map(UnsafeMutablePointer<Pointee>.init)
-    }
-
-    static func make(optional ptr: OpaquePointer?) -> UnsafeMutablePointer<Pointee>? {
-        return ptr.map(UnsafeMutablePointer<Pointee>.init)
-    }
-}
-
-extension UnsafeMutableRawPointer {
-    static func make(optional ptr: OpaquePointer?) -> UnsafeMutableRawPointer? {
-        return ptr.map(UnsafeMutableRawPointer.init)
     }
 }
 
@@ -88,39 +70,5 @@ extension OpaquePointer {
 
     static func make(optional ptr: OpaquePointer?) -> OpaquePointer? {
         return ptr.map(OpaquePointer.init)
-    }
-
-    static func make(optional ptr: UnsafeMutableRawPointer?) -> OpaquePointer? {
-        return ptr.map(OpaquePointer.init)
-    }
-
-    static func make<Pointee>(optional ptr: UnsafeMutablePointer<Pointee>?) -> OpaquePointer? {
-        return ptr.map(OpaquePointer.init)
-    }
-}
-
-extension OpaquePointer {
-    func convert<T>() -> UnsafePointer<T> {
-        return .init(self)
-    }
-
-    func convert<T>() -> UnsafeMutablePointer<T> {
-        return .init(self)
-    }
-
-    func convert() -> OpaquePointer {
-        return self
-    }
-}
-
-extension UnsafePointer {
-    func convert() -> OpaquePointer {
-        return .init(self)
-    }
-}
-
-extension UnsafeMutablePointer {
-    func convert() -> OpaquePointer {
-        return .init(self)
     }
 }
