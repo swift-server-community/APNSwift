@@ -21,15 +21,6 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-crypto.git", from: "1.0.0")
     ],
     targets: [
-        .systemLibrary(
-            name: "CAPNSOpenSSL",
-            pkgConfig: "openssl",
-            providers: [
-                .apt(["openssl libssl-dev"]),
-                .brew(["openssl@1.1"]),
-            ]
-        ),
-
         .target(name: "CAPNSwiftBoringSSL"),
         .target(name: "APNSwiftExample", dependencies: ["APNSwift"]),
         .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
@@ -41,7 +32,6 @@ let package = Package(
                                                 "NIOHTTP1",
                                                 "NIOHTTP2",
                                                 "NIOFoundationCompat",
-                                                "CAPNSOpenSSL",
                                                 "CAPNSwiftBoringSSL",
                                                 "NIOTLS",
                                                 "Crypto"]),
