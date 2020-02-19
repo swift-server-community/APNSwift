@@ -62,13 +62,3 @@ extension UnsafeMutablePointer {
         return ptr.map(UnsafeMutablePointer<Pointee>.init)
     }
 }
-
-extension OpaquePointer {
-    init(_ ptr: OpaquePointer) {
-        self = ptr
-    }
-
-    static func make(optional ptr: OpaquePointer?) -> OpaquePointer? {
-        return ptr.map(OpaquePointer.init)
-    }
-}

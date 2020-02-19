@@ -39,14 +39,14 @@ public struct APNSwiftSigner {
             CAPNSwiftBoringSSL_BIO_write(bio, ptr.baseAddress, CInt(ptr.count))
         }
         assert(res >= 0, "BIO_write failed")
-
-        guard let privateKeyPtr = OpaquePointer.make(optional: CAPNSwiftBoringSSL_PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil)) else {
+        
+        guard let privateKeyPointer = CAPNSwiftBoringSSL_PEM_read_bio_ECPrivateKey(bio!, nil, nil, nil) else {
             throw APNSwiftError.SigningError.invalidAuthKey
         }
-        defer { CAPNSwiftBoringSSL_EC_KEY_free(privateKeyPtr) }
+        defer { CAPNSwiftBoringSSL_EC_KEY_free(privateKeyPointer) }
 
         let sig = try digest.withUnsafeReadableBytes { ptr -> OpaquePointer in
-            guard let sig = CAPNSwiftBoringSSL_ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), ptr.count, privateKeyPtr) else {
+            guard let sig = CAPNSwiftBoringSSL_ECDSA_do_sign(ptr.baseAddress?.assumingMemoryBound(to: UInt8.self), ptr.count, privateKeyPointer) else {
                 throw APNSwiftError.SigningError.invalidSignatureData
             }
             return .init(sig)
