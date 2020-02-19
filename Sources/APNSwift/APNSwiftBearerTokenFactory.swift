@@ -14,6 +14,7 @@
 
 import Foundation
 import NIO
+
 internal final class APNSwiftBearerTokenFactory {
     var updateTask: RepeatedTask?
     let eventLoop: EventLoop

@@ -1,8 +1,14 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.1
 import PackageDescription
 
 let package = Package(
     name: "apnswift",
+    platforms: [
+        .macOS(.v10_15),
+        .iOS(.v13),
+        .watchOS(.v6),
+        .tvOS(.v13),
+    ],
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
         .library(name: "APNSwift", targets: ["APNSwift"]),
@@ -12,6 +18,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "2.4.0")),
         .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.6.0")),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "1.0.0")
     ],
     targets: [
         .systemLibrary(
@@ -34,6 +41,7 @@ let package = Package(
                                                 "NIOHTTP2",
                                                 "NIOFoundationCompat",
                                                 "CAPNSOpenSSL",
-                                                "NIOTLS"]),
+                                                "NIOTLS",
+                                                "Crypto"]),
     ]
 )

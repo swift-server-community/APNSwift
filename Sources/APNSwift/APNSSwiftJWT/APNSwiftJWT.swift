@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import CAPNSOpenSSL
+import Crypto
 import Foundation
 import NIO
 
@@ -63,27 +63,12 @@ internal struct APNSwiftJWT: Codable {
     /// Sign digest with SigningMode. Use the result in your request authorization header.
     internal func getDigest() throws -> (digest: String, fixedDigest: ByteBuffer) {
         let digest = try self.digest()
-        var buffer = ByteBufferAllocator().buffer(capacity: digest.utf8.count)
-        buffer.writeString(digest)
-        return (digest: digest, fixedDigest: sha256(message: buffer))
-    }
-    private func sha256(message: ByteBuffer) -> ByteBuffer {
-        var context = SHA256_CTX()
-        SHA256_Init(&context)
-
-        var res = message.withUnsafeReadableBytes { buffer in
-            SHA256_Update(&context, buffer.baseAddress, buffer.count)
+        guard let digestData = digest.data(using: .utf8) else {
+            fatalError()
         }
-        assert(res == 1, "SHA256_Update failed")
-        var buffer = ByteBufferAllocator().buffer(capacity: Int(SHA256_DIGEST_LENGTH))
-        res = message.withUnsafeReadableBytes { _ in
-            buffer.withUnsafeMutableWritableBytes { mptr in
-                SHA256_Final(mptr.baseAddress?.assumingMemoryBound(to: UInt8.self), &context)
-            }
-        }
-        assert(res == 1, "SHA256_Final failed")
-        buffer.moveWriterIndex(forwardBy: Int(SHA256_DIGEST_LENGTH))
-        return buffer
+        let hash = SHA256.hash(data: digestData)
+        var buffer = ByteBufferAllocator().buffer(capacity: SHA256Digest.byteCount)
+        buffer.writeBytes(hash)
+        return (digest: digest, fixedDigest: buffer)
     }
-
 }
