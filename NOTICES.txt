@@ -2,7 +2,7 @@
 //
 // This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2019 the APNSwift project authors
+// Copyright (c) 2020 the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -12,10 +12,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-This product contains a derivation of the of the SSL Pointer Tricks
-from BlueECC.
+This product contains a derivation of the of the Vendor BoringSSL script
+from Swift Crypto.
 
   * LICENSE (Apache License 2.0):
     * https://www.apache.org/licenses/LICENSE-2.0
   * HOMEPAGE:
-    * https://github.com/IBM-Swift/BlueECC
+    * https://github.com/apple/swift-crypto
