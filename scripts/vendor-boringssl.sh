@@ -279,7 +279,7 @@ cat << EOF > "$DSTROOT/include/CAPNSwiftBoringSSL.h"
 //
 // This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2020 Kyle Browning and the APNSwift project authors
+// Copyright (c) 2019-2020 Kyle Browning and the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
