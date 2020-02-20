@@ -62,13 +62,11 @@ internal struct APNSwiftJWT: Codable {
 
     /// Sign digest with SigningMode. Use the result in your request authorization header.
     internal func getDigest() throws -> (digest: String, fixedDigest: ByteBuffer) {
-        let digest = try self.digest()
-        guard let digestData = digest.data(using: .utf8) else {
-            throw APNSwiftError.DigestError.cannotConvertToData
-        }
-        let hash = SHA256.hash(data: digestData)
+        let digestString = try self.digest()
+        let digest = Data(digestString.utf8)
+        let hash = SHA256.hash(data: digest)
         var buffer = ByteBufferAllocator().buffer(capacity: SHA256Digest.byteCount)
         buffer.writeBytes(hash)
-        return (digest: digest, fixedDigest: buffer)
+        return (digest: digestString, fixedDigest: buffer)
     }
 }
