@@ -21,8 +21,12 @@ let package = Package(
         .target(name: "APNSwiftExample", dependencies: [
             .target(name: "APNSwift"),
         ]),
-        .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
-        .testTarget(name: "APNSwiftTests", dependencies: ["APNSwift"]),
+        .target(name: "APNSwiftPemExample", dependencies: [
+            .target(name: "APNSwift"),
+        ]),
+        .testTarget(name: "APNSwiftTests", dependencies: [
+            .target(name: "APNSwift"),
+        ]),
         .target(name: "APNSwift", dependencies: [
             .product(name: "JWTKit", package: "jwt-kit"),
             .product(name: "Logging", package: "swift-log"),
