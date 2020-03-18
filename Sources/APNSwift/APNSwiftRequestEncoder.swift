@@ -34,7 +34,16 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
     let topic: String?
     let pushType: APNSwiftConnection.PushType?
 
-    init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: String?, pushType: APNSwiftConnection.PushType, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String?) {
+    init(
+        deviceToken: String,
+        configuration: APNSwiftConfiguration,
+        bearerToken: String?,
+        pushType: APNSwiftConnection.PushType,
+        expiration: Date?,
+        priority: Int?,
+        collapseIdentifier: String?,
+        topic: String?
+    ) {
         self.configuration = configuration
         self.bearerToken = bearerToken
         self.deviceToken = deviceToken

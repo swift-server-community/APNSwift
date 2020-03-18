@@ -23,8 +23,10 @@ let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
 var apnsConfig = try APNSwiftConfiguration(
-    privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
-    pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem",
+    authenticationMethod: .tls(
+        privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
+        pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem"
+    ),
     topic: "com.grasscove.Fern",
     environment: .sandbox
 )

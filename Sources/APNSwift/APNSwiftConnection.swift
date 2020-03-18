@@ -61,34 +61,39 @@ private final class WaitForTLSUpHandler: ChannelInboundHandler {
 }
 
 public final class APNSwiftConnection: APNSwiftClient {
-    /**
-     APNSwift Connect method. Used to establish a connection with Apple Push Notification service.
-     - Parameter configuration: APNSwiftConfiguration struct.
-     - Parameter eventLoop: eventLoop to open the connection on.
-     
-     ### Usage Example: ###
-     ```
-     let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-     
-     let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-     teamIdentifier: "ABBM6U9RM5",
-     signer: signer,
-     topic: "com.grasscove.Fern",
-     environment: .sandbox)
-     
-     let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-     ```
-     */
-    
-    public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop) -> EventLoopFuture<APNSwiftConnection> {
-        return APNSwiftConnection.connect(configuration: configuration, on: eventLoop, logger: configuration.logger)
-    }
-    
-    public static func connect(configuration: APNSwiftConfiguration, on eventLoop: EventLoop, logger: Logger? = nil) -> EventLoopFuture<APNSwiftConnection> {
+    /// APNSwift Connect method. Used to establish a connection with Apple Push Notification service.
+    ///
+    /// Usage example:
+    ///
+    ///     let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
+    ///
+    ///     let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
+    ///     teamIdentifier: "ABBM6U9RM5",
+    ///     signer: signer,
+    ///     topic: "com.grasscove.Fern",
+    ///     environment: .sandbox)
+    ///
+    ///     let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+    ///
+    /// - Parameters:
+    ///     - configuration: APNSwiftConfiguration struct.
+    ///     - eventLoop: eventLoop to open the connection on.
+    public static func connect(
+        configuration: APNSwiftConfiguration,
+        on eventLoop: EventLoop,
+        logger: Logger? = nil
+    ) -> EventLoopFuture<APNSwiftConnection> {
         struct UnsupportedServerPushError: Error {}
         let logger = logger ?? configuration.logger
         logger?.debug("Connection - starting")
-        let sslContext = try! NIOSSLContext(configuration: configuration.tlsConfiguration)
+        let tlsConfiguration: TLSConfiguration
+        switch configuration.authenticationMethod {
+        case .jwt:
+            tlsConfiguration = .forClient(applicationProtocols: ["h2"])
+        case .tls(let configuration):
+            tlsConfiguration = configuration
+        }
+        let sslContext = try! NIOSSLContext(configuration: tlsConfiguration)
         let connectionFullyUpPromise = eventLoop.makePromise(of: Void.self)
         let tcpConnection = ClientBootstrap(group: eventLoop).connect(host: configuration.url.host!, port: 443)
         tcpConnection.cascadeFailure(to: connectionFullyUpPromise)
@@ -104,20 +109,24 @@ public final class APNSwiftConnection: APNSwiftClient {
                 }.flatMap { multiplexer in
                     var tokenFactory: APNSwiftBearerTokenFactory?
                     logger?.debug("Connection - token factory setup")
-                    if configuration.tlsConfiguration.privateKey == nil {
-                        do {
-                            tokenFactory = try APNSwiftBearerTokenFactory(eventLoop: eventLoop, configuration: configuration)
-                            logger?.debug("Connection - token factory created")
-                        } catch {
-                            logger?.debug("Connection - token factory setup failed")
-                            return channel.eventLoop.makeFailedFuture(APNSwiftError.SigningError.invalidSignatureData)
-                        }
-                    } else {
-                        logger?.debug("Connection - private key empty, using pem")
-                    }
+//                    if configuration.tlsConfiguration.privateKey == nil {
+//                        do {
+//                            tokenFactory = try APNSwiftBearerTokenFactory(eventLoop: eventLoop, configuration: configuration)
+//                            logger?.debug("Connection - token factory created")
+//                        } catch {
+//                            logger?.debug("Connection - token factory setup failed")
+//                            return channel.eventLoop.makeFailedFuture(APNSwiftError.SigningError.invalidSignatureData)
+//                        }
+//                    } else {
+//                        logger?.debug("Connection - private key empty, using pem")
+//                    }
                     return connectionFullyUpPromise.futureResult.map { () -> APNSwiftConnection in
                         logger?.debug("Connection - bringing up")
-                        return APNSwiftConnection(channel: channel, multiplexer: multiplexer, configuration: configuration, bearerTokenFactory: tokenFactory)
+                        return APNSwiftConnection(
+                            channel: channel,
+                            multiplexer: multiplexer,
+                            configuration: configuration
+                        )
                     }
                 }
             }
@@ -135,67 +144,53 @@ public final class APNSwiftConnection: APNSwiftClient {
     public let configuration: APNSwiftConfiguration
     private var bearerTokenFactory: APNSwiftBearerTokenFactory?
 
-    private init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration, bearerTokenFactory: APNSwiftBearerTokenFactory?) {
+    private init(
+        channel: Channel,
+        multiplexer: HTTP2StreamMultiplexer,
+        configuration: APNSwiftConfiguration
+    ) {
         self.channel = channel
         self.multiplexer = multiplexer
         self.configuration = configuration
-        self.bearerTokenFactory = bearerTokenFactory
         configuration.logger?.info("Connection - up")
+        self.bearerTokenFactory = configuration.makeBearerTokenFactory(on: channel.eventLoop)
     }
 
-    @available(*, deprecated, message: "APNSwiftConnection is initialized internally now.")
-    public convenience init(channel: Channel, multiplexer: HTTP2StreamMultiplexer, configuration: APNSwiftConfiguration) {
-        var tokenFactory: APNSwiftBearerTokenFactory?
-        if configuration.tlsConfiguration.privateKey == nil {
-            tokenFactory = try? APNSwiftBearerTokenFactory(eventLoop: channel.eventLoop, configuration: configuration)
-        }
-        self.init(channel: channel, multiplexer: multiplexer, configuration: configuration, bearerTokenFactory: tokenFactory)
-    }
-    
-    @available(*, deprecated, message: "Bearer Tokens are handled internally now, and no longer exposed.")
-    public func send<Notification: APNSwiftNotification>(_ notification: Notification,
-                                                         bearerToken: APNSwiftBearerToken,
-                                                         to deviceToken: String,
-                                                         with encoder: JSONEncoder = JSONEncoder(),
-                                                         expiration: Date? = nil,
-                                                         priority: Int? = nil,
-                                                         collapseIdentifier: String? = nil,
-                                                         topic: String? = nil) -> EventLoopFuture<Void> {
-        return self.send(notification,
-                         pushType: .alert,
-                         to: deviceToken,
-                         with: encoder,
-                         expiration: expiration,
-                         priority: priority,
-                         collapseIdentifier: collapseIdentifier,
-                         topic: topic)
-    }
-    
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
-    public func send(rawBytes payload: ByteBuffer,
+    public func send(
+        rawBytes payload: ByteBuffer,
         pushType: APNSwiftConnection.PushType,
         to deviceToken: String,
         expiration: Date?,
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        logger: Logger?) -> EventLoopFuture<Void> {
-
-        let logger = logger ?? configuration.logger
+        logger: Logger?
+    ) -> EventLoopFuture<Void> {
+        let logger = logger ?? self.configuration.logger
         logger?.debug("Send - starting up")
-        let streamPromise = channel.eventLoop.makePromise(of: Channel.self)
-        multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
+        let streamPromise = self.channel.eventLoop.makePromise(of: Channel.self)
+        self.multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
             let handlers: [ChannelHandler] = [
                 HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
-                APNSwiftRequestEncoder(deviceToken: deviceToken, configuration: self.configuration, bearerToken: self.bearerTokenFactory?.currentBearerToken, pushType: pushType, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic),
+                APNSwiftRequestEncoder(
+                    deviceToken: deviceToken,
+                    configuration: self.configuration,
+                    bearerToken: self.bearerTokenFactory?.currentBearerToken,
+                    pushType: pushType,
+                    expiration: expiration,
+                    priority: priority,
+                    collapseIdentifier: collapseIdentifier,
+                    topic: topic
+                ),
                 APNSwiftResponseDecoder(),
                 APNSwiftStreamHandler(configuration: self.configuration)
             ]
             return channel.pipeline.addHandlers(handlers)
         }
 
-        let responsePromise = channel.eventLoop.makePromise(of: Void.self)
+        let responsePromise = self.channel.eventLoop.makePromise(of: Void.self)
         let context = APNSwiftRequestContext(
             request: payload,
             responsePromise: responsePromise
@@ -210,17 +205,17 @@ public final class APNSwiftConnection: APNSwiftClient {
     }
 
     var onClose: EventLoopFuture<Void> {
-        configuration.logger?.debug("Connection - closed")
-        return channel.closeFuture
+        self.configuration.logger?.debug("Connection - closed")
+        return self.channel.closeFuture
     }
 
     public func close() -> EventLoopFuture<Void> {
-        configuration.logger?.debug("Connection - closing")
-        channel.eventLoop.execute {
+        self.configuration.logger?.debug("Connection - closing")
+        self.channel.eventLoop.execute {
             self.configuration.logger?.debug("Connection - killing bearerToken")
             self.bearerTokenFactory?.cancel()
             self.bearerTokenFactory = nil
         }
-        return channel.close(mode: .all)
+        return self.channel.close(mode: .all)
     }
 }
