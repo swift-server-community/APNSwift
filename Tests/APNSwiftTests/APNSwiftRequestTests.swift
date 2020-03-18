@@ -261,7 +261,7 @@ final class APNSwiftRequestTests: XCTestCase {
         let apnsConfig = try APNSwiftConfiguration(
             authenticationMethod: .jwt(
                 key: .private(pem: Data(validAuthKey.utf8)),
-                kid: "9UC9ZLQ8YW",
+                keyIdentifier: "9UC9ZLQ8YW",
                 teamIdentifier: "ABBM6U9RM5"
             ),
             topic: "com.grasscove.Fern",

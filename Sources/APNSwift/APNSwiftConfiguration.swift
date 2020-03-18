@@ -26,11 +26,11 @@ public struct APNSwiftConfiguration {
     public enum AuthenticationMethod {
         public static func jwt(
             key: ECDSAKey,
-            kid: JWKIdentifier,
+            keyIdentifier: JWKIdentifier,
             teamIdentifier: String
         ) -> Self {
             let signers = JWTSigners()
-            signers.use(.es256(key: key), kid: kid, isDefault: true)
+            signers.use(.es256(key: key), kid: keyIdentifier, isDefault: true)
             return .jwt(signers, teamIdentifier: teamIdentifier)
         }
 

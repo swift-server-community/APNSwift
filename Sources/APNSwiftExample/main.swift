@@ -29,7 +29,7 @@ logger.logLevel = .debug
 let apnsConfig = try APNSwiftConfiguration(
     authenticationMethod: .jwt(
         key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
-        kid: "9UC9ZLQ8YW",
+        keyIdentifier: "9UC9ZLQ8YW",
         teamIdentifier: "ABBM6U9RM5"
     ),
     topic: "com.grasscove.Fern",

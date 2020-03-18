@@ -23,7 +23,7 @@ class APNSwiftConfigurationTests: XCTestCase {
         let apnsConfiguration = try APNSwiftConfiguration(
             authenticationMethod: .jwt(
                 key: .private(pem: Data(appleECP8PrivateKey.utf8)),
-                kid: "MY_KEY_ID",
+                keyIdentifier: "MY_KEY_ID",
                 teamIdentifier: "MY_TEAM_ID"
             ),
             topic: "MY_TOPIC",
