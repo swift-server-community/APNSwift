@@ -107,19 +107,6 @@ public final class APNSwiftConnection: APNSwiftClient {
                     logger?.warning("Connection - failed \(error)")
                     return channel.eventLoop.makeFailedFuture(error)
                 }.flatMap { multiplexer in
-                    var tokenFactory: APNSwiftBearerTokenFactory?
-                    logger?.debug("Connection - token factory setup")
-//                    if configuration.tlsConfiguration.privateKey == nil {
-//                        do {
-//                            tokenFactory = try APNSwiftBearerTokenFactory(eventLoop: eventLoop, configuration: configuration)
-//                            logger?.debug("Connection - token factory created")
-//                        } catch {
-//                            logger?.debug("Connection - token factory setup failed")
-//                            return channel.eventLoop.makeFailedFuture(APNSwiftError.SigningError.invalidSignatureData)
-//                        }
-//                    } else {
-//                        logger?.debug("Connection - private key empty, using pem")
-//                    }
                     return connectionFullyUpPromise.futureResult.map { () -> APNSwiftConnection in
                         logger?.debug("Connection - bringing up")
                         return APNSwiftConnection(
