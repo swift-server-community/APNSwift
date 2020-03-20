@@ -185,7 +185,11 @@ public final class APNSwiftConnection: APNSwiftClient {
 
         return streamPromise.futureResult.flatMap { stream in
             logger?.info("Send - sending")
-            return stream.writeAndFlush(context)
+            return stream.writeAndFlush(context).flatMapErrorThrowing { error in
+                logger?.info("Send - sending - failed - \(error)")
+                responsePromise.fail(error)
+                throw error
+            }
         }.flatMap {
             responsePromise.futureResult
         }

@@ -23,8 +23,18 @@ internal struct APNSwiftJWTPayload: JWTPayload {
     /// iat
     let issueDate: Int
 
-    internal init(teamID: String, issueDate: Date) {
+    // kid
+    let keyID: JWKIdentifier
+
+    enum CodingKeys: String, CodingKey {
+        case teamID = "iss"
+        case issueDate = "iat"
+        case keyID = "kid"
+    }
+
+    internal init(teamID: String, keyID: JWKIdentifier, issueDate: Date) {
         self.teamID = teamID
+        self.keyID = keyID
         self.issueDate = Int(issueDate.timeIntervalSince1970.rounded())
     }
 
