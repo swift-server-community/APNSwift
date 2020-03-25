@@ -34,10 +34,6 @@ public struct APNSwiftConfiguration {
             return .jwt(signers, teamIdentifier: teamIdentifier)
         }
 
-        public static var tls: Self {
-            .tls(.forClient(applicationProtocols: ["h2"]))
-        }
-
         /// Creates a new configuration for AuthenticationMethod with a PEM key and certificate
         ///
         ///
@@ -54,17 +50,18 @@ public struct APNSwiftConfiguration {
             pemPath: String,
             pemPassword: [UInt8]? = nil
         ) throws -> Self {
-            var configuration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
             let key: NIOSSLPrivateKey
             if let pemPassword = pemPassword {
                 key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem) { $0(pemPassword) }
             } else {
                 key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
             }
-            configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-            configuration.certificateVerification = .noHostnameVerification
-            configuration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
-            return .tls(configuration)
+            let certificate = try NIOSSLCertificateSource.certificate(.init(file: pemPath, format: .pem))
+            return .tls { configuration in
+                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+                configuration.certificateVerification = .noHostnameVerification
+                configuration.certificateChain = [certificate]
+            }
         }
 
         /// Creates a new configuration for AuthenticationMethod with a PEM key and certificate
@@ -91,11 +88,12 @@ public struct APNSwiftConfiguration {
             where T: Collection, T.Element == UInt8
         {
             let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem, passphraseCallback: passphraseCallback)
-            var configuration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
-            configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-            configuration.certificateVerification = .noHostnameVerification
-            configuration.certificateChain = try [.certificate(.init(file: pemPath, format: .pem))]
-            return .tls(configuration)
+            let certificate = try NIOSSLCertificateSource.certificate(.init(file: pemPath, format: .pem))
+            return .tls { configuration in
+                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+                configuration.certificateVerification = .noHostnameVerification
+                configuration.certificateChain = [certificate]
+            }
         }
 
         /// Creates a new configuration for APNSwift with a PEM key and certificate
@@ -118,17 +116,18 @@ public struct APNSwiftConfiguration {
             certificateBytes: [UInt8],
             pemPassword: [UInt8]? = nil
         ) throws -> Self {
-            var configuration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
             let key: NIOSSLPrivateKey
             if let pemPassword = pemPassword {
                 key = try NIOSSLPrivateKey(bytes: keyBytes, format: .pem) { $0(pemPassword) }
             } else {
                 key = try NIOSSLPrivateKey(bytes: keyBytes, format: .pem)
             }
-            configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-            configuration.certificateVerification = .noHostnameVerification
-            configuration.certificateChain = try [.certificate(.init(bytes: certificateBytes, format: .pem))]
-            return .tls(configuration)
+            let certificate = try NIOSSLCertificateSource.certificate(.init(bytes: certificateBytes, format: .pem))
+            return .tls { configuration in
+                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+                configuration.certificateVerification = .noHostnameVerification
+                configuration.certificateChain = [certificate]
+            }
         }
 
         /// Creates a new configuration for APNSwift with a PEM key and certificate
@@ -153,16 +152,17 @@ public struct APNSwiftConfiguration {
         ) throws -> Self
             where T: Collection, T.Element == UInt8
         {
-            var configuration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
             let key = try NIOSSLPrivateKey(bytes: keyBytes, format: .pem, passphraseCallback: passphraseCallback)
-            configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-            configuration.certificateVerification = .noHostnameVerification
-            configuration.certificateChain = try [.certificate(.init(bytes: certificateBytes, format: .pem))]
-            return .tls(configuration)
+            let certificate = try NIOSSLCertificateSource.certificate(.init(bytes: certificateBytes, format: .pem))
+            return .tls { configuration in
+                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
+                configuration.certificateVerification = .noHostnameVerification
+                configuration.certificateChain = [certificate]
+            }
         }
 
         case jwt(JWTSigners, teamIdentifier: String)
-        case tls(TLSConfiguration)
+        case tls((inout TLSConfiguration) -> ())
     }
 
     public var topic: String

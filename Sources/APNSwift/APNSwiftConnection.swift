@@ -86,22 +86,35 @@ public final class APNSwiftConnection: APNSwiftClient {
         struct UnsupportedServerPushError: Error {}
         let logger = logger ?? configuration.logger
         logger?.debug("Connection - starting")
-        let tlsConfiguration: TLSConfiguration
+        var tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
         switch configuration.authenticationMethod {
-        case .jwt:
-            tlsConfiguration = .forClient(applicationProtocols: ["h2"])
-        case .tls(let configuration):
-            tlsConfiguration = configuration
+        case .jwt: break
+        case .tls(let configure):
+            configure(&tlsConfiguration)
         }
-        let sslContext = try! NIOSSLContext(configuration: tlsConfiguration)
+        let sslContext: NIOSSLContext
+        do {
+            sslContext = try NIOSSLContext(configuration: tlsConfiguration)
+        } catch {
+            return eventLoop.makeFailedFuture(error)
+        }
         let connectionFullyUpPromise = eventLoop.makePromise(of: Void.self)
         let tcpConnection = ClientBootstrap(group: eventLoop).connect(host: configuration.url.host!, port: 443)
         tcpConnection.cascadeFailure(to: connectionFullyUpPromise)
         return tcpConnection.flatMap { channel in
-            let sslHandler = try! NIOSSLClientHandler(context: sslContext,
-                                                     serverHostname: configuration.url.host)
-            return channel.pipeline.addHandlers([sslHandler,
-                                                 WaitForTLSUpHandler(allDonePromise: connectionFullyUpPromise)]).flatMap {
+            let sslHandler: NIOSSLClientHandler
+            do {
+                sslHandler = try NIOSSLClientHandler(
+                    context: sslContext,
+                    serverHostname: configuration.url.host
+                )
+            } catch {
+                return channel.eventLoop.makeFailedFuture(error)
+            }
+            return channel.pipeline.addHandlers([
+                sslHandler,
+                WaitForTLSUpHandler(allDonePromise: connectionFullyUpPromise)
+            ]).flatMap {
                 channel.configureHTTP2Pipeline(mode: .client) { channel, _ in
                     let error = UnsupportedServerPushError()
                     logger?.warning("Connection - failed \(error)")

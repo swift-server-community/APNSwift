@@ -170,30 +170,6 @@ final class APNSwiftRequestTests: XCTestCase {
         XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
     }
 
-    #warning("TODO: do we need this test?")
-//    func testInvalidAuthKey() throws {
-//        struct BasicNotification: APNSwiftNotification {
-//            let aps: APNSwiftPayload
-//
-//            init(aps: APNSwiftPayload) {
-//                self.aps = aps
-//            }
-//        }
-//        let allocator = ByteBufferAllocator()
-//        var signerBuffer = allocator.buffer(capacity: invalidAuthKey.count)
-//        signerBuffer.writeString(invalidAuthKey)
-//        let signer = try APNSwiftSigner.init(buffer: signerBuffer)
-//        let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-//        let apsSound = APNSwiftPayload.APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
-//        let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
-//        let notification = BasicNotification( aps: aps)
-//        let data: Data = try! JSONEncoder().encode(notification)
-//        var buffer = allocator.buffer(capacity: data.count)
-//        buffer.writeBytes(data)
-//        let error = APNSwiftError.SigningError.invalidAuthKey
-//        XCTAssertThrowsError(try signer.sign(digest: buffer), String(error.localizedDescription))
-//    }
-
     func testErrorsFromAPNS() throws {
         let error = APNSwiftError.ResponseStruct(reason: .unregistered)
         let encodedData = try JSONEncoder().encode(error)
