@@ -84,6 +84,7 @@ public final class APNSwiftConnection: APNSwiftClient {
         logger: Logger? = nil
     ) -> EventLoopFuture<APNSwiftConnection> {
         struct UnsupportedServerPushError: Error {}
+
         let logger = logger ?? configuration.logger
         logger?.debug("Connection - starting")
         let tlsConfiguration: TLSConfiguration
@@ -112,7 +113,8 @@ public final class APNSwiftConnection: APNSwiftClient {
                         return APNSwiftConnection(
                             channel: channel,
                             multiplexer: multiplexer,
-                            configuration: configuration
+                            configuration: configuration,
+                            logger: logger
                         )
                     }
                 }
@@ -120,9 +122,6 @@ public final class APNSwiftConnection: APNSwiftClient {
         }
     }
 
-    public var logger: Logger? {
-        return self.configuration.logger
-    }
     public var eventLoop: EventLoop {
         return self.channel.eventLoop
     }
@@ -130,16 +129,19 @@ public final class APNSwiftConnection: APNSwiftClient {
     public let channel: Channel
     public let configuration: APNSwiftConfiguration
     private var bearerTokenFactory: APNSwiftBearerTokenFactory?
+    public var logger: Logger?
 
     private init(
         channel: Channel,
         multiplexer: HTTP2StreamMultiplexer,
-        configuration: APNSwiftConfiguration
+        configuration: APNSwiftConfiguration,
+        logger: Logger? = nil
     ) {
         self.channel = channel
         self.multiplexer = multiplexer
         self.configuration = configuration
-        configuration.logger?.info("Connection - up")
+        self.logger = logger
+        logger?.info("Connection - up")
         self.bearerTokenFactory = configuration.makeBearerTokenFactory(on: channel.eventLoop)
     }
 
@@ -169,10 +171,11 @@ public final class APNSwiftConnection: APNSwiftClient {
                     expiration: expiration,
                     priority: priority,
                     collapseIdentifier: collapseIdentifier,
-                    topic: topic
+                    topic: topic,
+                    logger: logger
                 ),
                 APNSwiftResponseDecoder(),
-                APNSwiftStreamHandler(configuration: self.configuration)
+                APNSwiftStreamHandler(logger: logger)
             ]
             return channel.pipeline.addHandlers(handlers)
         }
@@ -196,14 +199,14 @@ public final class APNSwiftConnection: APNSwiftClient {
     }
 
     var onClose: EventLoopFuture<Void> {
-        self.configuration.logger?.debug("Connection - closed")
+        logger?.debug("Connection - closed")
         return self.channel.closeFuture
     }
 
     public func close() -> EventLoopFuture<Void> {
-        self.configuration.logger?.debug("Connection - closing")
+        logger?.debug("Connection - closing")
         self.channel.eventLoop.execute {
-            self.configuration.logger?.debug("Connection - killing bearerToken")
+            self.logger?.debug("Connection - killing bearerToken")
             self.bearerTokenFactory?.cancel()
             self.bearerTokenFactory = nil
         }

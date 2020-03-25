@@ -31,37 +31,6 @@ public struct APNSwiftPayload: Encodable {
     public let category: String?
     public let threadID: String?
 
-    /**
-     Initialize an APNSwiftPayload
-     - Parameter alert: The alert which will be display to the user.
-     - Parameter badge: The number the push notification will bump the apps badge number to.
-     - Parameter sound: A normal, or critical alert.
-     - Parameter hasContentAvailable: When this key is present, the system wakes up your app in the background and
-     delivers the notification to its app delegate.
-     - Parameter hasMutableContent: When this key is present, the system will pass your notification to the
-     notification service app extension before delivery.
-     - Parameter category: provide this string to define a category for your app.
-     - Parameter threadID: Provide a thread value to group notifications.
-
-     For more information see:
-     [Payload Key Reference](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#)
-     ### Usage Example: ###
-     ````
-     let alert = ...
-     let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav))
-     ````
-     */
-    @available(*, deprecated, message: "Changed initializer to use non optional booleans.")
-    public init(alert: APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwiftSoundType? = nil, hasContentAvailable: Bool? = nil, hasMutableContent: Bool? = nil, category: String? = nil, threadID: String? = nil) {
-        self.alert = alert
-        self.badge = badge
-        self.sound = sound
-        self.contentAvailable = hasContentAvailable ?? false ?  1 : 0
-        self.mutableContent = hasMutableContent ?? false  ? 1 : 0
-        self.category = category
-        self.threadID = threadID
-    }
-
     public init(alert: APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwiftSoundType? = nil, hasContentAvailable: Bool = false, hasMutableContent: Bool = false, category: String? = nil, threadID: String? = nil) {
         self.alert = alert
         self.badge = badge
