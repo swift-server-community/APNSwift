@@ -23,17 +23,19 @@ import NIOSSL
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var verbose = true
 
-let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8")
-
 // optional
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
-let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                       teamIdentifier: "ABBM6U9RM5",
-                                       signer: signer,
-                                       topic: "com.grasscove.Fern",
-                                       environment: .sandbox,
-                                       logger: logger)
+let apnsConfig = try APNSwiftConfiguration(
+    authenticationMethod: .jwt(
+        key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
+        keyIdentifier: "9UC9ZLQ8YW",
+        teamIdentifier: "ABBM6U9RM5"
+    ),
+    topic: "com.grasscove.Fern",
+    environment: .sandbox,
+    logger: logger
+)
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 

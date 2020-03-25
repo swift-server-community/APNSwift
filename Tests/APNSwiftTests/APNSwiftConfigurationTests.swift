@@ -19,13 +19,16 @@ import NIO
 import NIOSSL
 
 class APNSwiftConfigurationTests: XCTestCase {
-
     func configuration(environment: APNSwiftConfiguration.Environment) throws {
-        var buffer = ByteBufferAllocator().buffer(capacity: appleECP8PrivateKey.count)
-        buffer.writeString(appleECP8PrivateKey)
-        let signer = try APNSwiftSigner.init(buffer: buffer)
-
-        let apnsConfiguration = APNSwiftConfiguration(keyIdentifier: "MY_KEY_ID", teamIdentifier: "MY_TEAM_ID", signer: signer, topic: "MY_TOPIC", environment: environment)
+        let apnsConfiguration = try APNSwiftConfiguration(
+            authenticationMethod: .jwt(
+                key: .private(pem: Data(appleECP8PrivateKey.utf8)),
+                keyIdentifier: "MY_KEY_ID",
+                teamIdentifier: "MY_TEAM_ID"
+            ),
+            topic: "MY_TOPIC",
+            environment: environment
+        )
 
         switch environment {
         case .production:
@@ -34,8 +37,14 @@ class APNSwiftConfigurationTests: XCTestCase {
             XCTAssertEqual(apnsConfiguration.url, URL(string: "https://api.development.push.apple.com"))
         }
 
-        XCTAssertEqual(apnsConfiguration.keyIdentifier, "MY_KEY_ID")
-        XCTAssertEqual(apnsConfiguration.teamIdentifier, "MY_TEAM_ID")
+        switch apnsConfiguration.authenticationMethod {
+        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
+            XCTAssertNotNil(signers.get(kid: "MY_KEY_ID"))
+            XCTAssertEqual(teamIdentifier, "MY_TEAM_ID")
+            XCTAssertEqual(keyIdentifier, "MY_KEY_ID")
+        case .tls:
+            XCTFail("expected JWT auth method")
+        }
         XCTAssertEqual(apnsConfiguration.topic, "MY_TOPIC")
 
     }
@@ -47,25 +56,6 @@ class APNSwiftConfigurationTests: XCTestCase {
     func testProductionConfiguration() throws {
         try configuration(environment: .production)
     }
-
-    func testSignature() throws {
-        var buffer = ByteBufferAllocator().buffer(capacity: appleECP8PrivateKey.count)
-        buffer.writeString(appleECP8PrivateKey)
-        let signer = try APNSwiftSigner.init(buffer: buffer)
-        let teamID = "8RX5AF8F6Z"
-        let keyID = "9N8238KQ6Z"
-        let date = Date()
-        let jwt = APNSwiftJWT(keyID: keyID, teamID: teamID, issueDate: date)
-        let digestValues = try jwt.getDigest()
-        let _ = try signer.sign(digest: digestValues.fixedDigest)
-
-    }
-
-    static var allTests = [
-        ("testSandboxConfiguration", testSandboxConfiguration),
-        ("testProductionConfiguration", testProductionConfiguration),
-        ("testSignature", testSignature),
-    ]
 
     let appleECP8PrivateKey = """
 -----BEGIN PRIVATE KEY-----
@@ -153,24 +143,52 @@ C18ScRb4Z6poMBgJtYlVtd9ly63URv57ZW0Ncs1LiZB7WATb3svu+1c7HQ==
         let key = [UInt8](pemKey.data(using: .utf8)!)
         let cert = [UInt8](pemCertificate.data(using: .utf8)!)
 
-        XCTAssertNoThrow(try APNSwiftConfiguration(keyBytes: key, certificateBytes: cert,
-                                                   topic: "", environment: .sandbox, passphraseCallback: properPassword))
+        XCTAssertNoThrow(try APNSwiftConfiguration(
+            authenticationMethod: .tls(
+                keyBytes: key,
+                certificateBytes: cert,
+                passphraseCallback: properPassword
+            ),
+            topic: "",
+            environment: .sandbox
+        ))
 
         let wrongPassword: NIOSSLPassphraseCallback = { $0("foobar".utf8) }
-        XCTAssertThrowsError(try APNSwiftConfiguration(keyBytes: key, certificateBytes: cert,
-                                                       topic: "", environment: .sandbox, passphraseCallback: wrongPassword))
+        XCTAssertThrowsError(try APNSwiftConfiguration(
+            authenticationMethod: .tls(
+                keyBytes: key,
+                certificateBytes: cert,
+                passphraseCallback: wrongPassword
+            ),
+            topic: "",
+            environment: .sandbox
+        ))
     }
 
     func testPasswordProtectedPemWithPassword() throws {
         let key = [UInt8](pemKey.data(using: .utf8)!)
         let cert = [UInt8](pemCertificate.data(using: .utf8)!)
 
-        let properPassword = "12345".data(using: .utf8)
-        XCTAssertNoThrow(try APNSwiftConfiguration(keyBytes: key, certificateBytes: cert,
-                                                   topic: "", environment: .sandbox, pemPassword: properPassword))
+        let properPassword = [UInt8]("12345".utf8)
+        XCTAssertNoThrow(try APNSwiftConfiguration(
+            authenticationMethod: .tls(
+                keyBytes: key,
+                certificateBytes: cert,
+                pemPassword: properPassword
+            ),
+            topic: "",
+            environment: .sandbox
+        ))
 
-        let wrongPassword = "foobar".data(using: .utf8)
-        XCTAssertThrowsError(try APNSwiftConfiguration(keyBytes: key, certificateBytes: cert,
-                                                       topic: "", environment: .sandbox, pemPassword: wrongPassword))
+        let wrongPassword = [UInt8]("foobar".utf8)
+        XCTAssertThrowsError(try APNSwiftConfiguration(
+            authenticationMethod: .tls(
+                keyBytes: key,
+                certificateBytes: cert,
+                pemPassword: wrongPassword
+            ),
+            topic: "",
+            environment: .sandbox
+        ))
     }
 }

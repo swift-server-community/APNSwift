@@ -12,12 +12,15 @@
 //
 //===----------------------------------------------------------------------===//
 
-import XCTest
+import JWTKit
+import Foundation
+import NIO
 
-#if !canImport(ObjectiveC)
-public func allTests() -> [XCTestCaseEntry] {
-    return [
-        testCase(JWTTests.allTests),
-    ]
+extension ECDSAKey {
+    public static func `private`(filePath: String) throws -> ECDSAKey {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else {
+            throw APNSwiftError.SigningError.certificateFileDoesNotExist
+        }
+        return try .private(pem: data)
+    }
 }
-#endif

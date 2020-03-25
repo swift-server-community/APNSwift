@@ -1,39 +1,41 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.2
 import PackageDescription
 
 let package = Package(
     name: "apnswift",
+    platforms: [
+        .macOS(.v10_15),
+    ],
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
         .library(name: "APNSwift", targets: ["APNSwift"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.10.1")),
-        .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "2.4.0")),
-        .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.6.0")),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.10.1"),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.4.0"),
+        .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0-rc"),
     ],
     targets: [
-        .systemLibrary(
-            name: "CAPNSOpenSSL",
-            pkgConfig: "openssl",
-            providers: [
-                .apt(["openssl libssl-dev"]),
-                .brew(["openssl@1.1"]),
-            ]
-        ),
-
-        .target(name: "APNSwiftExample", dependencies: ["APNSwift"]),
-        .target(name: "APNSwiftPemExample", dependencies: ["APNSwift"]),
-        .testTarget(name: "APNSwiftJWTTests", dependencies: ["APNSwift"]),
-        .testTarget(name: "APNSwiftTests", dependencies: ["APNSwift"]),
-        .target(name: "APNSwift", dependencies: ["Logging",
-                                                "NIO",
-                                                "NIOSSL",
-                                                "NIOHTTP1",
-                                                "NIOHTTP2",
-                                                "NIOFoundationCompat",
-                                                "CAPNSOpenSSL",
-                                                "NIOTLS"]),
+        .target(name: "APNSwiftExample", dependencies: [
+            .target(name: "APNSwift"),
+        ]),
+        .target(name: "APNSwiftPemExample", dependencies: [
+            .target(name: "APNSwift"),
+        ]),
+        .testTarget(name: "APNSwiftTests", dependencies: [
+            .target(name: "APNSwift"),
+        ]),
+        .target(name: "APNSwift", dependencies: [
+            .product(name: "JWTKit", package: "jwt-kit"),
+            .product(name: "Logging", package: "swift-log"),
+            .product(name: "NIO", package: "swift-nio"),
+            .product(name: "NIOSSL", package: "swift-nio-ssl"),
+            .product(name: "NIOHTTP1", package: "swift-nio"),
+            .product(name: "NIOHTTP2", package: "swift-nio-http2"),
+            .product(name: "NIOFoundationCompat", package: "swift-nio"),
+            .product(name: "NIOTLS", package: "swift-nio"),
+        ]),
     ]
 )

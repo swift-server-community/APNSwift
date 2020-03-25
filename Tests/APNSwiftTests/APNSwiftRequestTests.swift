@@ -169,30 +169,7 @@ final class APNSwiftRequestTests: XCTestCase {
         XCTAssertNoThrow(XCTAssertNil(try channel.readInbound(as: APNSwiftResponse.self)))
         XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
     }
-    
-    func testInvalidAuthKey() throws {
-        struct BasicNotification: APNSwiftNotification {
-            let aps: APNSwiftPayload
 
-            init(aps: APNSwiftPayload) {
-                self.aps = aps
-            }
-        }
-        let allocator = ByteBufferAllocator()
-        var signerBuffer = allocator.buffer(capacity: invalidAuthKey.count)
-        signerBuffer.writeString(invalidAuthKey)
-        let signer = try APNSwiftSigner.init(buffer: signerBuffer)
-        let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-        let apsSound = APNSwiftPayload.APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
-        let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
-        let notification = BasicNotification( aps: aps)
-        let data: Data = try! JSONEncoder().encode(notification)
-        var buffer = allocator.buffer(capacity: data.count)
-        buffer.writeBytes(data)
-        let error = APNSwiftError.SigningError.invalidAuthKey
-        XCTAssertThrowsError(try signer.sign(digest: buffer), String(error.localizedDescription))
-
-    }
     func testErrorsFromAPNS() throws {
         let error = APNSwiftError.ResponseStruct(reason: .unregistered)
         let encodedData = try JSONEncoder().encode(error)
@@ -256,20 +233,18 @@ final class APNSwiftRequestTests: XCTestCase {
         XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
     }
     
-    func testTokenProviderUpdate() {
-        
-        let allocator = ByteBufferAllocator()
-        var signerBuffer = allocator.buffer(capacity: validAuthKey.count)
-        signerBuffer.writeString(validAuthKey)
-        let signer = try! APNSwiftSigner.init(buffer: signerBuffer)
-
-        let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                               teamIdentifier: "ABBM6U9RM5",
-                                               signer: signer,
-                                               topic: "com.grasscove.Fern",
-                                               environment: .sandbox)
+    func testTokenProviderUpdate() throws {
+        let apnsConfig = try APNSwiftConfiguration(
+            authenticationMethod: .jwt(
+                key: .private(pem: Data(validAuthKey.utf8)),
+                keyIdentifier: "9UC9ZLQ8YW",
+                teamIdentifier: "ABBM6U9RM5"
+            ),
+            topic: "com.grasscove.Fern",
+            environment: .sandbox
+        )
         let loop = EmbeddedEventLoop()
-        let bearerToken = try! APNSwiftBearerTokenFactory(eventLoop: loop, configuration: apnsConfig)
+        let bearerToken = apnsConfig.makeBearerTokenFactory(on: loop)!
         let cachedToken = bearerToken.currentBearerToken
 
 
@@ -296,16 +271,7 @@ final class APNSwiftRequestTests: XCTestCase {
         bearerToken.cancel()
         
     }
-    static var allTests = [
-        ("testAlertEncoding", testAlertEncoding),
-        ("testMinimalAlertEncoding", testMinimalAlertEncoding),
-        ("testResponseDecoderBasics", testResponseDecoderBasics),
-        ("testResponseDecoderHappyWithReceivingTheBodyInMultipleChunks", testResponseDecoderHappyWithReceivingTheBodyInMultipleChunks),
-        ("testResponseDecoderAcceptsTrailers", testResponseDecoderAcceptsTrailers),
-        ("testInvalidAuthKey", testInvalidAuthKey),
-        ("testTokenProviderUpdate", testTokenProviderUpdate)
-        
-    ]
+
     let validAuthKey = """
     -----BEGIN PRIVATE KEY-----
     MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg2sD+kukkA8GZUpmm

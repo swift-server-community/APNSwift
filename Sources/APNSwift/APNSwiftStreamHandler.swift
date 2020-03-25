@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+import Logging
 import NIO
 import NIOFoundationCompat
 
@@ -24,32 +25,32 @@ final class APNSwiftStreamHandler: ChannelDuplexHandler {
     typealias OutboundIn = APNSwiftRequestContext
 
     var queue: [APNSwiftRequestContext]
-    let configuration: APNSwiftConfiguration?
+    let logger: Logger?
 
-    init(configuration: APNSwiftConfiguration? = nil) {
+    init(logger: Logger? = nil) {
         queue = []
-        self.configuration = configuration
+        self.logger = logger
     }
 
     func channelRead(context _: ChannelHandlerContext, data: NIOAny) {
-        self.configuration?.logger?.debug("Response - received")
+        logger?.debug("Response - received")
         let res = unwrapInboundIn(data)
         guard let current = self.queue.popLast() else { return }
         guard res.header.status == .ok else {
             guard let buffer = res.byteBuffer else {
-                self.configuration?.logger?.warning("Response - no response body")
+                logger?.warning("Response - no response body")
                 return current.responsePromise.fail(NoResponseBodyFromApple())
             }
             do {
                 let error = try JSONDecoder().decode(APNSwiftError.ResponseStruct.self, from: buffer)
-                self.configuration?.logger?.warning("Response - bad request \(error.reason)")
+                logger?.warning("Response - bad request \(error.reason)")
                 return current.responsePromise.fail(APNSwiftError.ResponseError.badRequest(error.reason))
             } catch {
-                self.configuration?.logger?.warning("Response - failed \(error.localizedDescription)")
+                logger?.warning("Response - failed \(error.localizedDescription)")
                 return current.responsePromise.fail(error)
             }
         }
-        self.configuration?.logger?.info("Response - successful")
+        logger?.info("Response - successful")
         current.responsePromise.succeed(Void())
     }
 
