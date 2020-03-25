@@ -38,9 +38,10 @@ class APNSwiftConfigurationTests: XCTestCase {
         }
 
         switch apnsConfiguration.authenticationMethod {
-        case .jwt(let signers, let teamIdentifier):
+        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
             XCTAssertNotNil(signers.get(kid: "MY_KEY_ID"))
             XCTAssertEqual(teamIdentifier, "MY_TEAM_ID")
+            XCTAssertEqual(keyIdentifier, "MY_KEY_ID")
         case .tls:
             XCTFail("expected JWT auth method")
         }

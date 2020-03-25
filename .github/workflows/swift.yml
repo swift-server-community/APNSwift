@@ -2,45 +2,31 @@ name: test
 on:
 - pull_request
 jobs:
-  xenial-5-1:
+  xenial-5-2:
     container:
-      image: vapor/swift:5.1-xenial
+      image: vapor/swift:5.2-xenial
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: swift test
-  xenial-5-0:
+    - run: swift test --enable-test-discovery
+  bionic-5-2:
     container:
-      image: vapor/swift:5.0-xenial
+      image: vapor/swift:5.2-bionic
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: swift test
-  bionic-5-1:
-    container:
-      image: vapor/swift:5.1-bionic
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: swift test
-  bionic-5-0:
-    container:
-      image: vapor/swift:5.0-bionic
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: swift test
+    - run: swift test --enable-test-discovery
   thread:
     container:
-      image: vapor/swift:5.1-bionic
+      image: vapor/swift:5.2-bionic
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: swift test --sanitize=thread
+    - run: swift test --enable-test-discovery  --sanitize=thread
   address:
     container:
-      image: vapor/swift:5.1-bionic
+      image: vapor/swift:5.2-bionic
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: ASAN_OPTIONS=detect_leaks=0 swift test --sanitize=address
+    - run: ASAN_OPTIONS=detect_leaks=0 swift test --enable-test-discovery --sanitize=address

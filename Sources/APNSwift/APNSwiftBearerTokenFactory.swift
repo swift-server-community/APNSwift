@@ -18,13 +18,13 @@ import Logging
 import NIO
 
 internal final class APNSwiftBearerTokenFactory {
-    static func makeNewBearerToken(signers: JWTSigners, teamIdentifier: String) throws -> String {
+    static func makeNewBearerToken(signers: JWTSigners, teamIdentifier: String, keyIdentifier: JWKIdentifier) throws -> String {
         let payload = APNSwiftJWTPayload(
-            // keyID: configuration.keyIdentifier,
             teamID: teamIdentifier,
+            keyID: keyIdentifier,
             issueDate: Date()
         )
-        return try signers.sign(payload)
+        return try signers.sign(payload, kid: keyIdentifier)
     }
 
     var updateTask: RepeatedTask?
@@ -33,7 +33,7 @@ internal final class APNSwiftBearerTokenFactory {
     var cancelled: Bool
     var logger: Logger?
 
-    init(eventLoop: EventLoop, signers: JWTSigners, teamIdentifier: String, logger: Logger?) {
+    init(eventLoop: EventLoop, signers: JWTSigners, teamIdentifier: String, keyIdentifier: String, logger: Logger?) {
         self.eventLoop = eventLoop
         self.eventLoop.assertInEventLoop()
         self.logger = logger
@@ -44,7 +44,8 @@ internal final class APNSwiftBearerTokenFactory {
             do {
                 return try APNSwiftBearerTokenFactory.makeNewBearerToken(
                     signers: signers,
-                    teamIdentifier: teamIdentifier
+                    teamIdentifier: teamIdentifier,
+                    keyIdentifier: .init(string: keyIdentifier)
                 )
             } catch {
                 logger?.error("Failed to generate token: \(error)")

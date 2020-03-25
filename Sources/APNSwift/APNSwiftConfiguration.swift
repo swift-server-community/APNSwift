@@ -31,7 +31,7 @@ public struct APNSwiftConfiguration {
         ) -> Self {
             let signers = JWTSigners()
             signers.use(.es256(key: key), kid: keyIdentifier, isDefault: true)
-            return .jwt(signers, teamIdentifier: teamIdentifier)
+            return .jwt(signers, teamIdentifier: teamIdentifier, keyIdentifier: keyIdentifier.string)
         }
 
         /// Creates a new configuration for AuthenticationMethod with a PEM key and certificate
@@ -161,7 +161,7 @@ public struct APNSwiftConfiguration {
             }
         }
 
-        case jwt(JWTSigners, teamIdentifier: String)
+        case jwt(JWTSigners, teamIdentifier: String, keyIdentifier: String)
         case tls((inout TLSConfiguration) -> ())
     }
 
@@ -180,11 +180,12 @@ public struct APNSwiftConfiguration {
 
     internal func makeBearerTokenFactory(on eventLoop: EventLoop) -> APNSwiftBearerTokenFactory? {
         switch self.authenticationMethod {
-        case .jwt(let signers, let teamIdentifier):
+        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
             return .init(
                 eventLoop: eventLoop,
                 signers: signers,
                 teamIdentifier: teamIdentifier,
+                keyIdentifier: keyIdentifier,
                 logger: self.logger
             )
         case .tls:
