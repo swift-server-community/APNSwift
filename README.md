@@ -1,7 +1,7 @@
 [![sswg:sandbox|94x20](https://img.shields.io/badge/sswg-sandbox-lightgrey.svg)](https://github.com/swift-server/sswg/blob/master/process/incubation.md#sandbox-level)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Build](https://github.com/kylebrowning/APNSwift/workflows/test/badge.svg)](https://github.com/kylebrowning/APNSwift/actions)
-[![Swift](https://img.shields.io/badge/Swift-5.1-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-5.2-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
 
 # APNSwift
 
@@ -24,8 +24,20 @@ struct BasicNotification: APNSwiftNotification {
     let aps: APNSwiftPayload
 }
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-let apnsConn = try APNSwiftConnection.connect(configuration: .init(keyIdentifier: "9UC9ZLQ8YW", teamIdentifier: "ABBM6U9RM5", signer: signer, topic: "com.grasscove.Fern", environment: .sandbox), on: group.next()).wait()
+var logger = Logger(label: "com.apnswift")
+logger.logLevel = .debug
+let apnsConfig = try APNSwiftConfiguration(
+    authenticationMethod: .jwt(
+        key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
+        keyIdentifier: "9UC9ZLQ8YW",
+        teamIdentifier: "ABBM6U9RM5"
+    ),
+    topic: "com.grasscove.Fern",
+    environment: .sandbox,
+    logger: logger
+)
+
+let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 let aps = APNSwiftPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
 try apnsConn.send(BasicNotification(aps: aps), pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D").wait()
 try apns.close().wait()
@@ -38,22 +50,16 @@ exit(0)
 [`APNSwiftConfiguration`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConfiguration.swift) is a structure that provides the system with common configuration.
 
 ```swift
-public struct APNSwiftConfiguration {
-    public var keyIdentifier: String
-    public var teamIdentifier: String
-    public var signer: APNSwiftSigner
-    public var topic: String
-    public var environment: Environment
-    public var tlsConfiguration: TLSConfiguration
-
-    public var url: URL {
-        switch environment {
-        case .production:
-            return URL(string: "https://api.push.apple.com")!
-        case .sandbox:
-            return URL(string: "https://api.development.push.apple.com")!
-        }
-    }
+let apnsConfig = try APNSwiftConfiguration(
+    authenticationMethod: .jwt(
+        key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
+        keyIdentifier: "9UC9ZLQ8YW",
+        teamIdentifier: "ABBM6U9RM5"
+    ),
+    topic: "com.grasscove.Fern",
+    environment: .sandbox,
+    logger: logger
+)
 ```
 #### Example `APNSwiftConfiguration`
 ```swift
@@ -65,22 +71,6 @@ let apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
                                    environment: .sandbox)
 ```
 
-### Signer
-
-[`APNSwiftSigner`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftSigner.swift) provides a structure to sign the payloads with. This should be loaded into memory at the configuration level. It requires the data to be in a ByteBuffer format.
-
-```swift
-let url = URL(fileURLWithPath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-let data: Data
-do {
-    data = try Data(contentsOf: url)
-} catch {
-    throw APNSwiftError.SigningError.certificateFileDoesNotExist
-}
-var byteBuffer = ByteBufferAllocator().buffer(capacity: data.count)
-byteBuffer.writeBytes(data)
-let signer = try! APNSwiftSigner.init(buffer: byteBuffer)
-```
 ### APNSwiftConnection
 
 [`APNSwiftConnection`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConnection.swift) is a class with methods thats provides a wrapper to NIO's ClientBootstrap. The `swift-nio-http2` dependency is utilized here. It also provides a function to send a notification to a specific device token string.
@@ -113,60 +103,6 @@ let alert = ...
 let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
 ```
 
-## Putting it all together
-
-```swift
-let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-var verbose = true
-
-let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8")
-
-let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                       teamIdentifier: "ABBM6U9RM5",
-                                       signer: signer,
-                                       topic: "com.grasscove.Fern",
-                                       environment: .sandbox)
-
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-
-if verbose {
-    print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
-}
-
-struct AcmeNotification: APNSwiftNotification {
-    let acme2: [String]
-    let aps: APNSwiftPayload
-
-    init(acme2: [String], aps: APNSwiftPayload) {
-        self.acme2 = acme2
-        self.aps = aps
-    }
-}
-
-let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let apsSound = APNSwiftPayload.APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
-let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
-let temp = try! JSONEncoder().encode(aps)
-let string = String(bytes: temp, encoding: .utf8)
-let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-
-do {
-    let expiry = Date().addingTimeInterval(5)
-    for _ in 1...5 {
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    }
-} catch {
-    print(error)
-}
-
-try apns.close().wait()
-try group.syncShutdownGracefully()
-exit(0)
-```
-
 ### Custom Notification Data
 
 Apple provides engineers with the ability to add custom payload data to each notification. In order to facilitate this we have the `APNSwiftNotification`.
@@ -192,9 +128,12 @@ let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc96055112
 ### Using PEM instead of P8
 #### Note: this is blocking
 ```swift
+
 var apnsConfig = try APNSwiftConfiguration(
-    privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
-    pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem",
+    authenticationMethod: .tls(
+        privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
+        pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem"
+    ),
     topic: "com.grasscove.Fern",
     environment: .sandbox
 )
