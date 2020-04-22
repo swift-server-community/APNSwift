@@ -1,3 +1,7 @@
+## Maintainers
+- [@kylebrowning](https://github.com/kylebrowning)
+- [@tanner0101](https://github.com/tanner0101)
+
 ## Legal
 
 By submitting a pull request, you represent that you have the right to license your contribution to the community, and agree by submitting the patch
