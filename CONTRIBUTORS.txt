@@ -9,10 +9,14 @@ needs to be listed here.
 
 ### Contributors
 
+- Eduardo Perez <sabeatra@gmail.com>
+- Florian Reinhart <florian.reinhart@gmail.com>
 - Kyle Browning <kylebrowning@me.com>
 - Laurent Gaches <laurent@binimo.com>
 - Tanner <me@tanner.xyz>
 - Tanner Nelson <me@tanner.xyz>
+- grosch <scott.grosch@icloud.com>
+- itcohorts <ben@itcohorts.com>
 
 **Updating this list**
 
