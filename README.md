@@ -94,7 +94,7 @@ let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "The
 
 ### APNSwiftPayload
 
-[`APNSwiftPayload`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSRequest.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
+[`APNSwiftPayload`](https://github.com/kylebrowning/APNSwift/blob/master/Sources/APNSwift/APNSwiftRequest.swift#L25) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
 #### Example `APNSwiftPayload`
