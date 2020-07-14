@@ -39,7 +39,7 @@ let apnsConfig = try APNSwiftConfiguration(
 
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 let aps = APNSwiftPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
-try apnsConn.send(BasicNotification(aps: aps), pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D").wait()
+try apns.send(BasicNotification(aps: aps), pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D").wait()
 try apns.close().wait()
 try group.syncShutdownGracefully()
 exit(0)
