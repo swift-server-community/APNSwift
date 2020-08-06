@@ -199,6 +199,7 @@ public final class APNSwiftConnection: APNSwiftClient {
             responsePromise: responsePromise
         )
 
+        streamPromise.futureResult.cascadeFailure(to: responsePromise)
         return streamPromise.futureResult.flatMap { stream in
             logger?.info("Send - sending")
             return stream.writeAndFlush(context).flatMapErrorThrowing { error in

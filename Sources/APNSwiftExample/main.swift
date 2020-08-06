@@ -28,7 +28,7 @@ var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
 let apnsConfig = try APNSwiftConfiguration(
     authenticationMethod: .jwt(
-        key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
+        key: .private(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
         keyIdentifier: "9UC9ZLQ8YW",
         teamIdentifier: "ABBM6U9RM5"
     ),
