@@ -116,7 +116,7 @@ public final class APNSwiftConnection: APNSwiftClient {
                 sslHandler,
                 WaitForTLSUpHandler(allDonePromise: connectionFullyUpPromise)
             ]).flatMap {
-                channel.configureHTTP2Pipeline(mode: .client) { channel, _ in
+                channel.configureHTTP2Pipeline(mode: .client) { channel in
                     let error = UnsupportedServerPushError()
                     logger?.warning("Connection - failed \(error)")
                     return channel.eventLoop.makeFailedFuture(error)
@@ -173,9 +173,9 @@ public final class APNSwiftConnection: APNSwiftClient {
         let logger = logger ?? self.configuration.logger
         logger?.debug("Send - starting up")
         let streamPromise = self.channel.eventLoop.makePromise(of: Channel.self)
-        self.multiplexer.createStreamChannel(promise: streamPromise) { channel, streamID in
+        self.multiplexer.createStreamChannel(promise: streamPromise) { channel in
             let handlers: [ChannelHandler] = [
-                HTTP2ToHTTP1ClientCodec(streamID: streamID, httpProtocol: .https),
+                HTTP2FramePayloadToHTTP1ClientCodec(httpProtocol: .https),
                 APNSwiftRequestEncoder(
                     deviceToken: deviceToken,
                     configuration: self.configuration,
