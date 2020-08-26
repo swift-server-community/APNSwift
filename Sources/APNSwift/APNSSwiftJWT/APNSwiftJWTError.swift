@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+
 internal enum APNSwiftJWTError {
     case encodingFailed
     case tokenWasNotGeneratedCorrectly

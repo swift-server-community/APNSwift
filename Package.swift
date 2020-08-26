@@ -13,9 +13,9 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.10.1"),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.4.0"),
-        .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.6.0"),
+        .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.13.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
-        .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0-rc"),
+        .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0"),
     ],
     targets: [
         .target(name: "APNSwiftExample", dependencies: [
