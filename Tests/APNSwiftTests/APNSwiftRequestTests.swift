@@ -24,7 +24,7 @@ import XCTest
 final class APNSwiftRequestTests: XCTestCase {
 
     func testAlertEncoding() throws {
-        let alert = APNSwiftPayload.APNSwiftAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
+        let alert = APNSwiftAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
                           titleLocArgs: ["titlelocarg1"], actionLocKey: "actionkey", locKey: "lockey", locArgs: ["locarg1"], launchImage: "launchImage")
 
         let jsonData = try JSONEncoder().encode(alert)
@@ -63,7 +63,7 @@ final class APNSwiftRequestTests: XCTestCase {
     }
 
     func testMinimalAlertEncoding() throws {
-        let alert = APNSwiftPayload.APNSwiftAlert(title: "title", body: "body")
+        let alert = APNSwiftAlert(title: "title", body: "body")
 
         let jsonData = try JSONEncoder().encode(alert)
 
