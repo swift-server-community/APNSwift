@@ -82,19 +82,19 @@ let apnsConfig = ...
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 ```
 
-### Alert
+### APNSwiftAlert
 
-[`Alert`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSRequest.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
+[`APNSwiftAlert`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSwiftAlert.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
-#### Example `Alert`
+#### Example `APNSwiftAlert`
 ```swift
-let alert = Alert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
+let alert = APNSwiftAlert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
 ```
 
 ### APNSwiftPayload
 
-[`APNSwiftPayload`](https://github.com/kylebrowning/APNSwift/blob/master/Sources/APNSwift/APNSwiftRequest.swift#L25) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
+[`APNSwiftPayload`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSwiftPayload.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
 #### Example `APNSwiftPayload`
@@ -139,10 +139,13 @@ var apnsConfig = try APNSwiftConfiguration(
 )
 let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 ```
+
 ### Need a completely custom arbtirary payload and dont like being typecast?
+
 APNSwift provides the ability to send raw payloads. You can use `Data`, `ByteBuffer`, `DispatchData`, `Array`
 Though this is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
 For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+
 ```swift
 let notificationJsonPayload = ...
 let data: Data = try! encoder.encode(notificationJsonPayload)

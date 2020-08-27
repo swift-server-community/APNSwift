@@ -47,8 +47,8 @@ struct AcmeNotification: APNSwiftNotification {
     }
 }
 
-let alert = APNSwiftPayload.APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
-let apsSound = APNSwiftPayload.APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
+let alert = APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
+let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
 let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
 let temp = try! JSONEncoder().encode(aps)
 let string = String(bytes: temp, encoding: .utf8)

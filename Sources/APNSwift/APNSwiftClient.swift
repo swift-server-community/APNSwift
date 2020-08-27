@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the APNSwift open source project
+//
+// Copyright (c) 2019-2020 the APNSwift project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of APNSwift project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import Foundation
 import Logging
 import NIO
@@ -37,7 +51,7 @@ extension APNSwiftClient {
      try apns.send(notification, pushType: .alert, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
-    public func send(_ alert: APNSwiftPayload.APNSwiftAlert,
+    public func send(_ alert: APNSwiftAlert,
                      pushType: APNSwiftConnection.PushType = .alert,
                      to deviceToken: String,
                      with encoder: JSONEncoder = JSONEncoder(),
