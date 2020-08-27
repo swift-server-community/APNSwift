@@ -2,7 +2,7 @@
 //
 // This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2019 the APNSwift project authors
+// Copyright (c) 2019-2020 the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -11,15 +11,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-
-import NIO
-import NIOHTTP1
-import NIOHTTP2
-
-/// This is a protocol which allows developers to construct their own Notification payload
-public protocol APNSwiftNotification: Encodable {
-    var aps: APNSwiftPayload { get }
-}
 
 /// This structure provides the data structure for an APNS Payload
 public struct APNSwiftPayload: Encodable {
