@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// This structure provides the data structure for an APNS Payload
-public struct APNSwiftPayload: Encodable {
+public struct APNSwiftPayload: Codable {
     public let alert: APNSwift.APNSwiftAlert?
     public let badge: Int?
     public let sound: APNSwift.APNSwiftSoundType?
