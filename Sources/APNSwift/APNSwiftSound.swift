@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-public struct APNSSoundDictionary: Encodable {
+public struct APNSSoundDictionary: Codable, Equatable {
     public let critical: Int
     public let name: String
     public let volume: Double
@@ -42,7 +42,7 @@ public struct APNSSoundDictionary: Encodable {
  - Parameter string: use this for a normal alert sound
  - Parameter critical: use for a critical alert type
  */
-public enum APNSwiftSoundType: Encodable {
+public enum APNSwiftSoundType: Codable, Equatable {
     case normal(String)
     case critical(APNSSoundDictionary)
 }
@@ -57,4 +57,13 @@ extension APNSwiftSoundType {
             try container.encode(dict)
         }
     }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    if let critical = try? container.decode(APNSSoundDictionary.self) {
+      self = .critical(critical)
+    } else {
+      self = .normal(try container.decode(String.self))
+    }
+  }
 }
