@@ -35,6 +35,7 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
     let topic: String?
     let pushType: APNSwiftConnection.PushType?
     let logger: Logger?
+    let apnsID: UUID?
 
     init(
         deviceToken: String,
@@ -45,7 +46,8 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        logger: Logger?
+        logger: Logger?,
+        apnsID: UUID?
     ) {
         self.configuration = configuration
         self.bearerToken = bearerToken
@@ -56,11 +58,11 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
         self.topic = topic
         self.pushType = pushType
         self.logger = logger
+        self.apnsID = apnsID
     }
 
-    convenience init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: String, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil, logger: Logger? = nil) {
-        self.init(deviceToken: deviceToken, configuration: configuration, bearerToken: bearerToken, pushType: .alert, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger)
-
+    convenience init(deviceToken: String, configuration: APNSwiftConfiguration, bearerToken: String, expiration: Date?, priority: Int?, collapseIdentifier: String?, topic: String? = nil, logger: Logger? = nil, apnsID: UUID? = nil) {
+        self.init(deviceToken: deviceToken, configuration: configuration, bearerToken: bearerToken, pushType: .alert, expiration: expiration, priority: priority, collapseIdentifier: collapseIdentifier, topic: topic, logger: logger, apnsID: apnsID)
     }
 
     /// See `ChannelOutboundHandler.write(context:data:promise:)`.
@@ -94,6 +96,10 @@ internal final class APNSwiftRequestEncoder: ChannelOutboundHandler {
         if let bearerToken = self.bearerToken {
             reqHead.headers.add(name: "authorization", value: "bearer \(bearerToken)")
         }
+        if let apnsID = self.apnsID {
+          reqHead.headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
+        }
+
         logger?.trace("Request - built")
         context.write(wrapOutboundOut(.head(reqHead))).cascadeFailure(to: promise)
         context.write(wrapOutboundOut(.body(.byteBuffer(buffer)))).cascadeFailure(to: promise)

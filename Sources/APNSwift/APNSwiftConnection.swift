@@ -168,7 +168,8 @@ public final class APNSwiftConnection: APNSwiftClient {
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        logger: Logger?
+        logger: Logger?,
+        apnsID: UUID?
     ) -> EventLoopFuture<Void> {
         let logger = logger ?? self.configuration.logger
         logger?.debug("Send - starting up")
@@ -185,7 +186,8 @@ public final class APNSwiftConnection: APNSwiftClient {
                     priority: priority,
                     collapseIdentifier: collapseIdentifier,
                     topic: topic,
-                    logger: logger
+                    logger: logger,
+                    apnsID: apnsID
                 ),
                 APNSwiftResponseDecoder(),
                 APNSwiftStreamHandler(logger: logger)
