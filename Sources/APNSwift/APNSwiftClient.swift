@@ -27,7 +27,8 @@ public protocol APNSwiftClient {
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        logger: Logger?) -> EventLoopFuture<Void>
+        logger: Logger?,
+        apnsID: UUID?) -> EventLoopFuture<Void>
 }
 
 extension APNSwiftClient {
@@ -59,7 +60,8 @@ extension APNSwiftClient {
                      priority: Int? = nil,
                      collapseIdentifier: String? = nil,
                      topic: String? = nil,
-                     logger: Logger? = nil) -> EventLoopFuture<Void> {
+                     logger: Logger? = nil,
+                     apnsID: UUID? = nil) -> EventLoopFuture<Void> {
         return self.send(APNSwiftPayload(alert: alert),
                   pushType: pushType,
                   to: deviceToken,
@@ -68,7 +70,8 @@ extension APNSwiftClient {
                   priority: priority,
                   collapseIdentifier: collapseIdentifier,
                   topic: topic,
-                  logger: logger ?? self.logger)
+                  logger: logger ?? self.logger,
+                  apnsID: apnsID)
     }
 
     /**
@@ -99,7 +102,8 @@ extension APNSwiftClient {
                      priority: Int? = nil,
                      collapseIdentifier: String? = nil,
                      topic: String? = nil,
-                     logger: Logger? = nil) -> EventLoopFuture<Void> {
+                     logger: Logger? = nil,
+                     apnsID: UUID? = nil) -> EventLoopFuture<Void> {
         return self.send(BasicNotification(aps: payload),
                   pushType: pushType,
                   to: deviceToken,
@@ -108,7 +112,8 @@ extension APNSwiftClient {
                   priority: priority,
                   collapseIdentifier: collapseIdentifier,
                   topic: topic,
-                  logger: logger ?? self.logger)
+                  logger: logger ?? self.logger,
+                  apnsID: apnsID)
     }
 
     /**
@@ -139,7 +144,8 @@ extension APNSwiftClient {
                                      priority: Int? = nil,
                                      collapseIdentifier: String? = nil,
                                      topic: String? = nil,
-                                     logger: Logger? = nil) -> EventLoopFuture<Void>
+                                     logger: Logger? = nil,
+                                     apnsID: UUID? = nil) -> EventLoopFuture<Void>
                                         where Notification: APNSwiftNotification {
         do {
             let data: Data = try encoder.encode(notification)
@@ -150,7 +156,8 @@ extension APNSwiftClient {
                              priority: priority,
                              collapseIdentifier: collapseIdentifier,
                              topic: topic,
-                             logger: logger ?? self.logger)
+                             logger: logger ?? self.logger,
+                             apnsID: apnsID)
         } catch {
             return self.eventLoop.makeFailedFuture(error)
         }
@@ -165,7 +172,8 @@ extension APNSwiftClient {
                             priority: Int?,
                             collapseIdentifier: String?,
                             topic: String?,
-                            logger: Logger? = nil) -> EventLoopFuture<Void>
+                            logger: Logger? = nil,
+                            apnsID: UUID? = nil) -> EventLoopFuture<Void>
                                 where Bytes : Collection, Bytes.Element == UInt8 {
             var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
             buffer.writeBytes(payload)
@@ -176,7 +184,8 @@ extension APNSwiftClient {
                         priority: priority,
                         collapseIdentifier: collapseIdentifier,
                         topic: topic,
-                        logger: logger ?? self.logger)
+                        logger: logger ?? self.logger,
+                        apnsID: apnsID)
     }
 
     public func send(rawBytes payload: ByteBuffer,
@@ -186,7 +195,8 @@ extension APNSwiftClient {
                      priority: Int? = nil,
                      collapseIdentifier: String? = nil,
                      topic: String? = nil,
-                     logger: Logger? = nil)  -> EventLoopFuture<Void> {
+                     logger: Logger? = nil,
+                     apnsID: UUID? = nil) -> EventLoopFuture<Void> {
         return self.send(
             rawBytes: payload,
             pushType: pushType,
@@ -195,8 +205,8 @@ extension APNSwiftClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            logger: logger ?? self.logger
-        )
+            logger: logger ?? self.logger,
+            apnsID: apnsID)
     }
 }
 
