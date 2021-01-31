@@ -168,6 +168,8 @@ public struct APNSwiftConfiguration {
     public var topic: String
     public var environment: Environment
     internal var logger: Logger?
+    /// Optional timeout time if the connection does not receive a response.
+    public var timeout: TimeAmount? = nil
 
     public var url: URL {
         switch environment {
@@ -197,7 +199,8 @@ public struct APNSwiftConfiguration {
         authenticationMethod: AuthenticationMethod,
         topic: String,
         environment: APNSwiftConfiguration.Environment,
-        logger: Logger? = nil
+        logger: Logger? = nil,
+        timeout: TimeAmount? = nil
     ) {
         self.topic = topic
         self.authenticationMethod = authenticationMethod
@@ -206,6 +209,7 @@ public struct APNSwiftConfiguration {
             logger[metadataKey: "origin"] = "APNSwift"
             self.logger = logger
         }
+        self.timeout = timeout
     }
 }
 

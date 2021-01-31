@@ -27,7 +27,8 @@ class APNSwiftConfigurationTests: XCTestCase {
                 teamIdentifier: "MY_TEAM_ID"
             ),
             topic: "MY_TOPIC",
-            environment: environment
+            environment: environment,
+            timeout: .seconds(5)
         )
 
         switch environment {
@@ -46,6 +47,7 @@ class APNSwiftConfigurationTests: XCTestCase {
             XCTFail("expected JWT auth method")
         }
         XCTAssertEqual(apnsConfiguration.topic, "MY_TOPIC")
+        XCTAssertEqual(apnsConfiguration.timeout, .seconds(5))
 
     }
 

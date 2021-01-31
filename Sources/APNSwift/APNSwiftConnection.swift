@@ -200,20 +200,43 @@ public final class APNSwiftConnection: APNSwiftClient {
             request: payload,
             responsePromise: responsePromise
         )
-
         streamPromise.futureResult.cascadeFailure(to: responsePromise)
-        return streamPromise.futureResult.flatMap { stream in
-            logger?.info("Send - sending")
-            return stream.writeAndFlush(context).flatMapErrorThrowing { error in
-                logger?.info("Send - sending - failed - \(error)")
-                responsePromise.fail(error)
-                throw error
+        
+        let timeoutPromise = self.channel.eventLoop.makePromise(of: Void.self)
+        responsePromise.futureResult.cascade(to: timeoutPromise)
+        timeoutPromise.futureResult.cascadeFailure(to: responsePromise)
+        var timeoutTask: Scheduled<Any>? = nil
+        let timeoutTime = configuration.timeout
+        
+        return streamPromise.futureResult
+            .flatMap { stream in
+                logger?.info("Send - sending")
+                if let timeoutTime = timeoutTime {
+                    timeoutTask = stream.eventLoop.scheduleTask(in: timeoutTime) {
+                        logger?.warning("Send - sending - failed - No response was received within the timeout.")
+                        return timeoutPromise.fail(NoResponseWithinTimeoutError())
+                    }
+                } else {
+                    timeoutPromise.succeed(())
+                }
+                
+                return stream.writeAndFlush(context).flatMapErrorThrowing { error in
+                    logger?.info("Send - sending - failed - \(error)")
+                    responsePromise.fail(error)
+                    throw error
+                }
             }
-        }.flatMap {
-            responsePromise.futureResult
-        }
+            .flatMap {
+                responsePromise
+                    .futureResult
+                    .and(timeoutPromise.futureResult)
+                    .map { _ in () }
+            }
+            .always { _ in
+                timeoutTask?.cancel()
+            }
     }
-
+    
     var onClose: EventLoopFuture<Void> {
         logger?.debug("Connection - closed")
         return self.channel.closeFuture
