@@ -304,7 +304,6 @@ final class APNSwiftRequestTests: XCTestCase {
         // Should have changed
         XCTAssertFalse(newCachedToken == bearerToken.currentBearerToken)
         bearerToken.cancel()
-        
     }
 
     let validAuthKey = """
