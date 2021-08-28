@@ -38,7 +38,7 @@ extension APNSwiftClient {
      - Parameter pushType: push type of the notification.
      - Parameter deviceToken: device token to send alert to.
      - Parameter encoder: customer JSON encoder if needed.
-     - Parameter expiration: a date that the notificaiton expires.
+     - Parameter expiration: a date that the notification expires.
      - Parameter priority: priority to send the notification with.
      - Parameter collapseIdentifier: a collapse identifier to use for grouping notifications
      - Parameter topic: the bundle identifier that this notification belongs to.
@@ -80,7 +80,7 @@ extension APNSwiftClient {
      - Parameter pushType: push type of the notification.
      - Parameter deviceToken: device token to send alert to.
      - Parameter encoder: customer JSON encoder if needed.
-     - Parameter expiration: a date that the notificaiton expires.
+     - Parameter expiration: a date that the notification expires.
      - Parameter priority: priority to send the notification with.
      - Parameter collapseIdentifier: a collapse identifier to use for grouping notifications
      - Parameter topic: the bundle identifier that this notification belongs to.
@@ -122,7 +122,7 @@ extension APNSwiftClient {
      - Parameter pushType: push type of the notification.
      - Parameter deviceToken: device token to send alert to.
      - Parameter encoder: customer JSON encoder if needed.
-     - Parameter expiration: a date that the notificaiton expires.
+     - Parameter expiration: a date that the notification expires.
      - Parameter priority: priority to send the notification with.
      - Parameter collapseIdentifier: a collapse identifier to use for grouping notifications
      - Parameter topic: the bundle identifier that this notification belongs to.
@@ -163,7 +163,7 @@ extension APNSwiftClient {
         }
     }
 
-    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// This is to be used with caution. APNSwift cannot guarantee delivery if you do not have the correct payload.
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
     public func send<Bytes>(raw payload: Bytes,
                             pushType: APNSwiftConnection.PushType = .alert,
