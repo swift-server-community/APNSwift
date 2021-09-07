@@ -87,7 +87,8 @@ public final class APNSwiftConnection: APNSwiftClient {
 
         let logger = logger ?? configuration.logger
         logger?.debug("Connection - starting")
-        var tlsConfiguration = TLSConfiguration.forClient(applicationProtocols: ["h2"])
+        var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+        tlsConfiguration.applicationProtocols = ["h2"]
         switch configuration.authenticationMethod {
         case .jwt: break
         case .tls(let configure):
