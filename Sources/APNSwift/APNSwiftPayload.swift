@@ -21,8 +21,11 @@ public struct APNSwiftPayload: Codable {
     public let mutableContent: Int?
     public let category: String?
     public let threadID: String?
+    public let targetContentId: String?
+    public let interruptionLevel: String?
+    public let relevanceScore: Float?
 
-    public init(alert: APNSwift.APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwift.APNSwiftSoundType? = nil, hasContentAvailable: Bool = false, hasMutableContent: Bool = false, category: String? = nil, threadID: String? = nil) {
+    public init(alert: APNSwift.APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwift.APNSwiftSoundType? = nil, hasContentAvailable: Bool = false, hasMutableContent: Bool = false, category: String? = nil, threadID: String? = nil, targetContentId: String? = nil, interruptionLevel: String? = nil, relevanceScore: Float? = nil) {
         self.alert = alert
         self.badge = badge
         self.sound = sound
@@ -30,6 +33,9 @@ public struct APNSwiftPayload: Codable {
         self.mutableContent = hasMutableContent ? 1 : 0
         self.category = category
         self.threadID = threadID
+        self.targetContentId = targetContentId
+        self.interruptionLevel = interruptionLevel
+        self.relevanceScore = relevanceScore
     }
 
     enum CodingKeys: String, CodingKey {
@@ -40,5 +46,8 @@ public struct APNSwiftPayload: Codable {
         case mutableContent = "mutable-content"
         case category
         case threadID = "thread-id"
+        case targetContentId = "target-content-id"
+        case interruptionLevel = "interruption-level"
+        case relevanceScore = "relevance-score"
     }
 }
