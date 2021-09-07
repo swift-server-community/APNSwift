@@ -9,14 +9,19 @@ needs to be listed here.
 
 ### Contributors
 
+- Craig Newell <craign@ieee.org>
 - Eduardo Perez <sabeatra@gmail.com>
 - Florian Reinhart <florian.reinhart@gmail.com>
+- Jeffrey Macko <mackoj@users.noreply.github.com>
 - Kyle Browning <kylebrowning@me.com>
 - Laurent Gaches <laurent@binimo.com>
+- Mads Odgaard <mads@madsodgaard.com>
+- Roderic Campbell <roderic@gmail.com>
 - Tanner <me@tanner.xyz>
 - Tanner Nelson <me@tanner.xyz>
 - grosch <scott.grosch@icloud.com>
 - itcohorts <ben@itcohorts.com>
+- tanner0101 <me@tanner.xyz>
 
 **Updating this list**
 
