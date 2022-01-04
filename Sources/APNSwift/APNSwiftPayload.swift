@@ -25,12 +25,22 @@ public struct APNSwiftPayload: Codable {
     public let interruptionLevel: String?
     public let relevanceScore: Float?
 
-    public init(alert: APNSwift.APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwift.APNSwiftSoundType? = nil, hasContentAvailable: Bool = false, hasMutableContent: Bool = false, category: String? = nil, threadID: String? = nil, targetContentId: String? = nil, interruptionLevel: String? = nil, relevanceScore: Float? = nil) {
+    public init(alert: APNSwift.APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwift.APNSwiftSoundType? = nil, hasContentAvailable: Bool? = false, hasMutableContent: Bool? = false, category: String? = nil, threadID: String? = nil, targetContentId: String? = nil, interruptionLevel: String? = nil, relevanceScore: Float? = nil) {
         self.alert = alert
         self.badge = badge
         self.sound = sound
-        self.contentAvailable = hasContentAvailable ? 1 : 0
-        self.mutableContent = hasMutableContent ? 1 : 0
+        if let hasContentAvailable = hasContentAvailable {
+            self.contentAvailable = hasContentAvailable ? 1 : 0
+        }
+        else {
+            self.contentAvailable = nil
+        }
+        if let hasMutableContent = hasMutableContent {
+            self.mutableContent = hasMutableContent ? 1 : 0
+        }
+        else {
+            self.mutableContent = nil
+        }
         self.category = category
         self.threadID = threadID
         self.targetContentId = targetContentId
