@@ -227,5 +227,6 @@ extension APNSwiftConnection {
         case mdm
         case voip
         case fileprovider
+        case complication
     }
 }
