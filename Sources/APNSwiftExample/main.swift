@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import APNSwift
+import AsyncHTTPClient
 import Foundation
 import Logging
 import NIO
@@ -26,7 +27,9 @@ var verbose = true
 // optional
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
+let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
 let apnsConfig = try APNSwiftConfiguration(
+    httpClient: httpClient,
     authenticationMethod: .jwt(
         key: .private(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
         keyIdentifier: "9UC9ZLQ8YW",
@@ -37,11 +40,18 @@ let apnsConfig = try APNSwiftConfiguration(
     logger: logger
 )
 
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+let apnsProdConfig = try APNSwiftConfiguration(
+    httpClient: httpClient,
+    authenticationMethod: .jwt(
+        key: .private(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
+        keyIdentifier: "9UC9ZLQ8YW",
+        teamIdentifier: "ABBM6U9RM5"
+    ),
+    topic: "com.grasscove.Fern",
+    environment: .production,
+    logger: logger
+)
 
-if verbose {
-    print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
-}
 
 struct AcmeNotification: APNSwiftNotification {
     let acme2: [String]
@@ -59,19 +69,17 @@ let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), ha
 let temp = try! JSONEncoder().encode(aps)
 let string = String(bytes: temp, encoding: .utf8)
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-
+let dt = "80745890ac499fa0c61c2348b56cdf735343963e085dd2283fb48a9fa56b0527759ed783ae6278f4f09aa3c4cc9d5b9f5ac845c3648e655183e2318404bc254ffcd1eea427ad528c3d0b253770422a80"
+let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
+let apnsProd = APNSwiftConnection(configuration: apnsProdConfig, logger: logger)
+let expiry = Date().addingTimeInterval(5)
 do {
-    let expiry = Date().addingTimeInterval(5)
-    for _ in 1...5 {
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    }
+    try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+    try await apnsProd.send(aps, to: dt)
 } catch {
     print(error)
 }
 
-try apns.close().wait()
+try await httpClient.shutdown()
 try group.syncShutdownGracefully()
 exit(0)

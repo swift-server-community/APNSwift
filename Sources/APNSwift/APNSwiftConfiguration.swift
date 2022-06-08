@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import AsyncHTTPClient
 import Foundation
 import Logging
 import NIO
@@ -165,9 +166,24 @@ public struct APNSwiftConfiguration {
         case tls((inout TLSConfiguration) -> ())
     }
 
+    public func makeBearerTokenFactory() -> APNSwiftBearerTokenFactory? {
+        switch self.authenticationMethod {
+        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
+            return .init(
+                signers: signers,
+                teamIdentifier: teamIdentifier,
+                keyIdentifier: keyIdentifier,
+                logger: self.logger
+            )
+        case .tls:
+            return nil
+        }
+    }
+
+    public var httpClient: HTTPClient
     public var topic: String
     public var environment: Environment
-    internal var logger: Logger?
+    public var logger: Logger?
     /// Optional timeout time if the connection does not receive a response.
     public var timeout: TimeAmount? = nil
 
@@ -180,35 +196,19 @@ public struct APNSwiftConfiguration {
         }
     }
 
-    internal func makeBearerTokenFactory(on eventLoop: EventLoop) -> APNSwiftBearerTokenFactory? {
-        switch self.authenticationMethod {
-        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
-            return .init(
-                eventLoop: eventLoop,
-                signers: signers,
-                teamIdentifier: teamIdentifier,
-                keyIdentifier: keyIdentifier,
-                logger: self.logger
-            )
-        case .tls:
-            return nil
-        }
-    }
 
     public init(
+        httpClient: HTTPClient,
         authenticationMethod: AuthenticationMethod,
         topic: String,
         environment: APNSwiftConfiguration.Environment,
         logger: Logger? = nil,
         timeout: TimeAmount? = nil
     ) {
+        self.httpClient = httpClient
         self.topic = topic
         self.authenticationMethod = authenticationMethod
         self.environment = environment
-        if var logger = logger {
-            logger[metadataKey: "origin"] = "APNSwift"
-            self.logger = logger
-        }
         self.timeout = timeout
     }
 }

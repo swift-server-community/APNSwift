@@ -14,13 +14,18 @@
 
 import XCTest
 @testable import APNSwift
+import AsyncHTTPClient
 import Logging
 import NIO
 import NIOSSL
 
 class APNSwiftConfigurationTests: XCTestCase {
+    let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
+
     func configuration(environment: APNSwiftConfiguration.Environment) throws {
+
         let apnsConfiguration = try APNSwiftConfiguration(
+            httpClient: httpClient,
             authenticationMethod: .jwt(
                 key: .private(pem: Data(appleECP8PrivateKey.utf8)),
                 keyIdentifier: "MY_KEY_ID",
@@ -146,6 +151,7 @@ C18ScRb4Z6poMBgJtYlVtd9ly63URv57ZW0Ncs1LiZB7WATb3svu+1c7HQ==
         let cert = [UInt8](pemCertificate.data(using: .utf8)!)
 
         XCTAssertNoThrow(try APNSwiftConfiguration(
+            httpClient: httpClient,
             authenticationMethod: .tls(
                 keyBytes: key,
                 certificateBytes: cert,
@@ -157,6 +163,7 @@ C18ScRb4Z6poMBgJtYlVtd9ly63URv57ZW0Ncs1LiZB7WATb3svu+1c7HQ==
 
         let wrongPassword: NIOSSLPassphraseCallback = { $0("foobar".utf8) }
         XCTAssertThrowsError(try APNSwiftConfiguration(
+            httpClient: httpClient,
             authenticationMethod: .tls(
                 keyBytes: key,
                 certificateBytes: cert,
@@ -173,6 +180,7 @@ C18ScRb4Z6poMBgJtYlVtd9ly63URv57ZW0Ncs1LiZB7WATb3svu+1c7HQ==
 
         let properPassword = [UInt8]("12345".utf8)
         XCTAssertNoThrow(try APNSwiftConfiguration(
+            httpClient: httpClient,
             authenticationMethod: .tls(
                 keyBytes: key,
                 certificateBytes: cert,
@@ -184,6 +192,7 @@ C18ScRb4Z6poMBgJtYlVtd9ly63URv57ZW0Ncs1LiZB7WATb3svu+1c7HQ==
 
         let wrongPassword = [UInt8]("foobar".utf8)
         XCTAssertThrowsError(try APNSwiftConfiguration(
+            httpClient: httpClient,
             authenticationMethod: .tls(
                 keyBytes: key,
                 certificateBytes: cert,

@@ -25,7 +25,19 @@ public struct APNSwiftPayload: Codable {
     public let interruptionLevel: String?
     public let relevanceScore: Float?
 
-    public init(alert: APNSwift.APNSwiftAlert? = nil, badge: Int? = nil, sound: APNSwift.APNSwiftSoundType? = nil, hasContentAvailable: Bool? = false, hasMutableContent: Bool? = false, category: String? = nil, threadID: String? = nil, targetContentId: String? = nil, interruptionLevel: String? = nil, relevanceScore: Float? = nil) {
+    public init(
+        alert: APNSwift.APNSwiftAlert? = nil,
+        badge: Int? = nil,
+        sound: APNSwift.APNSwiftSoundType? = nil,
+        hasContentAvailable: Bool? = false,
+        hasMutableContent: Bool? = false,
+        category: String? = nil,
+        threadID: String? = nil,
+        targetContentId: String? = nil,
+        interruptionLevel: String? = nil,
+        relevanceScore: Float? = nil
+    ) {
+        
         self.alert = alert
         self.badge = badge
         self.sound = sound

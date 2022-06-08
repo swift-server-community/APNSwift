@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import AsyncHTTPClient
 import Foundation
 import NIO
 import NIOHTTP1
@@ -119,157 +120,11 @@ final class APNSwiftRequestTests: XCTestCase {
       XCTAssertEqual(payload.alert?.body, decodedPayload.alert?.body)
       XCTAssertEqual(payload.sound, decodedPayload.sound)
   }
-
-    func testResponseDecoderBasics() throws {
-        let channel = EmbeddedChannel(handler: APNSwiftResponseDecoder())
-
-        // pretend to connect the connect (nothing real will happen)
-        XCTAssertNoThrow(try channel.connect(to: .init(ipAddress: "1.2.3.4", port: 5)).wait())
-
-        // send a valid server response
-        let resHead = HTTPResponseHead(version: .init(major: 2, minor: 0), status: .ok)
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.head(resHead)))
-        var buffer = channel.allocator.buffer(capacity: 16)
-        buffer.writeString("foo bar")
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.body(buffer)))
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.end(nil)))
-
-        // now, let's check that we read the response correctly
-        let maybeResponse = try channel.readInbound(as: APNSwiftResponse.self)
-        guard let response = maybeResponse else {
-            XCTFail("no response produced")
-            return
-        }
-        XCTAssertEqual(APNSwiftResponse(header: resHead, byteBuffer: buffer), response)
-
-        // finally, let's check that there's no other stuff produced on the channel
-        XCTAssertNoThrow(XCTAssertNil(try channel.readInbound(as: APNSwiftResponse.self)))
-        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
-    }
-
-    func testResponseDecoderHappyWithReceivingTheBodyInMultipleChunks() throws {
-        let channel = EmbeddedChannel(handler: APNSwiftResponseDecoder())
-
-        // pretend to connect the connect (nothing real will happen)
-        XCTAssertNoThrow(try channel.connect(to: .init(ipAddress: "1.2.3.4", port: 5)).wait())
-
-        // send a valid server response
-        let resHead = HTTPResponseHead(version: .init(major: 2, minor: 0), status: .ok)
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.head(resHead)))
-        var buffer = channel.allocator.buffer(capacity: 16)
-        buffer.writeString("foo bar")
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.body(buffer.getSlice(at: buffer.readerIndex,
-                                                                                              length: 3)!)))
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.body(buffer.getSlice(at: buffer.readerIndex + 3,
-                                                                                              length: 4)!)))
-
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.end(nil)))
-
-        // now, let's check that we read the response correctly
-        let maybeResponse = try channel.readInbound(as: APNSwiftResponse.self)
-        guard let response = maybeResponse else {
-            XCTFail("no response produced")
-            return
-        }
-        XCTAssertEqual(APNSwiftResponse(header: resHead, byteBuffer: buffer), response)
-
-        // finally, let's check that there's no other stuff produced on the channel
-        XCTAssertNoThrow(XCTAssertNil(try channel.readInbound(as: APNSwiftResponse.self)))
-        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
-    }
-
-    func testResponseDecoderAcceptsTrailers() throws {
-        let channel = EmbeddedChannel(handler: APNSwiftResponseDecoder())
-
-        // pretend to connect the connect (nothing real will happen)
-        XCTAssertNoThrow(try channel.connect(to: .init(ipAddress: "1.2.3.4", port: 5)).wait())
-
-        // send a valid server response
-        let resHead = HTTPResponseHead(version: .init(major: 2, minor: 0), status: .ok)
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.head(resHead)))
-        var buffer = channel.allocator.buffer(capacity: 16)
-        buffer.writeString("foo bar")
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.body(buffer)))
-        XCTAssertNoThrow(try channel.writeInbound(HTTPClientResponsePart.end(["foo": "bar"])))
-
-        // now, let's check that we read the response correctly
-        let maybeResponse = try channel.readInbound(as: APNSwiftResponse.self)
-        guard let response = maybeResponse else {
-          XCTFail("no response produced")
-          return
-        }
-        XCTAssertEqual(APNSwiftResponse(header: resHead, byteBuffer: buffer), response)
-
-        // finally, let's check that there's no other stuff produced on the channel
-        XCTAssertNoThrow(XCTAssertNil(try channel.readInbound(as: APNSwiftResponse.self)))
-        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
-    }
-
-    func testErrorsFromAPNS() throws {
-        let error = APNSwiftError.ResponseStruct(reason: .unregistered)
-        let encodedData = try JSONEncoder().encode(error)
-        let allocator = ByteBufferAllocator()
-        var errorBuffer = allocator.buffer(capacity: encodedData.count)
-        errorBuffer.writeBytes(encodedData)
-        
-        let responsefromAPNS = APNSwiftResponse(header: .init(version: .init(major: 2, minor: 0), status: .badRequest), byteBuffer: errorBuffer)
-        
-        let channel = EmbeddedChannel(handler: APNSwiftStreamHandler())
-        let responsePromise = channel.eventLoop.makePromise(of: Void.self)
-        let context = APNSwiftRequestContext(
-           request: errorBuffer,
-           responsePromise: responsePromise
-        )
-        try channel.writeOutbound(context)
-        try channel.writeInbound(responsefromAPNS)
-        responsePromise.futureResult.whenComplete { temp in
-            switch temp {
-            case .failure(let error):
-                let error = error as! APNSwiftError.ResponseError
-                let expected = APNSwiftError.ResponseError.badRequest(.unregistered)
-                if error != expected {
-                    XCTFail("response is: \(error), should be: \(expected)")
-                }
-            default:
-                XCTFail("response should not succeed")
-            }
-        }
-        XCTAssertNoThrow(XCTAssertNotNil(try channel.readOutbound()))
-        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
-
-    }
-    
-    func testErrorsFromAPNSLeak() throws {
-        let encodedData = try JSONEncoder().encode(["test string"])
-        let allocator = ByteBufferAllocator()
-        var errorBuffer = allocator.buffer(capacity: encodedData.count)
-        errorBuffer.writeBytes(encodedData)
-              
-        let channel = EmbeddedChannel(handler: APNSwiftStreamHandler())
-        let responsePromise = channel.eventLoop.makePromise(of: Void.self)
-        let context = APNSwiftRequestContext(
-           request: errorBuffer,
-           responsePromise: responsePromise
-        )
-        try channel.writeOutbound(context)
-        responsePromise.futureResult.whenComplete { temp in
-            switch temp {
-            case .failure(let error):
-                let error = error as! NoResponseReceivedBeforeConnectionEnded
-                let expected = NoResponseReceivedBeforeConnectionEnded()
-                if error != expected {
-                    XCTFail("response is: \(error), should be: \(expected)")
-                }
-            default:
-                XCTFail("response should not succeed")
-            }
-        }
-        XCTAssertNoThrow(XCTAssertNotNil(try channel.readOutbound()))
-        XCTAssertNoThrow(XCTAssertTrue(try channel.finish().isClean))
-    }
     
     func testTokenProviderUpdate() throws {
+        let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
         let apnsConfig = try APNSwiftConfiguration(
+            httpClient: httpClient,
             authenticationMethod: .jwt(
                 key: .private(pem: Data(validAuthKey.utf8)),
                 keyIdentifier: "9UC9ZLQ8YW",
@@ -279,7 +134,7 @@ final class APNSwiftRequestTests: XCTestCase {
             environment: .sandbox
         )
         let loop = EmbeddedEventLoop()
-        let bearerToken = apnsConfig.makeBearerTokenFactory(on: loop)!
+        let bearerToken = apnsConfig.makeBearerTokenFactory()!
         let cachedToken = bearerToken.currentBearerToken
 
 
