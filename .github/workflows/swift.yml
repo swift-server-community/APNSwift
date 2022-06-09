@@ -4,28 +4,21 @@ on:
 jobs:
   xenial-5-6:
     container:
-      image: vapor/swift:5.6-xenial
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: swift test --enable-test-discovery
-  bionic-5-6:
-    container:
-      image: vapor/swift:5.6-bionic
+      image: swift:5.6-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery
   thread:
     container:
-      image: vapor/swift:5.6-bionic
+      image: swift:5.6-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery  --sanitize=thread
   address:
     container:
-      image: vapor/swift:5.6-bionic
+      image: swift:5.6-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
