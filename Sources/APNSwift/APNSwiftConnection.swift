@@ -40,6 +40,7 @@ public final class APNSwiftConnection: APNSwiftClient {
         rawBytes payload: ByteBuffer,
         pushType: APNSwiftConnection.PushType,
         to deviceToken: String,
+        on environment: APNSwiftConfiguration.Environment?,
         expiration: Date?,
         priority: Int?,
         collapseIdentifier: String?,
@@ -49,7 +50,13 @@ public final class APNSwiftConnection: APNSwiftClient {
     ) async throws {
         let logger = logger ?? self.configuration.logger
         logger?.debug("Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)")
-        var request = HTTPClientRequest(url: "\(configuration.url.absoluteString)/3/device/\(deviceToken)")
+        var urlBase: String
+        if let overriddenEnvironment = environment {
+            urlBase = overriddenEnvironment.url.absoluteString
+        } else {
+            urlBase = configuration.environment.url.absoluteString
+        }
+        var request = HTTPClientRequest(url: "\(urlBase)/3/device/\(deviceToken)")
         request.method = .POST
         request.headers.add(name: "content-type", value: "application/json")
         request.headers.add(name: "user-agent", value: "APNS/swift-nio")
@@ -71,7 +78,7 @@ public final class APNSwiftConnection: APNSwiftClient {
             request.headers.add(name: "apns-collapse-id", value: collapseId)
         }
         request.headers.add(name: "apns-push-type", value: pushType.rawValue)
-        request.headers.add(name: "host", value: configuration.url.host!)
+        request.headers.add(name: "host", value: urlBase)
 
         // Only use token auth if bearer token is present.
         if let bearerToken = await bearerTokenFactory?.currentBearerToken {

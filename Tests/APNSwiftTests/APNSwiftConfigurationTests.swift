@@ -38,9 +38,9 @@ class APNSwiftConfigurationTests: XCTestCase {
 
         switch environment {
         case .production:
-            XCTAssertEqual(apnsConfiguration.url, URL(string: "https://api.push.apple.com"))
+            XCTAssertEqual(apnsConfiguration.environment.url, URL(string: "https://api.push.apple.com"))
         case .sandbox:
-            XCTAssertEqual(apnsConfiguration.url, URL(string: "https://api.development.push.apple.com"))
+            XCTAssertEqual(apnsConfiguration.environment.url, URL(string: "https://api.development.push.apple.com"))
         }
 
         switch apnsConfiguration.authenticationMethod {

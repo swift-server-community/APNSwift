@@ -77,7 +77,8 @@ do {
     try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
     try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
     try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
-    try await apnsProd.send(aps, to: dt)
+    /// Overriden environment
+    try await apnsProd.send(aps, to: dt, on: .sandbox)
 } catch {
     print(error)
 }

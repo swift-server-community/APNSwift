@@ -81,7 +81,7 @@ public final actor APNSwiftBearerTokenFactory {
             keyID: keyIdentifier,
             issueDate: Date()
         )
-        let newToken =  try signers.sign(payload, kid: keyIdentifier)
+        let newToken = try signers.sign(payload, kid: keyIdentifier)
         logger?.debug("Creating a new APNS token \(newToken.prefix(8))...")
         return newToken
     }
