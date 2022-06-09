@@ -40,7 +40,6 @@ public final actor APNSwiftBearerTokenFactory {
         }
 
         logger?.debug("returning cached token \(cachedBearerToken.prefix(8))...")
-        tokenCreated = NIODeadline.now() - TimeAmount.minutes(59)
         return cachedBearerToken
     }
 
