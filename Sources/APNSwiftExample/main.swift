@@ -75,6 +75,8 @@ let apnsProd = APNSwiftConnection(configuration: apnsProdConfig, logger: logger)
 let expiry = Date().addingTimeInterval(5)
 do {
     try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+    try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+    try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
     try await apnsProd.send(aps, to: dt)
 } catch {
     print(error)

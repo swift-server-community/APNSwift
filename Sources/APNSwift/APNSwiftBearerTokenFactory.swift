@@ -17,66 +17,73 @@ import Foundation
 import Logging
 import NIO
 
-public final class APNSwiftBearerTokenFactory {
-    static func makeNewBearerToken(
-        signers: JWTSigners,
-        teamIdentifier: String,
-        keyIdentifier: JWKIdentifier
-    ) throws -> String {
+public final actor APNSwiftBearerTokenFactory {
 
-        let payload = APNSwiftJWTPayload(
-            teamID: teamIdentifier,
-            keyID: keyIdentifier,
-            issueDate: Date()
-        )
-        return try signers.sign(payload, kid: keyIdentifier)
-    }
+    private var cachedBearerToken: String?
+    public var currentBearerToken: String? {
 
-    var updateTask: Task<(), Error>?
-    public var currentBearerToken: String?
-    var cancelled: Bool
-    var logger: Logger?
-
-    init(
-        signers: JWTSigners,
-        teamIdentifier: String,
-        keyIdentifier: String,
-        logger: Logger?
-    ) {
-        self.logger = logger
-        logger?.debug("Creating a new APNS token")
-        self.cancelled = false
-
-        @Sendable
-        func generateToken() -> String? {
+        guard !isLastTokenGenerationDateStale, let cachedBearerToken = cachedBearerToken else {
             do {
-                return try APNSwiftBearerTokenFactory.makeNewBearerToken(
+                lastTokenGenerationDate = Date()
+                let newToken = try makeNewBearerToken(
                     signers: signers,
                     teamIdentifier: teamIdentifier,
                     keyIdentifier: .init(string: keyIdentifier)
                 )
+                cachedBearerToken = newToken
+                return newToken
             } catch {
+
                 logger?.error("Failed to generate token: \(error)")
                 return nil
             }
         }
 
-        self.currentBearerToken = generateToken()
-        self.updateTask = Task {
-            try await Task.sleep(nanoseconds: 3_300_000_000_000)
-            logger?.debug("Creating a new APNS token because old one expired")
-            self.currentBearerToken = generateToken()
-        }
+        logger?.debug("returning cached token \(cachedBearerToken.prefix(8))...")
+        lastTokenGenerationDate = Date.distantPast
+        return cachedBearerToken
     }
 
-    func cancel() {
-        self.cancelled = true
-        self.updateTask?.cancel()
-        self.updateTask = nil
-        self.logger?.debug("Destroying APNS bearer token")
+    private var isLastTokenGenerationDateStale: Bool {
+        let components = Calendar.current.dateComponents(
+            [.minute],
+            from: lastTokenGenerationDate,
+            to: Date()
+        )
+        return components.minute ?? 0 > 55
     }
 
-    deinit {
-        assert(self.cancelled, "APNSwiftBearerTokenFactory not closed on deinit. You must call APNSwiftBearerTokenFactory.close when you no longer need it to make sure the library can discard the resources")
+    private var signers: JWTSigners
+    private var teamIdentifier: String
+    private var keyIdentifier: String
+    private var logger: Logger?
+    private var lastTokenGenerationDate: Date = .distantPast
+
+    init(
+        signers: JWTSigners,
+        teamIdentifier: String,
+        keyIdentifier: String,
+        logger: Logger? = nil
+    ) {
+        self.signers = signers
+        self.teamIdentifier = teamIdentifier
+        self.keyIdentifier = keyIdentifier
+        self.logger = logger
     }
+
+    private func makeNewBearerToken(
+        signers: JWTSigners,
+        teamIdentifier: String,
+        keyIdentifier: JWKIdentifier
+    ) throws -> String {
+        let payload = APNSwiftJWTPayload(
+            teamID: teamIdentifier,
+            keyID: keyIdentifier,
+            issueDate: Date()
+        )
+        let newToken =  try signers.sign(payload, kid: keyIdentifier)
+        logger?.debug("Creating a new APNS token \(newToken.prefix(8))...")
+        return newToken
+    }
+
 }

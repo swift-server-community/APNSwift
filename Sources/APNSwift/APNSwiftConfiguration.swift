@@ -196,7 +196,6 @@ public struct APNSwiftConfiguration {
         }
     }
 
-
     public init(
         httpClient: HTTPClient,
         authenticationMethod: AuthenticationMethod,
@@ -210,6 +209,7 @@ public struct APNSwiftConfiguration {
         self.authenticationMethod = authenticationMethod
         self.environment = environment
         self.timeout = timeout
+        self.logger = logger
     }
 }
 

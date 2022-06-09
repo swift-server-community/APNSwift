@@ -51,13 +51,10 @@ public final class APNSwiftConnection: APNSwiftClient {
         logger?.debug("Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)")
         var request = HTTPClientRequest(url: "\(configuration.url.absoluteString)/3/device/\(deviceToken)")
         request.method = .POST
-        if let token =  bearerTokenFactory?.currentBearerToken {
-            request.headers.add(name: "Authorization", value: "bearer \(token)")
-        }
-
         request.headers.add(name: "content-type", value: "application/json")
         request.headers.add(name: "user-agent", value: "APNS/swift-nio")
         request.headers.add(name: "content-length", value: "\(payload.readableBytes)")
+
         if let notificationSpecificTopic = topic {
             request.headers.add(name: "apns-topic", value: notificationSpecificTopic)
         } else {
@@ -77,12 +74,13 @@ public final class APNSwiftConnection: APNSwiftClient {
         request.headers.add(name: "host", value: configuration.url.host!)
 
         // Only use token auth if bearer token is present.
-        if let bearerToken = bearerTokenFactory?.currentBearerToken {
+        if let bearerToken = await bearerTokenFactory?.currentBearerToken {
             request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
         }
         if let apnsID = apnsID {
             request.headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
         }
+
         request.body = .bytes(payload)
 
         let response = try await configuration.httpClient.execute(request, timeout: configuration.timeout ?? .seconds(30))
@@ -92,10 +90,5 @@ public final class APNSwiftConnection: APNSwiftClient {
             logger?.warning("Response - bad request \(error.reason)")
             throw APNSwiftError.ResponseError.badRequest(error.reason)
         }
-    }
-
-    public func shutdown() {
-        bearerTokenFactory?.cancel()
-        bearerTokenFactory = nil
     }
 }
