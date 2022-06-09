@@ -20,9 +20,6 @@ let package = Package(
         .target(name: "APNSwiftExample", dependencies: [
             .target(name: "APNSwift"),
         ]),
-        .target(name: "APNSwiftPemExample", dependencies: [
-            .target(name: "APNSwift"),
-        ]),
         .testTarget(name: "APNSwiftTests", dependencies: [
             .target(name: "APNSwift"),
         ]),

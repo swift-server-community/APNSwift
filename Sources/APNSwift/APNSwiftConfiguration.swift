@@ -35,135 +35,7 @@ public struct APNSwiftConfiguration {
             return .jwt(signers, teamIdentifier: teamIdentifier, keyIdentifier: keyIdentifier.string)
         }
 
-        /// Creates a new configuration for AuthenticationMethod with a PEM key and certificate
-        ///
-        ///
-        /// - Note:
-        ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-        ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-        ///
-        /// - Parameters:
-        ///     - privateKeyPath: The path to your private key
-        ///     - pemPath: The path to your certificate in PEM format
-        ///     - pemPassword: The password for the private key
-        public static func tls(
-            privateKeyPath: String,
-            pemPath: String,
-            pemPassword: [UInt8]? = nil
-        ) throws -> Self {
-            let key: NIOSSLPrivateKey
-            if let pemPassword = pemPassword {
-                key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem) { $0(pemPassword) }
-            } else {
-                key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem)
-            }
-            let certificate = try NIOSSLCertificateSource.certificate(.init(file: pemPath, format: .pem))
-            return .tls { configuration in
-                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-                configuration.certificateVerification = .noHostnameVerification
-                configuration.certificateChain = [certificate]
-            }
-        }
-
-        /// Creates a new configuration for AuthenticationMethod with a PEM key and certificate
-        ///
-        /// Passhprase Generation:
-        ///
-        ///     let pwdCallback: NIOSSLPassphraseCallback = { callback in
-        ///         callback("Your password here".utf8)
-        ///     }
-        ///
-        /// - Note:
-        ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-        ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-        ///
-        /// - Parameters:
-        ///   - privateKeyPath: The path to your private key
-        ///   - pemPath: The path to your certificate in PEM format
-        ///   - passphraseCallback: The callback which will generate the password for the keyfile.
-        public static func tls<T>(
-            privateKeyPath: String,
-            pemPath: String,
-            passphraseCallback: @escaping NIOSSLPassphraseCallback<T>
-        ) throws -> Self
-            where T: Collection, T.Element == UInt8
-        {
-            let key = try NIOSSLPrivateKey(file: privateKeyPath, format: .pem, passphraseCallback: passphraseCallback)
-            let certificate = try NIOSSLCertificateSource.certificate(.init(file: pemPath, format: .pem))
-            return .tls { configuration in
-                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-                configuration.certificateVerification = .noHostnameVerification
-                configuration.certificateChain = [certificate]
-            }
-        }
-
-        /// Creates a new configuration for APNSwift with a PEM key and certificate
-        ///
-        /// Passhprase Generation:
-        ///
-        ///     let pwdCallback: NIOSSLPassphraseCallback = { callback in
-        ///         callback("Your password here".utf8)
-        ///     }
-        ///
-        /// - Note:
-        ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-        ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-        /// - Parameters:
-        ///     - keyBytes: The private key bytes
-        ///     - certificateBytes: The certificate bytes in PEM format
-        ///     - pemPassword: The password for the private key
-        public static func tls(
-            keyBytes: [UInt8],
-            certificateBytes: [UInt8],
-            pemPassword: [UInt8]? = nil
-        ) throws -> Self {
-            let key: NIOSSLPrivateKey
-            if let pemPassword = pemPassword {
-                key = try NIOSSLPrivateKey(bytes: keyBytes, format: .pem) { $0(pemPassword) }
-            } else {
-                key = try NIOSSLPrivateKey(bytes: keyBytes, format: .pem)
-            }
-            let certificate = try NIOSSLCertificateSource.certificate(.init(bytes: certificateBytes, format: .pem))
-            return .tls { configuration in
-                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-                configuration.certificateVerification = .noHostnameVerification
-                configuration.certificateChain = [certificate]
-            }
-        }
-
-        /// Creates a new configuration for APNSwift with a PEM key and certificate
-        ///
-        /// Passhprase Generation:
-        ///
-        ///     let pwdCallback: NIOSSLPassphraseCallback = { callback in
-        ///         callback("Your password here".utf8)
-        ///     }
-        ///
-        /// - Note:
-        ///   You should only be using this constructor if you are sending a push due to a PassKit pass update.
-        ///   For all other types of push notifications, please switch to the newer `.p8` file format.
-        /// - Parameters:
-        ///   - keyBytes: The private key bytes
-        ///   - certificateBytes: The certificate bytes in PEM format
-        ///   - passphraseCallback: The callback which will generate the password for the keyfile.
-        public static func tls<T>(
-            keyBytes: [UInt8],
-            certificateBytes: [UInt8],
-            passphraseCallback: @escaping NIOSSLPassphraseCallback<T>
-        ) throws -> Self
-            where T: Collection, T.Element == UInt8
-        {
-            let key = try NIOSSLPrivateKey(bytes: keyBytes, format: .pem, passphraseCallback: passphraseCallback)
-            let certificate = try NIOSSLCertificateSource.certificate(.init(bytes: certificateBytes, format: .pem))
-            return .tls { configuration in
-                configuration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
-                configuration.certificateVerification = .noHostnameVerification
-                configuration.certificateChain = [certificate]
-            }
-        }
-
         case jwt(JWTSigners, teamIdentifier: String, keyIdentifier: String)
-        case tls((inout TLSConfiguration) -> ())
     }
 
     public func makeBearerTokenFactory() -> APNSwiftBearerTokenFactory? {
@@ -175,8 +47,6 @@ public struct APNSwiftConfiguration {
                 keyIdentifier: keyIdentifier,
                 logger: self.logger
             )
-        case .tls:
-            return nil
         }
     }
 
