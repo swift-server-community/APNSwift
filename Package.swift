@@ -4,8 +4,8 @@ import PackageDescription
 let package = Package(
     name: "apnswift",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
+        .macOS(.v12),
+        .iOS(.v15),
     ],
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
