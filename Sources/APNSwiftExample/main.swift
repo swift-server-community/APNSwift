@@ -73,6 +73,8 @@ let dt = "80745890ac499fa0c61c2348b56cdf735343963e085dd2283fb48a9fa56b0527759ed7
 let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
 let apnsProd = APNSwiftConnection(configuration: apnsProdConfig, logger: logger)
 let expiry = Date().addingTimeInterval(5)
+let dispatchGroup = DispatchGroup()
+dispatchGroup.enter()
 Task {
     do {
         try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
@@ -82,10 +84,12 @@ Task {
         try await apnsProd.send(aps, to: dt, on: .sandbox)
         try await httpClient.shutdown()
         try! group.syncShutdownGracefully()
-        exit(0)
+        dispatchGroup.leave()
+
     } catch {
         print(error)
+        dispatchGroup.leave()
     }
 }
-/// Dont use in production, just here to wait for task to complete
-sleep(5)
+let _ = dispatchGroup.wait(timeout: .now() + 5)
+exit(0)
