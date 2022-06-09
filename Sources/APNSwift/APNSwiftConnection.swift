@@ -16,6 +16,7 @@ import AsyncHTTPClient
 import Foundation
 import Logging
 import NIOCore
+import NIOFoundationCompat
 
 public final class APNSwiftConnection: APNSwiftClient {
 
@@ -92,7 +93,8 @@ public final class APNSwiftConnection: APNSwiftClient {
 
         let response = try await configuration.httpClient.execute(request, timeout: configuration.timeout ?? .seconds(30))
         if response.status != .ok {
-            let body = try await response.body.collect(upTo: 1024 * 1024) // 1 MB
+            let body = try await response.body.collect(upTo: 1024 * 1024)
+
             let error = try jsonDecoder.decode(APNSwiftError.ResponseStruct.self, from: body)
             logger?.warning("Response - bad request \(error.reason)")
             throw APNSwiftError.ResponseError.badRequest(error.reason)
