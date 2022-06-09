@@ -15,16 +15,16 @@
 import JWTKit
 import Foundation
 import Logging
-import NIO
+import NIOCore
 
 public final actor APNSwiftBearerTokenFactory {
 
     private var cachedBearerToken: String?
     public var currentBearerToken: String? {
 
-        guard !isLastTokenGenerationDateStale, let cachedBearerToken = cachedBearerToken else {
+        guard !isTokenStale, let cachedBearerToken = cachedBearerToken else {
             do {
-                lastTokenGenerationDate = Date()
+                tokenCreated = NIODeadline.now()
                 let newToken = try makeNewBearerToken(
                     signers: signers,
                     teamIdentifier: teamIdentifier,
@@ -40,24 +40,19 @@ public final actor APNSwiftBearerTokenFactory {
         }
 
         logger?.debug("returning cached token \(cachedBearerToken.prefix(8))...")
-        lastTokenGenerationDate = Date.distantPast
+        tokenCreated = NIODeadline.now() - TimeAmount.minutes(59)
         return cachedBearerToken
     }
 
-    private var isLastTokenGenerationDateStale: Bool {
-        let components = Calendar.current.dateComponents(
-            [.minute],
-            from: lastTokenGenerationDate,
-            to: Date()
-        )
-        return components.minute ?? 0 > 55
+    private var isTokenStale: Bool {
+        NIODeadline.now() - tokenCreated > TimeAmount.minutes(55)
     }
 
     private var signers: JWTSigners
     private var teamIdentifier: String
     private var keyIdentifier: String
     private var logger: Logger?
-    private var lastTokenGenerationDate: Date = .distantPast
+    private var tokenCreated: NIODeadline = NIODeadline.now()
 
     init(
         signers: JWTSigners,
