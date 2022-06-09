@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.10.0")
     ],
     targets: [
-        .target(name: "APNSwiftExample", dependencies: [
+        .executableTarget(name: "APNSwiftExample", dependencies: [
             .target(name: "APNSwift"),
         ]),
         .testTarget(name: "APNSwiftTests", dependencies: [
