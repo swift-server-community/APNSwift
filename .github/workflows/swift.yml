@@ -2,14 +2,14 @@ name: test
 on:
 - pull_request
 jobs:
-  xenial-5-2:
+  xenial-5-6:
     container:
       image: vapor/swift:5.6-xenial
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery
-  bionic-5-2:
+  bionic-5-6:
     container:
       image: vapor/swift:5.6-bionic
     runs-on: ubuntu-latest
