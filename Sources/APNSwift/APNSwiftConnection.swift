@@ -12,151 +12,30 @@
 //
 //===----------------------------------------------------------------------===//
 
+import AsyncHTTPClient
 import Foundation
-import NIO
-import NIOHTTP2
-import NIOSSL
-import NIOTLS
 import Logging
-
-private final class WaitForTLSUpHandler: ChannelInboundHandler {
-    typealias InboundIn = Never
-
-    struct TLSNegotiationError: Error {
-        var wrongProtocolNegotiated: String?
-    }
-
-    private let allDonePromise: EventLoopPromise<Void>
-
-    init(allDonePromise: EventLoopPromise<Void>) {
-        self.allDonePromise = allDonePromise
-    }
-
-    func errorCaught(context: ChannelHandlerContext, error: Error) {
-        // this is an unknown error, this is unexpected, let's fail everything and close the connection.
-        self.allDonePromise.fail(error)
-        context.close(promise: nil)
-    }
-
-    func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
-        if let event = event as? TLSUserEvent {
-            switch event {
-            case .handshakeCompleted(negotiatedProtocol: "h2"):
-                self.allDonePromise.succeed(())
-            case .handshakeCompleted(negotiatedProtocol: let proto):
-                self.allDonePromise.fail(TLSNegotiationError(wrongProtocolNegotiated: proto))
-                context.close(promise: nil)
-            case .shutdownCompleted:
-                context.fireUserInboundEventTriggered(event)
-            }
-        } else {
-            context.fireUserInboundEventTriggered(event)
-        }
-    }
-
-    func channelInactive(context: ChannelHandlerContext) {
-        // there's always the possibility that we just get a close which we need to handle.
-        self.allDonePromise.fail(ChannelError.eof)
-    }
-}
+import NIOCore
+import NIOFoundationCompat
 
 public final class APNSwiftConnection: APNSwiftClient {
-    /// APNSwift Connect method. Used to establish a connection with Apple Push Notification service.
-    ///
-    /// Usage example:
-    ///
-    ///     let signer = try! APNSwiftSigner(filePath: "/Users/kylebrowning/Downloads/AuthKey_9UC9ZLQ8YW.p8")
-    ///
-    ///     let apnsConfig = APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-    ///     teamIdentifier: "ABBM6U9RM5",
-    ///     signer: signer,
-    ///     topic: "com.grasscove.Fern",
-    ///     environment: .sandbox)
-    ///
-    ///     let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-    ///
-    /// - Parameters:
-    ///     - configuration: APNSwiftConfiguration struct.
-    ///     - eventLoop: eventLoop to open the connection on.
-    public static func connect(
-        configuration: APNSwiftConfiguration,
-        on eventLoop: EventLoop,
-        logger: Logger? = nil
-    ) -> EventLoopFuture<APNSwiftConnection> {
-        struct UnsupportedServerPushError: Error {}
 
-        let logger = logger ?? configuration.logger
-        logger?.debug("Connection - starting")
-        var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
-        tlsConfiguration.applicationProtocols = ["h2"]
-        switch configuration.authenticationMethod {
-        case .jwt: break
-        case .tls(let configure):
-            configure(&tlsConfiguration)
-        }
-        let sslContext: NIOSSLContext
-        do {
-            sslContext = try NIOSSLContext(configuration: tlsConfiguration)
-        } catch {
-            return eventLoop.makeFailedFuture(error)
-        }
-        let connectionFullyUpPromise = eventLoop.makePromise(of: Void.self)
-        let tcpConnection = ClientBootstrap(group: eventLoop).connect(host: configuration.url.host!, port: 443)
-        tcpConnection.cascadeFailure(to: connectionFullyUpPromise)
-        return tcpConnection.flatMap { channel in
-            let sslHandler: NIOSSLClientHandler
-            do {
-                sslHandler = try NIOSSLClientHandler(
-                    context: sslContext,
-                    serverHostname: configuration.url.host
-                )
-            } catch {
-                return channel.eventLoop.makeFailedFuture(error)
-            }
-            return channel.pipeline.addHandlers([
-                sslHandler,
-                WaitForTLSUpHandler(allDonePromise: connectionFullyUpPromise)
-            ]).flatMap {
-                channel.configureHTTP2Pipeline(mode: .client) { channel in
-                    let error = UnsupportedServerPushError()
-                    logger?.warning("Connection - failed \(error)")
-                    return channel.eventLoop.makeFailedFuture(error)
-                }.flatMap { multiplexer in
-                    return connectionFullyUpPromise.futureResult.map { () -> APNSwiftConnection in
-                        logger?.debug("Connection - bringing up")
-                        return APNSwiftConnection(
-                            channel: channel,
-                            multiplexer: multiplexer,
-                            configuration: configuration,
-                            logger: logger
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    public var eventLoop: EventLoop {
-        return self.channel.eventLoop
-    }
-    public let multiplexer: HTTP2StreamMultiplexer
-    public let channel: Channel
-    public let configuration: APNSwiftConfiguration
-    private var bearerTokenFactory: APNSwiftBearerTokenFactory?
+    private let configuration: APNSwiftConfiguration
+    private let bearerTokenFactory: APNSwiftBearerTokenFactory
     public var logger: Logger?
 
-    private init(
-        channel: Channel,
-        multiplexer: HTTP2StreamMultiplexer,
+    private let jsonDecoder = JSONDecoder()
+
+    public init(
         configuration: APNSwiftConfiguration,
         logger: Logger? = nil
     ) {
-        self.channel = channel
-        self.multiplexer = multiplexer
         self.configuration = configuration
         self.logger = logger
-        logger?.info("Connection - up")
-        self.bearerTokenFactory = configuration.makeBearerTokenFactory(on: channel.eventLoop)
+        self.bearerTokenFactory = APNSwiftBearerTokenFactory(
+            authenticationConfig: configuration.authenticationConfig,
+            logger: logger
+        )
     }
 
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
@@ -165,91 +44,77 @@ public final class APNSwiftConnection: APNSwiftClient {
         rawBytes payload: ByteBuffer,
         pushType: APNSwiftConnection.PushType,
         to deviceToken: String,
+        on environment: APNSwiftConfiguration.Environment?,
         expiration: Date?,
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
         logger: Logger?,
         apnsID: UUID?
-    ) -> EventLoopFuture<Void> {
+    ) async throws {
         let logger = logger ?? self.configuration.logger
-        logger?.debug("Send - starting up")
-        let streamPromise = self.channel.eventLoop.makePromise(of: Channel.self)
-        self.multiplexer.createStreamChannel(promise: streamPromise) { channel in
-            let handlers: [ChannelHandler] = [
-                HTTP2FramePayloadToHTTP1ClientCodec(httpProtocol: .https),
-                APNSwiftRequestEncoder(
-                    deviceToken: deviceToken,
-                    configuration: self.configuration,
-                    bearerToken: self.bearerTokenFactory?.currentBearerToken,
-                    pushType: pushType,
-                    expiration: expiration,
-                    priority: priority,
-                    collapseIdentifier: collapseIdentifier,
-                    topic: topic,
-                    logger: logger,
-                    apnsID: apnsID
-                ),
-                APNSwiftResponseDecoder(),
-                APNSwiftStreamHandler(logger: logger)
-            ]
-            return channel.pipeline.addHandlers(handlers)
-        }
-
-        let responsePromise = self.channel.eventLoop.makePromise(of: Void.self)
-        let context = APNSwiftRequestContext(
-            request: payload,
-            responsePromise: responsePromise
+        logger?.debug(
+            "Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)"
         )
-        streamPromise.futureResult.cascadeFailure(to: responsePromise)
-        
-        let timeoutPromise = self.channel.eventLoop.makePromise(of: Void.self)
-        responsePromise.futureResult.cascade(to: timeoutPromise)
-        timeoutPromise.futureResult.cascadeFailure(to: responsePromise)
-        var timeoutTask: Scheduled<Any>? = nil
-        let timeoutTime = configuration.timeout
-        
-        return streamPromise.futureResult
-            .flatMap { stream in
-                logger?.info("Send - sending")
-                if let timeoutTime = timeoutTime {
-                    timeoutTask = stream.eventLoop.scheduleTask(in: timeoutTime) {
-                        logger?.warning("Send - sending - failed - No response was received within the timeout.")
-                        return timeoutPromise.fail(NoResponseWithinTimeoutError())
-                    }
-                } else {
-                    timeoutPromise.succeed(())
-                }
-                
-                return stream.writeAndFlush(context).flatMapErrorThrowing { error in
-                    logger?.info("Send - sending - failed - \(error)")
-                    responsePromise.fail(error)
-                    throw error
-                }
-            }
-            .flatMap {
-                responsePromise
-                    .futureResult
-                    .and(timeoutPromise.futureResult)
-                    .map { _ in () }
-            }
-            .always { _ in
-                timeoutTask?.cancel()
-            }
-    }
-    
-    var onClose: EventLoopFuture<Void> {
-        logger?.debug("Connection - closed")
-        return self.channel.closeFuture
-    }
-
-    public func close() -> EventLoopFuture<Void> {
-        logger?.debug("Connection - closing")
-        self.channel.eventLoop.execute {
-            self.logger?.debug("Connection - killing bearerToken")
-            self.bearerTokenFactory?.cancel()
-            self.bearerTokenFactory = nil
+        var urlBase: String
+        if let overriddenEnvironment = environment {
+            urlBase = overriddenEnvironment.url.absoluteString
+        } else {
+            urlBase = configuration.environment.url.absoluteString
         }
-        return self.channel.close(mode: .all)
+        var request = HTTPClientRequest(url: "\(urlBase)/3/device/\(deviceToken)")
+        request.method = .POST
+        request.headers.add(name: "content-type", value: "application/json")
+        request.headers.add(name: "user-agent", value: "APNS/swift-nio")
+        request.headers.add(name: "content-length", value: "\(payload.readableBytes)")
+
+        if let notificationSpecificTopic = topic {
+            request.headers.add(name: "apns-topic", value: notificationSpecificTopic)
+        } else {
+            request.headers.add(name: "apns-topic", value: configuration.topic)
+        }
+
+        if let priority = priority {
+            request.headers.add(name: "apns-priority", value: String(priority))
+        }
+        if let epochTime = expiration?.timeIntervalSince1970 {
+            request.headers.add(name: "apns-expiration", value: String(Int(epochTime)))
+        }
+        if let collapseId = collapseIdentifier {
+            request.headers.add(name: "apns-collapse-id", value: collapseId)
+        }
+        request.headers.add(name: "apns-push-type", value: pushType.rawValue)
+        request.headers.add(name: "host", value: urlBase)
+
+        // Only use token auth if bearer token is present.
+        if let bearerToken = await bearerTokenFactory.currentBearerToken {
+            request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
+        }
+        if let apnsID = apnsID {
+            request.headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
+        }
+
+        request.body = .bytes(payload)
+
+        let response = try await configuration.httpClient.execute(
+            request, timeout: configuration.timeout ?? .seconds(30))
+        if response.status != .ok {
+            let body = try await response.body.collect(upTo: 1024 * 1024)
+
+            let error = try jsonDecoder.decode(APNSwiftError.ResponseStruct.self, from: body)
+            logger?.warning("Response - bad request \(error.reason)")
+            throw APNSwiftError.ResponseError.badRequest(error.reason)
+        }
+    }
+}
+
+extension APNSwiftConnection {
+    public enum PushType: String {
+        case alert
+        case background
+        case mdm
+        case voip
+        case fileprovider
+        case complication
     }
 }

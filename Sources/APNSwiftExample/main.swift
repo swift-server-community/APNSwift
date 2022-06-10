@@ -13,35 +13,40 @@
 //===----------------------------------------------------------------------===//
 
 import APNSwift
+import AsyncHTTPClient
 import Foundation
 import Logging
 import NIO
-import NIOHTTP1
-import NIOHTTP2
-import NIOSSL
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-var verbose = true
 
-// optional
+/// optional
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
-let apnsConfig = try APNSwiftConfiguration(
-    authenticationMethod: .jwt(
-        key: .private(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
-        keyIdentifier: "9UC9ZLQ8YW",
-        teamIdentifier: "ABBM6U9RM5"
-    ),
+
+let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
+
+let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+    privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
+    teamIdentifier: "ABBM6U9RM5",
+    keyIdentifier: "9UC9ZLQ8YW"
+)
+
+let apnsConfig = APNSwiftConfiguration(
+    httpClient: httpClient,
+    authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
     logger: logger
 )
 
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
-
-if verbose {
-    print("* Connected to \(apnsConfig.url.host!) (\(apns.channel.remoteAddress!)")
-}
+let apnsProdConfig = APNSwiftConfiguration(
+    httpClient: httpClient,
+    authenticationConfig: authenticationConfig,
+    topic: "com.grasscove.Fern",
+    environment: .production,
+    logger: logger
+)
 
 struct AcmeNotification: APNSwiftNotification {
     let acme2: [String]
@@ -55,23 +60,35 @@ struct AcmeNotification: APNSwiftNotification {
 
 let alert = APNSwiftAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
 let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
-let aps = APNSwiftPayload(alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
-let temp = try! JSONEncoder().encode(aps)
-let string = String(bytes: temp, encoding: .utf8)
+let aps = APNSwiftPayload(
+    alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
+
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
-do {
-    let expiry = Date().addingTimeInterval(5)
-    for _ in 1...5 {
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-        try apns.send(notification, pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D", expiration: expiry, priority: 10).wait()
-    }
-} catch {
-    print(error)
-}
+let dt =
+    "80745890ac499fa0c61c2348b56cdf735343963e085dd2283fb48a9fa56b0527759ed783ae6278f4f09aa3c4cc9d5b9f5ac845c3648e655183e2318404bc254ffcd1eea427ad528c3d0b253770422a80"
+let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
+let apnsProd = APNSwiftConnection(configuration: apnsProdConfig, logger: logger)
+let expiry = Date().addingTimeInterval(5)
+let dispatchGroup = DispatchGroup()
+dispatchGroup.enter()
+Task {
+    do {
+        try await apns.send(notification, pushType: .alert, to: dt)
+        try await apns.send(
+            notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+        try await apns.send(
+            notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+        /// Overriden environment
+        try await apnsProd.send(aps, to: dt, on: .sandbox)
+        try await httpClient.shutdown()
+        try! group.syncShutdownGracefully()
+        dispatchGroup.leave()
 
-try apns.close().wait()
-try group.syncShutdownGracefully()
+    } catch {
+        print(error)
+        dispatchGroup.leave()
+    }
+}
+let _ = dispatchGroup.wait(timeout: .now() + 5)
 exit(0)

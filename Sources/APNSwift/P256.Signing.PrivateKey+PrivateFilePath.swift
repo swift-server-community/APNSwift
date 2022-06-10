@@ -12,15 +12,21 @@
 //
 //===----------------------------------------------------------------------===//
 
-import JWTKit
+import Crypto
 import Foundation
 import NIO
 
-extension ECDSAKey {
-    public static func `private`(filePath: String) throws -> ECDSAKey {
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else {
+extension P256.Signing.PrivateKey {
+    public static func loadFrom(filePath: String) throws -> P256.Signing.PrivateKey {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)),
+            let pemString = String(data: data, encoding: .utf8)
+        else {
             throw APNSwiftError.SigningError.certificateFileDoesNotExist
         }
-        return try .private(pem: data)
+        return try loadFrom(string: pemString)
+    }
+
+    public static func loadFrom(string: String) throws -> P256.Signing.PrivateKey {
+        try .init(pemRepresentation: string)
     }
 }

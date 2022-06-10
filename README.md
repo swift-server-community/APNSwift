@@ -13,7 +13,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kylebrowning/APNSwift.git", .upToNextMinor(from: "1.3.0"))
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0"),
 ]
 ```
 
@@ -23,25 +23,37 @@ dependencies: [
 struct BasicNotification: APNSwiftNotification {
     let aps: APNSwiftPayload
 }
+
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
+
+/// Create your HTTPClient (or pass in one you already have)
+let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
+
+/// Create your `AuthentictionConfig`
+let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+    privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
+    teamIdentifier: "ABBM6U9RM5",
+    keyIdentifier: "9UC9ZLQ8YW"
+)
+
+/// If you need to use an a secrets manager instead of read from disk, use
+/// `loadfrom(string:)`
+
 let apnsConfig = try APNSwiftConfiguration(
-    authenticationMethod: .jwt(
-        key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
-        keyIdentifier: "9UC9ZLQ8YW",
-        teamIdentifier: "ABBM6U9RM5"
-    ),
+    authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
     logger: logger
 )
+let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
 
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
 let aps = APNSwiftPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
-try apns.send(BasicNotification(aps: aps), pushType: .alert, to: "98AAD4A2398DDC58595F02FA307DF9A15C18B6111D1B806949549085A8E6A55D").wait()
-try apns.close().wait()
-try group.syncShutdownGracefully()
+let deviceToken = "myDeviceToken"
+try await apns.send(notification, pushType: .alert, to: deviceToken)
+try await httpClient.shutdown()
+try! group.syncShutdownGracefully()
 exit(0)
 ```
 
@@ -51,35 +63,33 @@ exit(0)
 
 ```swift
 let apnsConfig = try APNSwiftConfiguration(
-    authenticationMethod: .jwt(
-        key: .private(filePath: "/Users/kylebrowning/Desktop/AuthKey_9UC9ZLQ8YW.p8"),
-        keyIdentifier: "9UC9ZLQ8YW",
-        teamIdentifier: "ABBM6U9RM5"
-    ),
+    authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
     logger: logger
 )
 ```
-#### Example `APNSwiftConfiguration`
+
+#### APNSwiftConfiguration.Authentication
+[`APNSwiftConfiguration.Authentication`](https://github.com/swift-server-community/APNSwift/blob/master/Sources/APNSwift/APNSwiftConfiguration.swift#L26) is a struct that provides authentication keys and metadata to the signer.
+
+
 ```swift
-let signer = ...
-let apnsConfig = try APNSwiftConfiguration(keyIdentifier: "9UC9ZLQ8YW",
-                                   teamIdentifier: "ABBM6U9RM5",
-                                   signer: signer),
-                                   topic: "com.grasscove.Fern",
-                                   environment: .sandbox)
+let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+    privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
+    teamIdentifier: "ABBM6U9RM5",
+    keyIdentifier: "9UC9ZLQ8YW"
+)
 ```
 
 ### APNSwiftConnection
 
-[`APNSwiftConnection`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConnection.swift) is a class with methods thats provides a wrapper to NIO's ClientBootstrap. The `swift-nio-http2` dependency is utilized here. It also provides a function to send a notification to a specific device token string.
+[`APNSwiftConnection`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConnection.swift) provides functions to send a notification to a specific device token string.
 
 
 #### Example `APNSwiftConnection`
 ```swift
-let apnsConfig = ...
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
 ```
 
 ### APNSwiftAlert
@@ -122,22 +132,7 @@ struct AcmeNotification: APNSwiftNotification {
 let apns: APNSwiftConnection: = ...
 let aps: APNSwiftPayload = ...
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e").wait()
-```
-
-### Using PEM instead of P8
-#### Note: this is blocking
-```swift
-
-var apnsConfig = try APNSwiftConfiguration(
-    authenticationMethod: .tls(
-        privateKeyPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pkey",
-        pemPath: "/Users/kylebrowning/Projects/swift/Fern/development_com.grasscove.Fern.pem"
-    ),
-    topic: "com.grasscove.Fern",
-    environment: .sandbox
-)
-let apns = try APNSwiftConnection.connect(configuration: apnsConfig, on: group.next()).wait()
+let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e")
 ```
 
 ### Need a completely custom arbtirary payload and dont like being typecast?
