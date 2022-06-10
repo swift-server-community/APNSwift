@@ -16,9 +16,7 @@ import AsyncHTTPClient
 import Crypto
 import Foundation
 import Logging
-import NIO
-import NIOHTTP2
-import NIOSSL
+import NIOCore
 
 /// This is structure that provides the system with common configuration.
 public struct APNSwiftConfiguration {
