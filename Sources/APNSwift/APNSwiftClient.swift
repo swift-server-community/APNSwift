@@ -34,16 +34,7 @@ public protocol APNSwiftClient {
 }
 
 extension APNSwiftClient {
-    private func logger(from loggerConfig: LoggerConfig) -> Logger? {
-        switch loggerConfig {
-        case .none:
-            return nil
-        case .clientLogger:
-            return self.logger
-        case .custom(let customLogger):
-            return customLogger
-        }
-    }
+
     /**
      APNSwiftConnection send method. Sends a notification to the desired deviceToken.
      - Parameter payload: the alert to send.
@@ -246,10 +237,4 @@ extension APNSwiftClient {
 
 private struct BasicNotification: APNSwiftNotification {
     let aps: APNSwiftPayload
-}
-
-public enum LoggerConfig {
-    case none
-    case clientLogger
-    case custom(Logger)
 }

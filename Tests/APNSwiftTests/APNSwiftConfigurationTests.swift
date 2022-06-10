@@ -23,14 +23,16 @@ class APNSwiftConfigurationTests: XCTestCase {
     let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
 
     func configuration(environment: APNSwiftConfiguration.Environment) throws {
+        let privateKey: APNSwiftConfiguration.APNSPrivateKey = try .loadFrom(string: appleECP8PrivateKey)
+        let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+            privateKey: privateKey,
+            teamIdentifier: "MY_TEAM_ID",
+            keyIdentifier: "MY_KEY_ID"
+        )
 
-        let apnsConfiguration = try APNSwiftConfiguration(
+        let apnsConfiguration = APNSwiftConfiguration(
             httpClient: httpClient,
-            authenticationMethod: .jwt(
-                key: .private(pem: Data(appleECP8PrivateKey.utf8)),
-                keyIdentifier: "MY_KEY_ID",
-                teamIdentifier: "MY_TEAM_ID"
-            ),
+            authenticationConfig: authenticationConfig,
             topic: "MY_TOPIC",
             environment: environment,
             timeout: .seconds(5)
@@ -43,12 +45,11 @@ class APNSwiftConfigurationTests: XCTestCase {
             XCTAssertEqual(apnsConfiguration.environment.url, URL(string: "https://api.development.push.apple.com"))
         }
 
-        switch apnsConfiguration.authenticationMethod {
-        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
-            XCTAssertNotNil(signers.get(kid: "MY_KEY_ID"))
-            XCTAssertEqual(teamIdentifier, "MY_TEAM_ID")
-            XCTAssertEqual(keyIdentifier, "MY_KEY_ID")
-        }
+        let loadedKey: APNSwiftConfiguration.APNSPrivateKey = try .loadFrom(string: appleECP8PrivateKey)
+        XCTAssertEqual(loadedKey.rawRepresentation, authenticationConfig.privateKey.rawRepresentation)
+        XCTAssertEqual("MY_KEY_ID", authenticationConfig.keyIdentifier)
+        XCTAssertEqual("MY_TEAM_ID", authenticationConfig.teamIdentifier)
+
         XCTAssertEqual(apnsConfiguration.topic, "MY_TOPIC")
         XCTAssertEqual(apnsConfiguration.timeout, .seconds(5))
 

@@ -27,31 +27,30 @@ var verbose = true
 // optional
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
+
 let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
-let apnsConfig = try APNSwiftConfiguration(
+
+let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+    privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
+    teamIdentifier: "ABBM6U9RM5",
+    keyIdentifier: "9UC9ZLQ8YW"
+)
+
+let apnsConfig = APNSwiftConfiguration(
     httpClient: httpClient,
-    authenticationMethod: .jwt(
-        key: .private(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
-        keyIdentifier: "9UC9ZLQ8YW",
-        teamIdentifier: "ABBM6U9RM5"
-    ),
+    authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
     logger: logger
 )
 
-let apnsProdConfig = try APNSwiftConfiguration(
+let apnsProdConfig = APNSwiftConfiguration(
     httpClient: httpClient,
-    authenticationMethod: .jwt(
-        key: .private(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
-        keyIdentifier: "9UC9ZLQ8YW",
-        teamIdentifier: "ABBM6U9RM5"
-    ),
+    authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .production,
     logger: logger
 )
-
 
 struct AcmeNotification: APNSwiftNotification {
     let acme2: [String]

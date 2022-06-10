@@ -32,7 +32,10 @@ public final class APNSwiftConnection: APNSwiftClient {
     ) {
         self.configuration = configuration
         self.logger = logger
-        self.bearerTokenFactory = configuration.makeBearerTokenFactory()
+        self.bearerTokenFactory = APNSwiftBearerTokenFactory(
+            authenticationConfig: configuration.authenticationConfig,
+            logger: logger
+        )
     }
 
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.

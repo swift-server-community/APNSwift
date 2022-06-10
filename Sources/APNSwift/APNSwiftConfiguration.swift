@@ -13,53 +13,44 @@
 //===----------------------------------------------------------------------===//
 
 import AsyncHTTPClient
+import Crypto
 import Foundation
 import Logging
 import NIO
 import NIOHTTP2
 import NIOSSL
-import JWTKit
 
 /// This is structure that provides the system with common configuration.
 public struct APNSwiftConfiguration {
-    public var authenticationMethod: AuthenticationMethod
+    public typealias APNSPrivateKey = P256.Signing.PrivateKey
+    public var authenticationConfig: Authentication
 
-    public enum AuthenticationMethod {
-        public static func jwt(
-            key: ECDSAKey,
-            keyIdentifier: JWKIdentifier,
-            teamIdentifier: String
-        ) -> Self {
-            let signers = JWTSigners()
-            signers.use(.es256(key: key), kid: keyIdentifier, isDefault: true)
-            return .jwt(signers, teamIdentifier: teamIdentifier, keyIdentifier: keyIdentifier.string)
+    public struct Authentication {
+        public init(
+            privateKey: APNSwiftConfiguration.APNSPrivateKey,
+            teamIdentifier: String,
+            keyIdentifier: String
+        ) {
+            self.privateKey = privateKey
+            self.teamIdentifier = teamIdentifier
+            self.keyIdentifier = keyIdentifier
         }
 
-        case jwt(JWTSigners, teamIdentifier: String, keyIdentifier: String)
+        let privateKey: APNSPrivateKey
+        let teamIdentifier: String
+        let keyIdentifier: String
     }
 
-    public func makeBearerTokenFactory() -> APNSwiftBearerTokenFactory? {
-        switch self.authenticationMethod {
-        case .jwt(let signers, let teamIdentifier, let keyIdentifier):
-            return .init(
-                signers: signers,
-                teamIdentifier: teamIdentifier,
-                keyIdentifier: keyIdentifier,
-                logger: self.logger
-            )
-        }
-    }
-
-    public var httpClient: HTTPClient
-    public var topic: String
-    public var environment: Environment
-    public var logger: Logger?
+    internal let httpClient: HTTPClient
+    internal let topic: String
+    internal let environment: Environment
+    internal let logger: Logger?
     /// Optional timeout time if the connection does not receive a response.
-    public var timeout: TimeAmount? = nil
+    internal let timeout: TimeAmount?
 
     public init(
         httpClient: HTTPClient,
-        authenticationMethod: AuthenticationMethod,
+        authenticationConfig: APNSwiftConfiguration.Authentication,
         topic: String,
         environment: APNSwiftConfiguration.Environment,
         logger: Logger? = nil,
@@ -67,7 +58,7 @@ public struct APNSwiftConfiguration {
     ) {
         self.httpClient = httpClient
         self.topic = topic
-        self.authenticationMethod = authenticationMethod
+        self.authenticationConfig = authenticationConfig
         self.environment = environment
         self.timeout = timeout
         self.logger = logger

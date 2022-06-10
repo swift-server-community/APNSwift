@@ -12,24 +12,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-import JWTKit
-import Foundation
+import Crypto
 import Logging
 import NIOCore
 
-public final actor APNSwiftBearerTokenFactory {
+internal final actor APNSwiftBearerTokenFactory {
 
     private var cachedBearerToken: String?
-    public var currentBearerToken: String? {
+    internal var currentBearerToken: String? {
 
         guard !isTokenStale, let cachedBearerToken = cachedBearerToken else {
             do {
                 tokenCreated = NIODeadline.now()
                 let newToken = try makeNewBearerToken(
-                    signers: signers,
-                    teamIdentifier: teamIdentifier,
-                    keyIdentifier: .init(string: keyIdentifier)
-                )
+        )
                 cachedBearerToken = newToken
                 return newToken
             } catch {
@@ -47,35 +43,24 @@ public final actor APNSwiftBearerTokenFactory {
         NIODeadline.now() - tokenCreated > TimeAmount.minutes(55)
     }
 
-    private var signers: JWTSigners
-    private var teamIdentifier: String
-    private var keyIdentifier: String
+    private var signer: APNSwiftSigner
     private var logger: Logger?
     private var tokenCreated: NIODeadline = NIODeadline.now()
 
-    init(
-        signers: JWTSigners,
-        teamIdentifier: String,
-        keyIdentifier: String,
+    internal init(
+        authenticationConfig: APNSwiftConfiguration.Authentication,
         logger: Logger? = nil
     ) {
-        self.signers = signers
-        self.teamIdentifier = teamIdentifier
-        self.keyIdentifier = keyIdentifier
+        self.signer = APNSwiftSigner(
+            privateKey: authenticationConfig.privateKey,
+            teamIdentifier: authenticationConfig.teamIdentifier,
+            keyIdentifier: authenticationConfig.keyIdentifier
+        )
         self.logger = logger
     }
 
-    private func makeNewBearerToken(
-        signers: JWTSigners,
-        teamIdentifier: String,
-        keyIdentifier: JWKIdentifier
-    ) throws -> String {
-        let payload = APNSwiftJWTPayload(
-            teamID: teamIdentifier,
-            keyID: keyIdentifier,
-            issueDate: Date()
-        )
-        let newToken = try signers.sign(payload, kid: keyIdentifier)
+    private func makeNewBearerToken() throws -> String {
+        let newToken = try signer.sign()
         logger?.debug("Creating a new APNS token \(newToken.prefix(8))...")
         return newToken
     }
