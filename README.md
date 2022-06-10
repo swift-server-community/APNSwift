@@ -31,7 +31,7 @@ logger.logLevel = .debug
 /// Create your HTTPClient (or pass in one you already have)
 let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
 
-/// Create your `AuthentictionConfig`
+/// Create your `APNSwiftConfiguration.Authentication`
 let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
     teamIdentifier: "ABBM6U9RM5",
