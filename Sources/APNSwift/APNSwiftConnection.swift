@@ -20,7 +20,7 @@ import NIOFoundationCompat
 
 public final class APNSwiftConnection: APNSwiftClient {
 
-    public let configuration: APNSwiftConfiguration
+    private let configuration: APNSwiftConfiguration
     private let bearerTokenFactory: APNSwiftBearerTokenFactory
     public var logger: Logger?
 

@@ -21,7 +21,7 @@ import NIOCore
 /// This is structure that provides the system with common configuration.
 public struct APNSwiftConfiguration {
     public typealias APNSPrivateKey = P256.Signing.PrivateKey
-    public var authenticationConfig: Authentication
+    internal var authenticationConfig: Authentication
 
     public struct Authentication {
         public init(
@@ -34,9 +34,9 @@ public struct APNSwiftConfiguration {
             self.keyIdentifier = keyIdentifier
         }
 
-        let privateKey: APNSPrivateKey
-        let teamIdentifier: String
-        let keyIdentifier: String
+        internal let privateKey: APNSPrivateKey
+        internal let teamIdentifier: String
+        internal let keyIdentifier: String
     }
 
     internal let httpClient: HTTPClient
