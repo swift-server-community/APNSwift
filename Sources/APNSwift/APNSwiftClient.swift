@@ -105,7 +105,7 @@ extension APNSwiftClient {
      */
     public func send(
         _ payload: APNSwiftPayload,
-                     pushType: APNSwiftConnection.PushType = .alert,
+        pushType: APNSwiftConnection.PushType = .alert,
         to deviceToken: String,
         on environment: APNSwiftConfiguration.Environment? = nil,
         with encoder: JSONEncoder = JSONEncoder(),
@@ -114,20 +114,21 @@ extension APNSwiftClient {
         collapseIdentifier: String? = nil,
         topic: String? = nil,
         loggerConfig: LoggerConfig = .clientLogger,
-        apnsID: UUID? = nil) async throws {
-            try await self.send(
-                BasicNotification(aps: payload),
-                pushType: pushType,
-                to: deviceToken,
-                on: environment,
-                with: encoder,
-                expiration: expiration,
-                priority: priority,
-                collapseIdentifier: collapseIdentifier,
-                topic: topic,
-                loggerConfig: loggerConfig,
-                apnsID: apnsID
-            )
+        apnsID: UUID? = nil
+    ) async throws {
+        try await self.send(
+            BasicNotification(aps: payload),
+            pushType: pushType,
+            to: deviceToken,
+            on: environment,
+            with: encoder,
+            expiration: expiration,
+            priority: priority,
+            collapseIdentifier: collapseIdentifier,
+            topic: topic,
+            loggerConfig: loggerConfig,
+            apnsID: apnsID
+        )
     }
 
     /**
@@ -190,10 +191,11 @@ extension APNSwiftClient {
         collapseIdentifier: String?,
         topic: String?,
         loggerConfig: LoggerConfig = .clientLogger,
-        apnsID: UUID? = nil) async throws
-    where Bytes : Collection, Bytes.Element == UInt8 {
-            var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
-            buffer.writeBytes(payload)
+        apnsID: UUID? = nil
+    ) async throws
+    where Bytes: Collection, Bytes.Element == UInt8 {
+        var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
+        buffer.writeBytes(payload)
         try await self.send(
             rawBytes: buffer,
             pushType: pushType,

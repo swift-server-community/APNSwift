@@ -37,20 +37,18 @@ public struct APNSwiftPayload: Codable {
         interruptionLevel: String? = nil,
         relevanceScore: Float? = nil
     ) {
-        
+
         self.alert = alert
         self.badge = badge
         self.sound = sound
         if let hasContentAvailable = hasContentAvailable {
             self.contentAvailable = hasContentAvailable ? 1 : 0
-        }
-        else {
+        } else {
             self.contentAvailable = nil
         }
         if let hasMutableContent = hasMutableContent {
             self.mutableContent = hasMutableContent ? 1 : 0
-        }
-        else {
+        } else {
             self.mutableContent = nil
         }
         self.category = category

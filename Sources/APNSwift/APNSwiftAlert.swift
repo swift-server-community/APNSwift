@@ -48,9 +48,11 @@ public struct APNSwiftAlert: Codable {
      let alert = Alert(title: "Hey There", subtitle: "Subtitle", body: "Body")
      ````
      */
-    public init(title: String? = nil, subtitle: String? = nil, body: String? = nil,
-                titleLocKey: String? = nil, titleLocArgs: [String]? = nil, actionLocKey: String? = nil,
-                locKey: String? = nil, locArgs: [String]? = nil, launchImage: String? = nil) {
+    public init(
+        title: String? = nil, subtitle: String? = nil, body: String? = nil,
+        titleLocKey: String? = nil, titleLocArgs: [String]? = nil, actionLocKey: String? = nil,
+        locKey: String? = nil, locArgs: [String]? = nil, launchImage: String? = nil
+    ) {
         self.title = title
         self.subtitle = subtitle
         self.body = body

@@ -53,7 +53,9 @@ public final class APNSwiftConnection: APNSwiftClient {
         apnsID: UUID?
     ) async throws {
         let logger = logger ?? self.configuration.logger
-        logger?.debug("Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)")
+        logger?.debug(
+            "Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)"
+        )
         var urlBase: String
         if let overriddenEnvironment = environment {
             urlBase = overriddenEnvironment.url.absoluteString
@@ -94,7 +96,8 @@ public final class APNSwiftConnection: APNSwiftClient {
 
         request.body = .bytes(payload)
 
-        let response = try await configuration.httpClient.execute(request, timeout: configuration.timeout ?? .seconds(30))
+        let response = try await configuration.httpClient.execute(
+            request, timeout: configuration.timeout ?? .seconds(30))
         if response.status != .ok {
             let body = try await response.body.collect(upTo: 1024 * 1024)
 

@@ -18,7 +18,9 @@ import NIO
 
 extension P256.Signing.PrivateKey {
     public static func loadFrom(filePath: String) throws -> P256.Signing.PrivateKey {
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)), let pemString = String(data: data, encoding: .utf8) else {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)),
+            let pemString = String(data: data, encoding: .utf8)
+        else {
             throw APNSwiftError.SigningError.certificateFileDoesNotExist
         }
         return try loadFrom(string: pemString)

@@ -24,8 +24,7 @@ internal final actor APNSwiftBearerTokenFactory {
         guard !isTokenStale, let cachedBearerToken = cachedBearerToken else {
             do {
                 tokenCreated = NIODeadline.now()
-                let newToken = try makeNewBearerToken(
-        )
+                let newToken = try makeNewBearerToken()
                 cachedBearerToken = newToken
                 return newToken
             } catch {
