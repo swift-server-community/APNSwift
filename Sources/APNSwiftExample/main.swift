@@ -17,14 +17,10 @@ import AsyncHTTPClient
 import Foundation
 import Logging
 import NIO
-import NIOHTTP1
-import NIOHTTP2
-import NIOSSL
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-var verbose = true
 
-// optional
+/// optional
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
 
@@ -76,7 +72,7 @@ let dispatchGroup = DispatchGroup()
 dispatchGroup.enter()
 Task {
     do {
-        try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+        try await apns.send(notification, pushType: .alert, to: dt)
         try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
         try await apns.send(notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
         /// Overriden environment
