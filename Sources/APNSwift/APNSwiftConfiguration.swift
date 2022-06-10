@@ -78,14 +78,3 @@ extension APNSwiftConfiguration {
         }
     }
 }
-
-extension APNSwiftConnection {
-    public enum PushType: String {
-        case alert
-        case background
-        case mdm
-        case voip
-        case fileprovider
-        case complication
-    }
-}

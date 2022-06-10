@@ -62,24 +62,24 @@
 // MARK: - Extensions -
 
 
-public enum Base64 {}
+internal enum Base64 {}
 
 // MARK: - Encoding -
 
 extension Base64 {
-    public struct EncodingOptions: OptionSet {
-        public let rawValue: UInt
-        public init(rawValue: UInt) { self.rawValue = rawValue }
+    internal struct EncodingOptions: OptionSet {
+        internal let rawValue: UInt
+        internal init(rawValue: UInt) { self.rawValue = rawValue }
 
-        public static let base64UrlAlphabet = EncodingOptions(rawValue: UInt(1 << 0))
-        public static let omitPaddingCharacter = EncodingOptions(rawValue: UInt(1 << 1))
+        internal static let base64UrlAlphabet = EncodingOptions(rawValue: UInt(1 << 0))
+        internal static let omitPaddingCharacter = EncodingOptions(rawValue: UInt(1 << 1))
     }
 
     @usableFromInline
     internal static let encodePaddingCharacter: UInt8 = 61
 
     @usableFromInline
-    static let encoding0: [UInt8] = [
+    internal static let encoding0: [UInt8] = [
         UInt8(ascii: "A"), UInt8(ascii: "A"), UInt8(ascii: "A"), UInt8(ascii: "A"), UInt8(ascii: "B"), UInt8(ascii: "B"), UInt8(ascii: "B"), UInt8(ascii: "B"), UInt8(ascii: "C"), UInt8(ascii: "C"),
         UInt8(ascii: "C"), UInt8(ascii: "C"), UInt8(ascii: "D"), UInt8(ascii: "D"), UInt8(ascii: "D"), UInt8(ascii: "D"), UInt8(ascii: "E"), UInt8(ascii: "E"), UInt8(ascii: "E"), UInt8(ascii: "E"),
         UInt8(ascii: "F"), UInt8(ascii: "F"), UInt8(ascii: "F"), UInt8(ascii: "F"), UInt8(ascii: "G"), UInt8(ascii: "G"), UInt8(ascii: "G"), UInt8(ascii: "G"), UInt8(ascii: "H"), UInt8(ascii: "H"),
@@ -109,7 +109,7 @@ extension Base64 {
     ]
 
     @usableFromInline
-    static let encoding1: [UInt8] = [
+    internal static let encoding1: [UInt8] = [
         UInt8(ascii: "A"), UInt8(ascii: "B"), UInt8(ascii: "C"), UInt8(ascii: "D"), UInt8(ascii: "E"), UInt8(ascii: "F"), UInt8(ascii: "G"), UInt8(ascii: "H"), UInt8(ascii: "I"), UInt8(ascii: "J"),
         UInt8(ascii: "K"), UInt8(ascii: "L"), UInt8(ascii: "M"), UInt8(ascii: "N"), UInt8(ascii: "O"), UInt8(ascii: "P"), UInt8(ascii: "Q"), UInt8(ascii: "R"), UInt8(ascii: "S"), UInt8(ascii: "T"),
         UInt8(ascii: "U"), UInt8(ascii: "V"), UInt8(ascii: "W"), UInt8(ascii: "X"), UInt8(ascii: "Y"), UInt8(ascii: "Z"), UInt8(ascii: "a"), UInt8(ascii: "b"), UInt8(ascii: "c"), UInt8(ascii: "d"),
@@ -139,7 +139,7 @@ extension Base64 {
     ]
 
     @usableFromInline
-    static let encoding0url: [UInt8] = [
+    internal static let encoding0url: [UInt8] = [
         UInt8(ascii: "A"), UInt8(ascii: "A"), UInt8(ascii: "A"), UInt8(ascii: "A"), UInt8(ascii: "B"), UInt8(ascii: "B"), UInt8(ascii: "B"), UInt8(ascii: "B"), UInt8(ascii: "C"), UInt8(ascii: "C"),
         UInt8(ascii: "C"), UInt8(ascii: "C"), UInt8(ascii: "D"), UInt8(ascii: "D"), UInt8(ascii: "D"), UInt8(ascii: "D"), UInt8(ascii: "E"), UInt8(ascii: "E"), UInt8(ascii: "E"), UInt8(ascii: "E"),
         UInt8(ascii: "F"), UInt8(ascii: "F"), UInt8(ascii: "F"), UInt8(ascii: "F"), UInt8(ascii: "G"), UInt8(ascii: "G"), UInt8(ascii: "G"), UInt8(ascii: "G"), UInt8(ascii: "H"), UInt8(ascii: "H"),
@@ -169,7 +169,7 @@ extension Base64 {
     ]
 
     @usableFromInline
-    static let encoding1url: [UInt8] = [
+    internal static let encoding1url: [UInt8] = [
         UInt8(ascii: "A"), UInt8(ascii: "B"), UInt8(ascii: "C"), UInt8(ascii: "D"), UInt8(ascii: "E"), UInt8(ascii: "F"), UInt8(ascii: "G"), UInt8(ascii: "H"), UInt8(ascii: "I"), UInt8(ascii: "J"),
         UInt8(ascii: "K"), UInt8(ascii: "L"), UInt8(ascii: "M"), UInt8(ascii: "N"), UInt8(ascii: "O"), UInt8(ascii: "P"), UInt8(ascii: "Q"), UInt8(ascii: "R"), UInt8(ascii: "S"), UInt8(ascii: "T"),
         UInt8(ascii: "U"), UInt8(ascii: "V"), UInt8(ascii: "W"), UInt8(ascii: "X"), UInt8(ascii: "Y"), UInt8(ascii: "Z"), UInt8(ascii: "a"), UInt8(ascii: "b"), UInt8(ascii: "c"), UInt8(ascii: "d"),
@@ -199,7 +199,7 @@ extension Base64 {
     ]
 
     @inlinable
-    public static func encodeBytes<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    internal static func encodeBytes<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
         -> [UInt8] where Buffer.Element == UInt8
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
@@ -216,7 +216,7 @@ extension Base64 {
     }
 
     @inlinable
-    public static func encodeString<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    internal static func encodeString<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
         -> String where Buffer.Element == UInt8
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
@@ -245,7 +245,7 @@ extension Base64 {
     }
 
     @inlinable
-    static func _encodeChromium(input: UnsafeBufferPointer<UInt8>, buffer: UnsafeMutableBufferPointer<UInt8>, length: inout Int, options: EncodingOptions) {
+    internal static func _encodeChromium(input: UnsafeBufferPointer<UInt8>, buffer: UnsafeMutableBufferPointer<UInt8>, length: inout Int, options: EncodingOptions) {
         let omitPaddingCharacter = options.contains(.omitPaddingCharacter)
 
         Self.withUnsafeEncodingTablesAsBufferPointers(options: options) { e0, e1 in
@@ -300,7 +300,7 @@ extension Base64 {
     }
 
     @inlinable
-    static func withUnsafeEncodingTablesAsBufferPointers<R>(options: Base64.EncodingOptions, _ body: (UnsafeBufferPointer<UInt8>, UnsafeBufferPointer<UInt8>) throws -> R) rethrows -> R {
+    internal static func withUnsafeEncodingTablesAsBufferPointers<R>(options: Base64.EncodingOptions, _ body: (UnsafeBufferPointer<UInt8>, UnsafeBufferPointer<UInt8>) throws -> R) rethrows -> R {
         let encoding0 = options.contains(.base64UrlAlphabet) ? Self.encoding0url : Self.encoding0
         let encoding1 = options.contains(.base64UrlAlphabet) ? Self.encoding1url : Self.encoding1
 
