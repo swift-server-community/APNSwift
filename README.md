@@ -13,7 +13,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", .upToNextMinor(from: "5.0.0"))
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0"),
 ]
 ```
 
@@ -71,7 +71,7 @@ let apnsConfig = try APNSwiftConfiguration(
 ```
 
 #### APNSwiftConfiguration.Authentication
-[`APNSwiftConfiguration.Authentication`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConfiguration.swift) is a struct that provides authentication keys and metadata to the signer.
+[`APNSwiftConfiguration.Authentication`](https://github.com/swift-server-community/APNSwift/blob/master/Sources/APNSwift/APNSwiftConfiguration.swift#L26) is a struct that provides authentication keys and metadata to the signer.
 
 
 ```swift
