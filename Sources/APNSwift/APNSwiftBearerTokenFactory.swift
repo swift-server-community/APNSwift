@@ -43,8 +43,8 @@ internal final actor APNSwiftBearerTokenFactory {
         NIODeadline.now() - tokenCreated > TimeAmount.minutes(55)
     }
 
-    private var signer: APNSwiftSigner
-    private var logger: Logger?
+    private let signer: APNSwiftSigner
+    private let logger: Logger?
     private var tokenCreated: NIODeadline = NIODeadline.now()
 
     internal init(

@@ -21,7 +21,7 @@ import NIOFoundationCompat
 public final class APNSwiftConnection: APNSwiftClient {
 
     public let configuration: APNSwiftConfiguration
-    private var bearerTokenFactory: APNSwiftBearerTokenFactory?
+    private let bearerTokenFactory: APNSwiftBearerTokenFactory
     public var logger: Logger?
 
     private let jsonDecoder = JSONDecoder()
@@ -85,7 +85,7 @@ public final class APNSwiftConnection: APNSwiftClient {
         request.headers.add(name: "host", value: urlBase)
 
         // Only use token auth if bearer token is present.
-        if let bearerToken = await bearerTokenFactory?.currentBearerToken {
+        if let bearerToken = await bearerTokenFactory.currentBearerToken {
             request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
         }
         if let apnsID = apnsID {
