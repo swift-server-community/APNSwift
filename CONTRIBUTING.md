@@ -1,6 +1,5 @@
 ## Maintainers
 - [@kylebrowning](https://github.com/kylebrowning)
-- [@tanner0101](https://github.com/tanner0101)
 
 ## Legal
 
@@ -19,11 +18,11 @@ Please ensure to specify the following:
   * OS version and output of `uname -a`
   * Swift version or output of `swift --version`
   * output of `pkg-config --cflags openssl`
-  
+
 ## Submitting a Pull Request
-  
+
 A great PR that is likely to be merged quickly is:
-  
+
 1. Concise, with as few changes as needed to achieve the end result.
 1. Tested, ensuring that regressions aren't introduced now or in the future.
 1. Documented, adding API documentation as needed to cover new functions and properties.
