@@ -31,6 +31,9 @@ public final class APNSClient {
         configuration.logger
     }
 
+    /// APNSClient manages the connection and sending of push notifications to Apple's servers
+    ///
+    /// - Parameter configuration: `APNSConfiguration` contains various values the client will need.
     public init(
         configuration: APNSConfiguration
     ) {
@@ -44,13 +47,24 @@ public final class APNSClient {
         )
     }
 
+    /// Shuts down the connections
     public func shutdown() async throws {
         try await httpClient.shutdown()
     }
 
-    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
-    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
-
+    /// This method sends a raw payload to Apple, since it is raw, use this with caution as requests may fail
+    /// - Parameters:
+    ///   - payload: The APS payload in ByteBuffer form
+    ///   - pushType: The push type, ie, alert, mdm, voip, etc
+    ///   - deviceToken: A device token which will receive the push
+    ///   - environment: An optional environment to override for this push
+    ///   - expiration: The date at which the notification is no longer valid
+    ///   - priority: The priority of the notification. If you omit this header, APNs sets the notification priority to 10
+    ///   - collapseIdentifier: An identifier you use to coalesce multiple notifications into a single notification for the user
+    ///   - topic: An optional topic to override for this push
+    ///   - apnsID: A canonical UUID that is the unique ID for the notification
+    ///
+    ///   For more information see: [Sending Notification Requests To APNs](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns)
     public func send(
         rawBytes payload: ByteBuffer,
         pushType: APNSClient.PushType,

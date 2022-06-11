@@ -24,6 +24,12 @@ public struct APNSConfiguration {
     internal var authenticationConfig: Authentication
 
     public struct Authentication {
+
+        /// Configurtion for handling bearer tokens
+        /// - Parameters:
+        ///   - privateKey: A string of the private key used to sign requests
+        ///   - teamIdentifier: An Apple developer team identifier
+        ///   - keyIdentifier: A key identifier provided by Apple
         public init(
             privateKey: APNSConfiguration.APNSPrivateKey,
             teamIdentifier: String,
@@ -46,6 +52,14 @@ public struct APNSConfiguration {
     internal let timeout: TimeAmount?
     internal let eventLoopGroupProvider: EventLoopGroupProvider
 
+    /// `APNSConfiguration` provides the values for APNSClient to use when sending pushes
+    /// - Parameters:
+    ///   - authenticationConfig: A configuration type to handle bearer tokens
+    ///   - topic: A string for which the push is sent to e.g `com.grasscove.Fern`
+    ///   - environment: The environment which APNSClient will connect to
+    ///   - eventLoopGroupProvider: The event loop provider for APNSwift
+    ///   - logger: An optional logger
+    ///   - timeout: An optional timeout for requests
     public init(
         authenticationConfig: APNSConfiguration.Authentication,
         topic: String,
@@ -64,6 +78,7 @@ public struct APNSConfiguration {
 }
 
 extension APNSConfiguration {
+    /// Provides an enum to manage the URL at which the push is sent.
     public enum Environment {
         case production
         case sandbox
