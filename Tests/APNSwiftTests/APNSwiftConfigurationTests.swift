@@ -19,18 +19,18 @@ import Logging
 import NIO
 import NIOSSL
 
-class APNSwiftConfigurationTests: XCTestCase {
+class APNSConfigurationTests: XCTestCase {
     let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
 
-    func configuration(environment: APNSwiftConfiguration.Environment) throws {
-        let privateKey: APNSwiftConfiguration.APNSPrivateKey = try .loadFrom(string: appleECP8PrivateKey)
-        let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+    func configuration(environment: APNSConfiguration.Environment) throws {
+        let privateKey: APNSConfiguration.APNSPrivateKey = try .loadFrom(string: appleECP8PrivateKey)
+        let authenticationConfig: APNSConfiguration.Authentication = .init(
             privateKey: privateKey,
             teamIdentifier: "MY_TEAM_ID",
             keyIdentifier: "MY_KEY_ID"
         )
 
-        let apnsConfiguration = APNSwiftConfiguration(
+        let apnsConfiguration = APNSConfiguration(
             authenticationConfig: authenticationConfig,
             topic: "MY_TOPIC",
             environment: environment,
@@ -44,7 +44,7 @@ class APNSwiftConfigurationTests: XCTestCase {
             XCTAssertEqual(apnsConfiguration.environment.url, URL(string: "https://api.development.push.apple.com"))
         }
 
-        let loadedKey: APNSwiftConfiguration.APNSPrivateKey = try .loadFrom(string: appleECP8PrivateKey)
+        let loadedKey: APNSConfiguration.APNSPrivateKey = try .loadFrom(string: appleECP8PrivateKey)
         XCTAssertEqual(loadedKey.rawRepresentation, authenticationConfig.privateKey.rawRepresentation)
         XCTAssertEqual("MY_KEY_ID", authenticationConfig.keyIdentifier)
         XCTAssertEqual("MY_TEAM_ID", authenticationConfig.teamIdentifier)

@@ -16,7 +16,7 @@ import Crypto
 import Logging
 import NIOCore
 
-internal final actor APNSwiftBearerTokenFactory {
+internal final actor APNSBearerTokenFactory {
 
     private var cachedBearerToken: String?
 
@@ -37,15 +37,15 @@ internal final actor APNSwiftBearerTokenFactory {
         NIODeadline.now() - tokenCreated > TimeAmount.minutes(55)
     }
 
-    private let signer: APNSwiftSigner
+    private let signer: APNSSigner
     private let logger: Logger?
     private var tokenCreated: NIODeadline = NIODeadline.now()
 
     internal init(
-        authenticationConfig: APNSwiftConfiguration.Authentication,
+        authenticationConfig: APNSConfiguration.Authentication,
         logger: Logger? = nil
     ) {
-        self.signer = APNSwiftSigner(
+        self.signer = APNSSigner(
             privateKey: authenticationConfig.privateKey,
             teamIdentifier: authenticationConfig.teamIdentifier,
             keyIdentifier: authenticationConfig.keyIdentifier

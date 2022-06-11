@@ -20,16 +20,16 @@ dependencies: [
 ## Getting Started
 
 ```swift
-struct BasicNotification: APNSwiftNotification {
-    let aps: APNSwiftPayload
+struct BasicNotification: APNSNotification {
+    let aps: APNSPayload
 }
 
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
 
-/// Create your `APNSwiftConfiguration.Authentication`
+/// Create your `APNSConfiguration.Authentication`
 
-let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+let authenticationConfig: APNSConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
     teamIdentifier: "ABBM6U9RM5",
     keyIdentifier: "9UC9ZLQ8YW"
@@ -38,27 +38,27 @@ let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
 /// If you need to use an a secrets manager instead of read from disk, use
 /// `loadfrom(string:)`
 
-let apnsConfig = try APNSwiftConfiguration(
+let apnsConfig = try APNSConfiguration(
     authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
     logger: logger
 )
-let apns = APNSwiftClient(configuration: apnsConfig)
+let apns = APNSClient(configuration: apnsConfig)
 
-let aps = APNSwiftPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
+let aps = APNSPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
 let deviceToken = "myDeviceToken"
 try await apns.send(notification, pushType: .alert, to: deviceToken)
 try await httpClient.shutdown()
 exit(0)
 ```
 
-### APNSwiftConfiguration
+### APNSConfiguration
 
-[`APNSwiftConfiguration`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConfiguration.swift) is a structure that provides the system with common configuration.
+[`APNSConfiguration`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSConfiguration.swift) is a structure that provides the system with common configuration.
 
 ```swift
-let apnsConfig = try APNSwiftConfiguration(
+let apnsConfig = try APNSConfiguration(
     authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
@@ -66,67 +66,67 @@ let apnsConfig = try APNSwiftConfiguration(
 )
 ```
 
-#### APNSwiftConfiguration.Authentication
-[`APNSwiftConfiguration.Authentication`](https://github.com/swift-server-community/APNSwift/blob/master/Sources/APNSwift/APNSwiftConfiguration.swift#L26) is a struct that provides authentication keys and metadata to the signer.
+#### APNSConfiguration.Authentication
+[`APNSConfiguration.Authentication`](https://github.com/swift-server-community/APNSwift/blob/master/Sources/APNSwift/APNSConfiguration.swift#L26) is a struct that provides authentication keys and metadata to the signer.
 
 
 ```swift
-let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
+let authenticationConfig: APNSConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
     teamIdentifier: "ABBM6U9RM5",
     keyIdentifier: "9UC9ZLQ8YW"
 )
 ```
 
-### APNSwiftClient
+### APNSClient
 
-[`APNSwiftClient`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftClient.swift) provides functions to send a notification to a specific device token string.
+[`APNSClient`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSClient.swift) provides functions to send a notification to a specific device token string.
 
 
-#### Example `APNSwiftClient`
+#### Example `APNSClient`
 ```swift
-let apns = APNSwiftClient(configuration: apnsConfig)
+let apns = APNSClient(configuration: apnsConfig)
 ```
 
-### APNSwiftAlert
+### APNSAlert
 
-[`APNSwiftAlert`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSwiftAlert.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
+[`APNSAlert`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSAlert.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
-#### Example `APNSwiftAlert`
+#### Example `APNSAlert`
 ```swift
-let alert = APNSwiftAlert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
+let alert = APNSAlert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
 ```
 
-### APNSwiftPayload
+### APNSPayload
 
-[`APNSwiftPayload`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSwiftPayload.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
+[`APNSPayload`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSPayload.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
 
 
-#### Example `APNSwiftPayload`
+#### Example `APNSPayload`
 ```swift
 let alert = ...
-let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
+let aps = APNSPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
 ```
 
 ### Custom Notification Data
 
-Apple provides engineers with the ability to add custom payload data to each notification. In order to facilitate this we have the `APNSwiftNotification`.
+Apple provides engineers with the ability to add custom payload data to each notification. In order to facilitate this we have the `APNSNotification`.
 
 #### Example
 ```swift
 struct AcmeNotification: APNSwiftNotification {
     let acme2: [String]
-    let aps: APNSwiftPayload
+    let aps: APNSPayload
 
-    init(acme2: [String], aps: APNSwiftPayload) {
+    init(acme2: [String], aps: APNSPayload) {
         self.acme2 = acme2
         self.aps = aps
     }
 }
 
-let apns: APNSwiftClient: = ...
-let aps: APNSwiftPayload = ...
+let apns: APNSClient: = ...
+let aps: APNSPayload = ...
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e")
 ```

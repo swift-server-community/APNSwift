@@ -22,10 +22,10 @@ import XCTest
 @testable import APNSwift
 
 
-final class APNSwiftRequestTests: XCTestCase {
+final class APNSRequestTests: XCTestCase {
 
     func testAlertEncoding() throws {
-        let alert = APNSwiftAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
+        let alert = APNSAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
                           titleLocArgs: ["titlelocarg1"], actionLocKey: "actionkey", locKey: "lockey", locArgs: ["locarg1"], launchImage: "launchImage")
 
         let jsonData = try JSONEncoder().encode(alert)
@@ -64,7 +64,7 @@ final class APNSwiftRequestTests: XCTestCase {
     }
 
     func testMinimalAlertEncoding() throws {
-        let alert = APNSwiftAlert(title: "title", body: "body")
+        let alert = APNSAlert(title: "title", body: "body")
 
         let jsonData = try JSONEncoder().encode(alert)
 
@@ -87,7 +87,7 @@ final class APNSwiftRequestTests: XCTestCase {
         XCTAssertFalse(keys?.contains("launch-image") ?? false)
     }
   func testMinimalSwiftPayloadEncoding() throws {
-      let payload = APNSwiftPayload(alert: nil, sound: .normal("pong.wav"))
+      let payload = APNSPayload(alert: nil, sound: .normal("pong.wav"))
 
       let jsonData = try JSONEncoder().encode(payload)
 
@@ -111,10 +111,10 @@ final class APNSwiftRequestTests: XCTestCase {
   }
 
   func testMinimalSwiftPayloadDecoding() throws {
-      let payload = APNSwiftPayload(alert: APNSwiftAlert(title: "title", body: "body"), sound: .normal("pong.wav"))
+      let payload = APNSPayload(alert: APNSAlert(title: "title", body: "body"), sound: .normal("pong.wav"))
 
       let jsonData = try JSONEncoder().encode(payload)
-      let decodedPayload = try JSONDecoder().decode(APNSwiftPayload.self, from: jsonData)
+      let decodedPayload = try JSONDecoder().decode(APNSPayload.self, from: jsonData)
 
       XCTAssertEqual(payload.alert?.title, decodedPayload.alert?.title)
       XCTAssertEqual(payload.alert?.body, decodedPayload.alert?.body)

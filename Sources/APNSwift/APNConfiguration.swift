@@ -19,13 +19,13 @@ import Logging
 import NIOCore
 
 /// This is structure that provides the system with common configuration.
-public struct APNSwiftConfiguration {
+public struct APNSConfiguration {
     public typealias APNSPrivateKey = P256.Signing.PrivateKey
     internal var authenticationConfig: Authentication
 
     public struct Authentication {
         public init(
-            privateKey: APNSwiftConfiguration.APNSPrivateKey,
+            privateKey: APNSConfiguration.APNSPrivateKey,
             teamIdentifier: String,
             keyIdentifier: String
         ) {
@@ -46,9 +46,9 @@ public struct APNSwiftConfiguration {
     internal let timeout: TimeAmount?
 
     public init(
-        authenticationConfig: APNSwiftConfiguration.Authentication,
+        authenticationConfig: APNSConfiguration.Authentication,
         topic: String,
-        environment: APNSwiftConfiguration.Environment,
+        environment: APNSConfiguration.Environment,
         logger: Logger? = nil,
         timeout: TimeAmount? = nil
     ) {
@@ -60,7 +60,7 @@ public struct APNSwiftConfiguration {
     }
 }
 
-extension APNSwiftConfiguration {
+extension APNSConfiguration {
     public enum Environment {
         case production
         case sandbox

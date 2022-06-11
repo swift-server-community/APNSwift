@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// This structure provides the data structure for an APNS Alert
-public struct APNSwiftAlert: Codable {
+public struct APNSAlert: Codable {
     public let title: String?
     public let subtitle: String?
     public let body: String?
@@ -49,9 +49,15 @@ public struct APNSwiftAlert: Codable {
      ````
      */
     public init(
-        title: String? = nil, subtitle: String? = nil, body: String? = nil,
-        titleLocKey: String? = nil, titleLocArgs: [String]? = nil, actionLocKey: String? = nil,
-        locKey: String? = nil, locArgs: [String]? = nil, launchImage: String? = nil
+        title: String? = nil,
+        subtitle: String? = nil,
+        body: String? = nil,
+        titleLocKey: String? = nil,
+        titleLocArgs: [String]? = nil,
+        actionLocKey: String? = nil,
+        locKey: String? = nil,
+        locArgs: [String]? = nil,
+        launchImage: String? = nil
     ) {
         self.title = title
         self.subtitle = subtitle

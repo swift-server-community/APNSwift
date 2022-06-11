@@ -14,7 +14,7 @@
 
 import Foundation
 
-public struct APNSwiftError: Equatable {
+public struct APNSError: Equatable {
     public enum ResponseError: Error, Equatable {
         case badRequest(ResponseErrorMessage)
     }

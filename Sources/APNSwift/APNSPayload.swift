@@ -13,10 +13,10 @@
 //===----------------------------------------------------------------------===//
 
 /// This structure provides the data structure for an APNS Payload
-public struct APNSwiftPayload: Codable {
-    public let alert: APNSwift.APNSwiftAlert?
+public struct APNSPayload: Codable {
+    public let alert: APNSAlert?
     public let badge: Int?
-    public let sound: APNSwift.APNSwiftSoundType?
+    public let sound: APNSSoundType?
     public let contentAvailable: Int?
     public let mutableContent: Int?
     public let category: String?
@@ -26,9 +26,9 @@ public struct APNSwiftPayload: Codable {
     public let relevanceScore: Float?
 
     public init(
-        alert: APNSwift.APNSwiftAlert? = nil,
+        alert: APNSAlert? = nil,
         badge: Int? = nil,
-        sound: APNSwift.APNSwiftSoundType? = nil,
+        sound: APNSSoundType? = nil,
         hasContentAvailable: Bool? = false,
         hasMutableContent: Bool? = false,
         category: String? = nil,
