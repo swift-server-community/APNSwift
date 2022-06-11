@@ -2,7 +2,7 @@
 //
 // This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2019 the APNSwift project authors
+// Copyright (c) 2022 the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -21,7 +21,7 @@ extension P256.Signing.PrivateKey {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)),
             let pemString = String(data: data, encoding: .utf8)
         else {
-            throw APNSwiftError.SigningError.certificateFileDoesNotExist
+            throw APNSError.SigningError.certificateFileDoesNotExist
         }
         return try loadFrom(string: pemString)
     }

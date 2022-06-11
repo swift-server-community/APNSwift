@@ -28,7 +28,7 @@ public struct APNSSoundDictionary: Codable, Equatable {
      ### Usage Example: ###
      ````
      let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
-     let aps = APNSwiftPayload(alert: alert, badge: 1, sound: .dictionary(apsSound))
+     let aps = APNSPayload(alert: alert, badge: 1, sound: .dictionary(apsSound))
      ````
      */
     public init(isCritical: Bool, name: String, volume: Double) {
@@ -40,12 +40,12 @@ public struct APNSSoundDictionary: Codable, Equatable {
 /// An enum to define how to use sound.
 /// - Parameter string: use this for a normal alert sound
 /// - Parameter critical: use for a critical alert type
-public enum APNSwiftSoundType: Codable, Equatable {
+public enum APNSSoundType: Codable, Equatable {
     case normal(String)
     case critical(APNSSoundDictionary)
 }
 
-extension APNSwiftSoundType {
+extension APNSSoundType {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {

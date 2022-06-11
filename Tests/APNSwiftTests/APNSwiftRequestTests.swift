@@ -2,7 +2,7 @@
 //
 // This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2019 the APNSwift project authors
+// Copyright (c) 2022 the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -17,20 +17,22 @@ import Foundation
 import NIO
 import NIOHTTP1
 import NIOHTTP2
-
 import XCTest
+
 @testable import APNSwift
 
-
-final class APNSwiftRequestTests: XCTestCase {
+final class APNSRequestTests: XCTestCase {
 
     func testAlertEncoding() throws {
-        let alert = APNSwiftAlert(title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
-                          titleLocArgs: ["titlelocarg1"], actionLocKey: "actionkey", locKey: "lockey", locArgs: ["locarg1"], launchImage: "launchImage")
+        let alert = APNSAlert(
+            title: "title", subtitle: "subtitle", body: "body", titleLocKey: "titlelockey",
+            titleLocArgs: ["titlelocarg1"], actionLocKey: "actionkey", locKey: "lockey",
+            locArgs: ["locarg1"], launchImage: "launchImage")
 
         let jsonData = try JSONEncoder().encode(alert)
 
-        let jsonDic = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
+        let jsonDic =
+            try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
 
         let keys = jsonDic?.keys
 
@@ -45,7 +47,6 @@ final class APNSwiftRequestTests: XCTestCase {
 
         XCTAssertTrue(keys?.contains("title-loc-key") ?? false)
         XCTAssertTrue(jsonDic?["title-loc-key"] is String)
-
 
         XCTAssertTrue(keys?.contains("title-loc-args") ?? false)
         XCTAssertTrue(jsonDic?["title-loc-args"] is [String])
@@ -64,11 +65,12 @@ final class APNSwiftRequestTests: XCTestCase {
     }
 
     func testMinimalAlertEncoding() throws {
-        let alert = APNSwiftAlert(title: "title", body: "body")
+        let alert = APNSAlert(title: "title", body: "body")
 
         let jsonData = try JSONEncoder().encode(alert)
 
-        let jsonDic = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
+        let jsonDic =
+            try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
 
         let keys = jsonDic?.keys
 
@@ -86,38 +88,40 @@ final class APNSwiftRequestTests: XCTestCase {
         XCTAssertFalse(keys?.contains("loc-args") ?? false)
         XCTAssertFalse(keys?.contains("launch-image") ?? false)
     }
-  func testMinimalSwiftPayloadEncoding() throws {
-      let payload = APNSwiftPayload(alert: nil, sound: .normal("pong.wav"))
+    func testMinimalSwiftPayloadEncoding() throws {
+        let payload = APNSPayload(alert: nil, sound: .normal("pong.wav"))
 
-      let jsonData = try JSONEncoder().encode(payload)
+        let jsonData = try JSONEncoder().encode(payload)
 
-      let jsonDic = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
+        let jsonDic =
+            try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
 
-      let keys = jsonDic?.keys
+        let keys = jsonDic?.keys
 
-      XCTAssertTrue(keys?.contains("sound") ?? false)
-      XCTAssertTrue(jsonDic?["sound"] is String)
-      XCTAssertTrue(jsonDic?["sound"] as! String == "pong.wav")
+        XCTAssertTrue(keys?.contains("sound") ?? false)
+        XCTAssertTrue(jsonDic?["sound"] is String)
+        XCTAssertTrue(jsonDic?["sound"] as! String == "pong.wav")
 
-      XCTAssertFalse(keys?.contains("title") ?? false)
-      XCTAssertFalse(keys?.contains("body") ?? false)
-      XCTAssertFalse(keys?.contains("subtitle") ?? false)
-      XCTAssertFalse(keys?.contains("title-loc-key") ?? false)
-      XCTAssertFalse(keys?.contains("title-loc-args") ?? false)
-      XCTAssertFalse(keys?.contains("action-loc-key") ?? false)
-      XCTAssertFalse(keys?.contains("loc-key") ?? false)
-      XCTAssertFalse(keys?.contains("loc-args") ?? false)
-      XCTAssertFalse(keys?.contains("launch-image") ?? false)
-  }
+        XCTAssertFalse(keys?.contains("title") ?? false)
+        XCTAssertFalse(keys?.contains("body") ?? false)
+        XCTAssertFalse(keys?.contains("subtitle") ?? false)
+        XCTAssertFalse(keys?.contains("title-loc-key") ?? false)
+        XCTAssertFalse(keys?.contains("title-loc-args") ?? false)
+        XCTAssertFalse(keys?.contains("action-loc-key") ?? false)
+        XCTAssertFalse(keys?.contains("loc-key") ?? false)
+        XCTAssertFalse(keys?.contains("loc-args") ?? false)
+        XCTAssertFalse(keys?.contains("launch-image") ?? false)
+    }
 
-  func testMinimalSwiftPayloadDecoding() throws {
-      let payload = APNSwiftPayload(alert: APNSwiftAlert(title: "title", body: "body"), sound: .normal("pong.wav"))
+    func testMinimalSwiftPayloadDecoding() throws {
+        let payload = APNSPayload(
+            alert: APNSAlert(title: "title", body: "body"), sound: .normal("pong.wav"))
 
-      let jsonData = try JSONEncoder().encode(payload)
-      let decodedPayload = try JSONDecoder().decode(APNSwiftPayload.self, from: jsonData)
+        let jsonData = try JSONEncoder().encode(payload)
+        let decodedPayload = try JSONDecoder().decode(APNSPayload.self, from: jsonData)
 
-      XCTAssertEqual(payload.alert?.title, decodedPayload.alert?.title)
-      XCTAssertEqual(payload.alert?.body, decodedPayload.alert?.body)
-      XCTAssertEqual(payload.sound, decodedPayload.sound)
-  }
+        XCTAssertEqual(payload.alert?.title, decodedPayload.alert?.title)
+        XCTAssertEqual(payload.alert?.body, decodedPayload.alert?.body)
+        XCTAssertEqual(payload.sound, decodedPayload.sound)
+    }
 }

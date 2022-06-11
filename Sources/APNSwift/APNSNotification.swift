@@ -13,6 +13,6 @@
 //===----------------------------------------------------------------------===//
 
 /// This is a protocol which allows developers to construct their own Notification payload
-public protocol APNSwiftNotification: Codable {
-    var aps: APNSwiftPayload { get }
+public protocol APNSNotification: Codable {
+    var aps: APNSPayload { get }
 }
