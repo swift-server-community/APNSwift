@@ -28,7 +28,7 @@ var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
 
 /// Create your `APNSwiftConfiguration.Authentication`
-=======
+
 let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
     teamIdentifier: "ABBM6U9RM5",
