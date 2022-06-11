@@ -39,7 +39,8 @@ public final class APNSClient {
             authenticationConfig: configuration.authenticationConfig,
             logger: configuration.logger
         )
-        self.httpClient = HTTPClient(eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue)
+        self.httpClient = HTTPClient(
+            eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue)
     }
 
     public func shutdown() async throws {
@@ -61,29 +62,18 @@ public final class APNSClient {
         apnsID: UUID?
     ) async throws {
 
-        logger?.debug(
-            "Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)"
-        )
-
-        var urlBase: String
-
-        if let overriddenEnvironment = environment {
-            urlBase = overriddenEnvironment.url.absoluteString
-        } else {
-            urlBase = configuration.environment.url.absoluteString
-        }
+        let topic = topic ?? configuration.topic
+        let urlBase: String =
+            environment?.url.absoluteString ?? configuration.environment.url.absoluteString
 
         var request = HTTPClientRequest(url: "\(urlBase)/3/device/\(deviceToken)")
         request.method = .POST
         request.headers.add(name: "content-type", value: "application/json")
         request.headers.add(name: "user-agent", value: "APNS/swift-nio")
         request.headers.add(name: "content-length", value: "\(payload.readableBytes)")
-
-        if let notificationSpecificTopic = topic {
-            request.headers.add(name: "apns-topic", value: notificationSpecificTopic)
-        } else {
-            request.headers.add(name: "apns-topic", value: configuration.topic)
-        }
+        request.headers.add(name: "apns-topic", value: topic)
+        request.headers.add(name: "apns-push-type", value: pushType.rawValue)
+        request.headers.add(name: "host", value: urlBase)
 
         if let priority = priority {
             request.headers.add(name: "apns-priority", value: String(priority))
@@ -97,9 +87,6 @@ public final class APNSClient {
             request.headers.add(name: "apns-collapse-id", value: collapseId)
         }
 
-        request.headers.add(name: "apns-push-type", value: pushType.rawValue)
-        request.headers.add(name: "host", value: urlBase)
-
         let bearerToken = try await bearerTokenFactory.getCurrentBearerToken()
 
         request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
@@ -110,16 +97,18 @@ public final class APNSClient {
 
         request.body = .bytes(payload)
 
+        logger?.debug("APNS request - executing")
+
         let response = try await httpClient.execute(
             request,
             timeout: configuration.timeout ?? .seconds(30)
         )
-
+        logger?.debug("APNS request - finished - \(response.status)")
         if response.status != .ok {
             let body = try await response.body.collect(upTo: 1024 * 1024)
 
             let error = try jsonDecoder.decode(APNSError.ResponseStruct.self, from: body)
-            logger?.warning("Response - bad request \(error.reason)")
+            logger?.warning("APNS request - failed - \(error.reason)")
             throw APNSError.ResponseError.badRequest(error.reason)
         }
     }

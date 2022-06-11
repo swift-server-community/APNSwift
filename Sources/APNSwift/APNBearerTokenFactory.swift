@@ -29,7 +29,7 @@ internal final actor APNSBearerTokenFactory {
             return newToken
         }
 
-        logger?.debug("returning cached token \(cachedBearerToken.prefix(8))...")
+        logger?.debug("APNS cached token \(cachedBearerToken.prefix(8))...")
         return cachedBearerToken
     }
 
@@ -55,7 +55,7 @@ internal final actor APNSBearerTokenFactory {
 
     private func makeNewBearerToken() async throws -> String {
         let newToken = try await signer.sign()
-        logger?.debug("Creating a new APNS token \(newToken.prefix(8))...")
+        logger?.debug("APNS new token \(newToken.prefix(8))...")
         return newToken
     }
 
