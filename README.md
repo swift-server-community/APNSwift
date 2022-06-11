@@ -27,14 +27,8 @@ struct BasicNotification: APNSwiftNotification {
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
 
-<<<<<<< Updated upstream
-/// Create your HTTPClient (or pass in one you already have)
-let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
-
 /// Create your `APNSwiftConfiguration.Authentication`
 =======
-/// Create your `AuthentictionConfig`
->>>>>>> Stashed changes
 let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
     teamIdentifier: "ABBM6U9RM5",
