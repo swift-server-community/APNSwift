@@ -89,4 +89,6 @@ Task {
     }
 }
 let _ = dispatchGroup.wait(timeout: .now() + 5)
+try await apns.shutdown()
+try await apnsProd.shutdown()
 exit(0)
