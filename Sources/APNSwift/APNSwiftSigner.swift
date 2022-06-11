@@ -15,7 +15,7 @@
 import Crypto
 import Foundation
 
-internal struct APNSwiftSigner {
+internal final actor APNSwiftSigner {
 
     internal init(
         privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String

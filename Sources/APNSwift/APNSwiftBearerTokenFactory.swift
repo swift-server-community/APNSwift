@@ -20,11 +20,11 @@ internal final actor APNSwiftBearerTokenFactory {
 
     private var cachedBearerToken: String?
 
-    internal func getCurrentBearerToken() throws -> String {
-        
+    internal func getCurrentBearerToken() async throws -> String {
+
         guard !isTokenStale, let cachedBearerToken = cachedBearerToken else {
             tokenCreated = NIODeadline.now()
-            let newToken = try makeNewBearerToken()
+            let newToken = try await makeNewBearerToken()
             cachedBearerToken = newToken
             return newToken
         }
@@ -53,8 +53,8 @@ internal final actor APNSwiftBearerTokenFactory {
         self.logger = logger
     }
 
-    private func makeNewBearerToken() throws -> String {
-        let newToken = try signer.sign()
+    private func makeNewBearerToken() async throws -> String {
+        let newToken = try await signer.sign()
         logger?.debug("Creating a new APNS token \(newToken.prefix(8))...")
         return newToken
     }
