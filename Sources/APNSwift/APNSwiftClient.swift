@@ -48,6 +48,7 @@ public final class APNSwiftClient: APNSwiftClientProtocol {
 
     /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+
     public func send(
         rawBytes payload: ByteBuffer,
         pushType: APNSwiftClient.PushType,
@@ -59,15 +60,19 @@ public final class APNSwiftClient: APNSwiftClientProtocol {
         topic: String?,
         apnsID: UUID?
     ) async throws {
+
         logger?.debug(
             "Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)"
         )
+
         var urlBase: String
+
         if let overriddenEnvironment = environment {
             urlBase = overriddenEnvironment.url.absoluteString
         } else {
             urlBase = configuration.environment.url.absoluteString
         }
+
         var request = HTTPClientRequest(url: "\(urlBase)/3/device/\(deviceToken)")
         request.method = .POST
         request.headers.add(name: "content-type", value: "application/json")
@@ -83,19 +88,22 @@ public final class APNSwiftClient: APNSwiftClientProtocol {
         if let priority = priority {
             request.headers.add(name: "apns-priority", value: String(priority))
         }
+
         if let epochTime = expiration?.timeIntervalSince1970 {
             request.headers.add(name: "apns-expiration", value: String(Int(epochTime)))
         }
+
         if let collapseId = collapseIdentifier {
             request.headers.add(name: "apns-collapse-id", value: collapseId)
         }
+
         request.headers.add(name: "apns-push-type", value: pushType.rawValue)
         request.headers.add(name: "host", value: urlBase)
 
-        // Only use token auth if bearer token is present.
-        if let bearerToken = await bearerTokenFactory.currentBearerToken {
-            request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
-        }
+        let bearerToken = try await bearerTokenFactory.getCurrentBearerToken()
+
+        request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
+
         if let apnsID = apnsID {
             request.headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
         }
@@ -103,7 +111,10 @@ public final class APNSwiftClient: APNSwiftClientProtocol {
         request.body = .bytes(payload)
 
         let response = try await httpClient.execute(
-            request, timeout: configuration.timeout ?? .seconds(30))
+            request,
+            timeout: configuration.timeout ?? .seconds(30)
+        )
+
         if response.status != .ok {
             let body = try await response.body.collect(upTo: 1024 * 1024)
 

@@ -19,19 +19,14 @@ import NIOCore
 internal final actor APNSwiftBearerTokenFactory {
 
     private var cachedBearerToken: String?
-    internal var currentBearerToken: String? {
 
+    internal func getCurrentBearerToken() throws -> String {
+        
         guard !isTokenStale, let cachedBearerToken = cachedBearerToken else {
-            do {
-                tokenCreated = NIODeadline.now()
-                let newToken = try makeNewBearerToken()
-                cachedBearerToken = newToken
-                return newToken
-            } catch {
-
-                logger?.error("Failed to generate token: \(error)")
-                return nil
-            }
+            tokenCreated = NIODeadline.now()
+            let newToken = try makeNewBearerToken()
+            cachedBearerToken = newToken
+            return newToken
         }
 
         logger?.debug("returning cached token \(cachedBearerToken.prefix(8))...")

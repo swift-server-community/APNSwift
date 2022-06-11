@@ -18,13 +18,9 @@ import Foundation
 import Logging
 import NIO
 
-let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-
 /// optional
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
-
-let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
 
 let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
@@ -79,8 +75,8 @@ Task {
             notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
         /// Overriden environment
         try await apnsProd.send(aps, to: dt, on: .sandbox)
-        try await httpClient.shutdown()
-        try! group.syncShutdownGracefully()
+        try await apns.shutdown()
+        try await apnsProd.shutdown()
         dispatchGroup.leave()
 
     } catch {
@@ -89,6 +85,4 @@ Task {
     }
 }
 let _ = dispatchGroup.wait(timeout: .now() + 5)
-try await apns.shutdown()
-try await apnsProd.shutdown()
 exit(0)
