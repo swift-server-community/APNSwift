@@ -35,7 +35,7 @@ let authenticationConfig: APNSConfiguration.Authentication = .init(
     keyIdentifier: "9UC9ZLQ8YW"
 )
 
-/// If you need to use an a secrets manager instead of read from disk, use
+/// If you need to use a secrets manager instead of reading from the disk, use
 /// `loadfrom(string:)`
 
 let apnsConfig = try APNSConfiguration(
