@@ -51,7 +51,7 @@ let apns = APNSClient(configuration: apnsConfig)
 let aps = APNSPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
 let deviceToken = "myDeviceToken"
 try await apns.send(notification, pushType: .alert, to: deviceToken)
-try await httpClient.shutdown()
+try await apns.shutdown()
 exit(0)
 ```
 
