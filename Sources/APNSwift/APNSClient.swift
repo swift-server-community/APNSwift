@@ -40,7 +40,8 @@ public final class APNSClient {
             logger: configuration.logger
         )
         self.httpClient = HTTPClient(
-            eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue)
+            eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue
+        )
     }
 
     public func shutdown() async throws {
