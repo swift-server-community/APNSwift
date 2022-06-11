@@ -39,7 +39,7 @@ public final class APNSClient {
             authenticationConfig: configuration.authenticationConfig,
             logger: configuration.logger
         )
-        self.httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
+        self.httpClient = HTTPClient(eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue)
     }
 
     public func shutdown() async throws {

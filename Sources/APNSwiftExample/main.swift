@@ -32,6 +32,7 @@ let apnsConfig = APNSConfiguration(
     authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
+    eventLoopGroupProvider: .createNew,
     logger: logger
 )
 
@@ -39,6 +40,7 @@ let apnsProdConfig = APNSConfiguration(
     authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .production,
+    eventLoopGroupProvider: .createNew,
     logger: logger
 )
 
