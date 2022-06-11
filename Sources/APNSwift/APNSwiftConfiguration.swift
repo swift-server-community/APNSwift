@@ -39,7 +39,6 @@ public struct APNSwiftConfiguration {
         internal let keyIdentifier: String
     }
 
-    internal let httpClient: HTTPClient
     internal let topic: String
     internal let environment: Environment
     internal let logger: Logger?
@@ -47,14 +46,12 @@ public struct APNSwiftConfiguration {
     internal let timeout: TimeAmount?
 
     public init(
-        httpClient: HTTPClient,
         authenticationConfig: APNSwiftConfiguration.Authentication,
         topic: String,
         environment: APNSwiftConfiguration.Environment,
         logger: Logger? = nil,
         timeout: TimeAmount? = nil
     ) {
-        self.httpClient = httpClient
         self.topic = topic
         self.authenticationConfig = authenticationConfig
         self.environment = environment

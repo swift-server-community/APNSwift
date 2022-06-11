@@ -31,7 +31,6 @@ class APNSwiftConfigurationTests: XCTestCase {
         )
 
         let apnsConfiguration = APNSwiftConfiguration(
-            httpClient: httpClient,
             authenticationConfig: authenticationConfig,
             topic: "MY_TOPIC",
             environment: environment,

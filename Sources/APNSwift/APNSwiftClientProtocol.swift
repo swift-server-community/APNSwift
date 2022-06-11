@@ -12,23 +12,20 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Foundation
 import Logging
+import NIO
 
-extension APNSwiftClient {
-    internal func logger(from loggerConfig: LoggerConfig) -> Logger? {
-        switch loggerConfig {
-        case .none:
-            return nil
-        case .clientLogger:
-            return self.logger
-        case .custom(let customLogger):
-            return customLogger
-        }
-    }
-}
-
-public enum LoggerConfig {
-    case none
-    case clientLogger
-    case custom(Logger)
+public protocol APNSwiftClientProtocol {
+    func send(
+        rawBytes payload: ByteBuffer,
+        pushType: APNSwiftClient.PushType,
+        to deviceToken: String,
+        on environment: APNSwiftConfiguration.Environment?,
+        expiration: Date?,
+        priority: Int?,
+        collapseIdentifier: String?,
+        topic: String?,
+        apnsID: UUID?
+    ) async throws
 }

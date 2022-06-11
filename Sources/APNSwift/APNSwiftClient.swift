@@ -2,7 +2,7 @@
 //
 // This source file is part of the APNSwift open source project
 //
-// Copyright (c) 2019-2020 the APNSwift project authors
+// Copyright (c) 2019 the APNSwift project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -12,31 +12,123 @@
 //
 //===----------------------------------------------------------------------===//
 
+import AsyncHTTPClient
 import Foundation
 import Logging
-import NIO
+import NIOCore
+import NIOFoundationCompat
 
-public protocol APNSwiftClient {
-    var logger: Logger? { get }
+public final class APNSwiftClient: APNSwiftClientProtocol {
 
-    func send(
+    private let configuration: APNSwiftConfiguration
+    private let bearerTokenFactory: APNSwiftBearerTokenFactory
+    private let httpClient: HTTPClient
+
+    internal let jsonEncoder = JSONEncoder()
+    internal let jsonDecoder = JSONDecoder()
+
+    private var logger: Logger? {
+        configuration.logger
+    }
+
+    public init(
+        configuration: APNSwiftConfiguration
+    ) {
+        self.configuration = configuration
+        self.bearerTokenFactory = APNSwiftBearerTokenFactory(
+            authenticationConfig: configuration.authenticationConfig,
+            logger: configuration.logger
+        )
+        self.httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
+    }
+
+    public func shutdown() async throws {
+        try await httpClient.shutdown()
+    }
+
+    /// This is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
+    /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
+    public func send(
         rawBytes payload: ByteBuffer,
-        pushType: APNSwiftConnection.PushType,
+        pushType: APNSwiftClient.PushType,
         to deviceToken: String,
         on environment: APNSwiftConfiguration.Environment?,
         expiration: Date?,
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        logger: Logger?,
         apnsID: UUID?
-    ) async throws
+    ) async throws {
+        logger?.debug(
+            "Sending \(pushType) to \(deviceToken.prefix(8))... at: \(topic ?? configuration.topic)"
+        )
+        var urlBase: String
+        if let overriddenEnvironment = environment {
+            urlBase = overriddenEnvironment.url.absoluteString
+        } else {
+            urlBase = configuration.environment.url.absoluteString
+        }
+        var request = HTTPClientRequest(url: "\(urlBase)/3/device/\(deviceToken)")
+        request.method = .POST
+        request.headers.add(name: "content-type", value: "application/json")
+        request.headers.add(name: "user-agent", value: "APNS/swift-nio")
+        request.headers.add(name: "content-length", value: "\(payload.readableBytes)")
+
+        if let notificationSpecificTopic = topic {
+            request.headers.add(name: "apns-topic", value: notificationSpecificTopic)
+        } else {
+            request.headers.add(name: "apns-topic", value: configuration.topic)
+        }
+
+        if let priority = priority {
+            request.headers.add(name: "apns-priority", value: String(priority))
+        }
+        if let epochTime = expiration?.timeIntervalSince1970 {
+            request.headers.add(name: "apns-expiration", value: String(Int(epochTime)))
+        }
+        if let collapseId = collapseIdentifier {
+            request.headers.add(name: "apns-collapse-id", value: collapseId)
+        }
+        request.headers.add(name: "apns-push-type", value: pushType.rawValue)
+        request.headers.add(name: "host", value: urlBase)
+
+        // Only use token auth if bearer token is present.
+        if let bearerToken = await bearerTokenFactory.currentBearerToken {
+            request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
+        }
+        if let apnsID = apnsID {
+            request.headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
+        }
+
+        request.body = .bytes(payload)
+
+        let response = try await httpClient.execute(
+            request, timeout: configuration.timeout ?? .seconds(30))
+        if response.status != .ok {
+            let body = try await response.body.collect(upTo: 1024 * 1024)
+
+            let error = try jsonDecoder.decode(APNSwiftError.ResponseStruct.self, from: body)
+            logger?.warning("Response - bad request \(error.reason)")
+            throw APNSwiftError.ResponseError.badRequest(error.reason)
+        }
+    }
+}
+
+extension APNSwiftClient {
+    public enum PushType: String {
+        case alert
+        case background
+        case mdm
+        case voip
+        case fileprovider
+        case complication
+    }
 }
 
 extension APNSwiftClient {
 
     /**
-     APNSwiftConnection send method. Sends a notification to the desired deviceToken.
+     APNSwiftClient send method. Sends a notification to the desired deviceToken.
      - Parameter payload: the alert to send.
      - Parameter pushType: push type of the notification.
      - Parameter deviceToken: device token to send alert to.
@@ -50,14 +142,14 @@ extension APNSwiftClient {
      [Retrieve Your App's Device Token](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns#2942135)
      ### Usage Example: ###
      ```
-     let apns = APNSwiftConnection.connect()
+     let apns = APNSwiftClient()
      let expiry = Date().addingTimeInterval(5)
      try apns.send(notification, pushType: .alert, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
     public func send(
         _ alert: APNSwiftAlert,
-        pushType: APNSwiftConnection.PushType = .alert,
+        pushType: APNSwiftClient.PushType = .alert,
         to deviceToken: String,
         on environment: APNSwiftConfiguration.Environment? = nil,
         with encoder: JSONEncoder = JSONEncoder(),
@@ -65,7 +157,6 @@ extension APNSwiftClient {
         priority: Int? = nil,
         collapseIdentifier: String? = nil,
         topic: String? = nil,
-        loggerConfig: LoggerConfig = .clientLogger,
         apnsID: UUID? = nil
     ) async throws {
         try await self.send(
@@ -78,13 +169,12 @@ extension APNSwiftClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            loggerConfig: loggerConfig,
             apnsID: apnsID
         )
     }
 
     /**
-     APNSwiftConnection send method. Sends a notification to the desired deviceToken.
+     APNSwiftClient send method. Sends a notification to the desired deviceToken.
      - Parameter payload: the payload to send.
      - Parameter pushType: push type of the notification.
      - Parameter deviceToken: device token to send alert to.
@@ -98,14 +188,14 @@ extension APNSwiftClient {
      [Retrieve Your App's Device Token](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns#2942135)
      ### Usage Example: ###
      ```
-     let apns = APNSwiftConnection.connect()
+     let apns = APNSwiftClient()
      let expiry = Date().addingTimeInterval(5)
      try apns.send(notification, pushType: .alert, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
     public func send(
         _ payload: APNSwiftPayload,
-        pushType: APNSwiftConnection.PushType = .alert,
+        pushType: APNSwiftClient.PushType = .alert,
         to deviceToken: String,
         on environment: APNSwiftConfiguration.Environment? = nil,
         with encoder: JSONEncoder = JSONEncoder(),
@@ -113,9 +203,11 @@ extension APNSwiftClient {
         priority: Int? = nil,
         collapseIdentifier: String? = nil,
         topic: String? = nil,
-        loggerConfig: LoggerConfig = .clientLogger,
         apnsID: UUID? = nil
     ) async throws {
+        struct BasicNotification: APNSwiftNotification {
+            let aps: APNSwiftPayload
+        }
         try await self.send(
             BasicNotification(aps: payload),
             pushType: pushType,
@@ -126,13 +218,12 @@ extension APNSwiftClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            loggerConfig: loggerConfig,
             apnsID: apnsID
         )
     }
 
     /**
-     APNSwiftConnection send method. Sends a notification to the desired deviceToken.
+     APNSwiftClient send method. Sends a notification to the desired deviceToken.
      - Parameter notification: the notification meta data and alert to send.
      - Parameter pushType: push type of the notification.
      - Parameter deviceToken: device token to send alert to.
@@ -146,25 +237,29 @@ extension APNSwiftClient {
      [Retrieve Your App's Device Token](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns#2942135)
      ### Usage Example: ###
      ```
-     let apns = APNSwiftConnection.connect()
+     let apns = APNSwiftClient()
      let expiry = Date().addingTimeInterval(5)
      try apns.send(notification, pushType: .alert, to: "b27a07be2092c7fbb02ab5f62f3135c615e18acc0ddf39a30ffde34d41665276", with: JSONEncoder(), expiration: expiry, priority: 10, collapseIdentifier: "huro2").wait()
      ```
      */
     public func send<Notification>(
         _ notification: Notification,
-        pushType: APNSwiftConnection.PushType = .alert,
+        pushType: APNSwiftClient.PushType = .alert,
         to deviceToken: String,
         on environment: APNSwiftConfiguration.Environment? = nil,
-        with encoder: JSONEncoder = JSONEncoder(),
+        with encoder: JSONEncoder? = nil,
         expiration: Date? = nil,
         priority: Int? = nil,
         collapseIdentifier: String? = nil,
         topic: String? = nil,
-        loggerConfig: LoggerConfig = .clientLogger,
         apnsID: UUID? = nil
     ) async throws where Notification: APNSwiftNotification {
-        let data: Data = try encoder.encode(notification)
+        let data: Data
+        if let encoder = encoder {
+            data = try encoder.encode(notification)
+        } else {
+            data = try jsonEncoder.encode(notification)
+        }
         try await self.send(
             raw: data,
             pushType: pushType,
@@ -174,7 +269,6 @@ extension APNSwiftClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            loggerConfig: loggerConfig,
             apnsID: apnsID
         )
     }
@@ -183,14 +277,13 @@ extension APNSwiftClient {
     /// For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
     public func send<Bytes>(
         raw payload: Bytes,
-        pushType: APNSwiftConnection.PushType = .alert,
+        pushType: APNSwiftClient.PushType = .alert,
         to deviceToken: String,
         on environment: APNSwiftConfiguration.Environment? = nil,
         expiration: Date?,
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        loggerConfig: LoggerConfig = .clientLogger,
         apnsID: UUID? = nil
     ) async throws
     where Bytes: Collection, Bytes.Element == UInt8 {
@@ -205,38 +298,7 @@ extension APNSwiftClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            logger: logger(from: loggerConfig),
             apnsID: apnsID
         )
     }
-
-    public func send(
-        rawBytes payload: ByteBuffer,
-        pushType: APNSwiftConnection.PushType = .alert,
-        to deviceToken: String,
-        on environment: APNSwiftConfiguration.Environment? = nil,
-        expiration: Date? = nil,
-        priority: Int? = nil,
-        collapseIdentifier: String? = nil,
-        topic: String? = nil,
-        loggerConfig: LoggerConfig = .clientLogger,
-        apnsID: UUID? = nil
-    ) async throws {
-        try await self.send(
-            rawBytes: payload,
-            pushType: pushType,
-            to: deviceToken,
-            on: environment,
-            expiration: expiration,
-            priority: priority,
-            collapseIdentifier: collapseIdentifier,
-            topic: topic,
-            logger: logger(from: loggerConfig),
-            apnsID: apnsID
-        )
-    }
-}
-
-private struct BasicNotification: APNSwiftNotification {
-    let aps: APNSwiftPayload
 }

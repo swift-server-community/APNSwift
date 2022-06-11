@@ -24,14 +24,17 @@ struct BasicNotification: APNSwiftNotification {
     let aps: APNSwiftPayload
 }
 
-let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 var logger = Logger(label: "com.apnswift")
 logger.logLevel = .debug
 
+<<<<<<< Updated upstream
 /// Create your HTTPClient (or pass in one you already have)
 let httpClient = HTTPClient(eventLoopGroupProvider: .shared(group))
 
 /// Create your `APNSwiftConfiguration.Authentication`
+=======
+/// Create your `AuthentictionConfig`
+>>>>>>> Stashed changes
 let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
     privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
     teamIdentifier: "ABBM6U9RM5",
@@ -47,13 +50,12 @@ let apnsConfig = try APNSwiftConfiguration(
     environment: .sandbox,
     logger: logger
 )
-let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
+let apns = APNSwiftClient(configuration: apnsConfig)
 
 let aps = APNSwiftPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
 let deviceToken = "myDeviceToken"
 try await apns.send(notification, pushType: .alert, to: deviceToken)
 try await httpClient.shutdown()
-try! group.syncShutdownGracefully()
 exit(0)
 ```
 
@@ -82,14 +84,14 @@ let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
 )
 ```
 
-### APNSwiftConnection
+### APNSwiftClient
 
-[`APNSwiftConnection`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftConnection.swift) provides functions to send a notification to a specific device token string.
+[`APNSwiftClient`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSwiftClient.swift) provides functions to send a notification to a specific device token string.
 
 
-#### Example `APNSwiftConnection`
+#### Example `APNSwiftClient`
 ```swift
-let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
+let apns = APNSwiftClient(configuration: apnsConfig)
 ```
 
 ### APNSwiftAlert
@@ -129,7 +131,7 @@ struct AcmeNotification: APNSwiftNotification {
     }
 }
 
-let apns: APNSwiftConnection: = ...
+let apns: APNSwiftClient: = ...
 let aps: APNSwiftPayload = ...
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e")

@@ -33,7 +33,6 @@ let authenticationConfig: APNSwiftConfiguration.Authentication = .init(
 )
 
 let apnsConfig = APNSwiftConfiguration(
-    httpClient: httpClient,
     authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .sandbox,
@@ -41,7 +40,6 @@ let apnsConfig = APNSwiftConfiguration(
 )
 
 let apnsProdConfig = APNSwiftConfiguration(
-    httpClient: httpClient,
     authenticationConfig: authenticationConfig,
     topic: "com.grasscove.Fern",
     environment: .production,
@@ -67,8 +65,8 @@ let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
 let dt =
     "80745890ac499fa0c61c2348b56cdf735343963e085dd2283fb48a9fa56b0527759ed783ae6278f4f09aa3c4cc9d5b9f5ac845c3648e655183e2318404bc254ffcd1eea427ad528c3d0b253770422a80"
-let apns = APNSwiftConnection(configuration: apnsConfig, logger: logger)
-let apnsProd = APNSwiftConnection(configuration: apnsProdConfig, logger: logger)
+let apns = APNSwiftClient(configuration: apnsConfig)
+let apnsProd = APNSwiftClient(configuration: apnsProdConfig)
 let expiry = Date().addingTimeInterval(5)
 let dispatchGroup = DispatchGroup()
 dispatchGroup.enter()
