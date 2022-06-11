@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Build](https://github.com/kylebrowning/APNSwift/workflows/test/badge.svg)](https://github.com/kylebrowning/APNSwift/actions)
 [![Swift](https://img.shields.io/badge/Swift-5.6-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
-[![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg?colorA=orange&colorB=4E4E4E)](https://swiftpackageindex.com/swift-server-community/APNSwift/master/documentation/apnswift)
+[![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg)](https://swiftpackageindex.com/swift-server-community/APNSwift/master/documentation/apnswift)
 
 
 # APNSwift
