@@ -1,11 +1,11 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.4
 import PackageDescription
 
 let package = Package(
     name: "apnswift",
     platforms: [
-        .macOS(.v12),
-        .iOS(.v15),
+        .macOS(.v11),
+        .iOS(.v14),
     ],
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
