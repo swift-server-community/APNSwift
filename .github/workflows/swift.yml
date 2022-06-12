@@ -2,7 +2,7 @@ name: test
 on:
 - pull_request
 jobs:
-  xenial-5-6:
+  focal:
     container:
       image: swift:5.6-focal
     runs-on: ubuntu-latest
