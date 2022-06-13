@@ -51,6 +51,7 @@ public struct APNSConfiguration {
     /// Optional timeout time if the connection does not receive a response.
     internal let timeout: TimeAmount?
     internal let eventLoopGroupProvider: EventLoopGroupProvider
+    internal let proxy: Proxy?
 
     /// `APNSConfiguration` provides the values for APNSClient to use when sending pushes
     /// - Parameters:
@@ -66,7 +67,8 @@ public struct APNSConfiguration {
         environment: APNSConfiguration.Environment,
         eventLoopGroupProvider: EventLoopGroupProvider,
         logger: Logger? = nil,
-        timeout: TimeAmount? = nil
+        timeout: TimeAmount? = nil,
+        proxy: Proxy? = nil
     ) {
         self.topic = topic
         self.authenticationConfig = authenticationConfig
@@ -74,6 +76,7 @@ public struct APNSConfiguration {
         self.eventLoopGroupProvider = eventLoopGroupProvider
         self.timeout = timeout
         self.logger = logger
+        self.proxy = proxy
     }
 }
 
@@ -94,19 +97,58 @@ extension APNSConfiguration {
     }
 
     /// Specifies how `EventLoopGroup` will be created and establishes lifecycle ownership.
-    public enum EventLoopGroupProvider {
-        /// `EventLoopGroup` will be provided by the user. Owner of this group is responsible for its lifecycle.
-        case shared(EventLoopGroup)
-        /// `EventLoopGroup` will be created by the client. When `syncShutdown` is called, created `EventLoopGroup` will be shut down as well.
-        case createNew
+    public struct EventLoopGroupProvider {
+        var httpClientValue: HTTPClient.EventLoopGroupProvider
 
-        internal var httpClientValue: HTTPClient.EventLoopGroupProvider {
-            switch self {
-            case .createNew:
-                return .createNew
-            case .shared(let group):
-                return .shared(group)
+        init(_ httpClientValue: HTTPClient.EventLoopGroupProvider) {
+            self.httpClientValue = httpClientValue
+        }
+
+        /// `EventLoopGroup` will be created by the client. When `syncShutdown` is called, created `EventLoopGroup` will be shut down as well.
+        public static let createNew = EventLoopGroupProvider(.createNew)
+
+        /// `EventLoopGroup` will be provided by the user. Owner of this group is responsible for its lifecycle.
+        public static func shared(_ eventLoopGroup: EventLoopGroup) -> EventLoopGroupProvider {
+            .init(.shared(eventLoopGroup))
+        }
+    }
+}
+
+extension APNSConfiguration {
+    public struct Proxy {
+        public struct HTTPAuthorization {
+            var base: HTTPClient.Authorization
+
+            init(_ base: HTTPClient.Authorization) {
+                self.base = base
             }
+
+            public static func basic(username: String, password: String) -> HTTPClient.Authorization
+            {
+                .basic(username: username, password: password)
+            }
+            public static func basic(credentials: String) -> HTTPClient.Authorization {
+                .basic(credentials: credentials)
+            }
+            public static func bearer(tokens: String) -> HTTPClient.Authorization {
+                .bearer(tokens: tokens)
+            }
+        }
+
+        var base: HTTPClient.Configuration.Proxy
+
+        public static func server(host: String, port: Int) -> Proxy {
+            return .server(host: host, port: port)
+        }
+
+        public static func http(host: String, port: Int, authorization: HTTPAuthorization? = nil)
+            -> Proxy
+        {
+            return .http(host: host, port: port, authorization: authorization)
+        }
+
+        public static func socks(host: String, port: Int = 1080) -> Proxy {
+            return .socks(host: host, port: port)
         }
     }
 }

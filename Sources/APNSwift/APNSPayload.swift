@@ -57,6 +57,7 @@ public struct APNSPayload: Codable {
         self.alert = alert
         self.badge = badge
         self.sound = sound
+
         if let hasContentAvailable = hasContentAvailable {
             self.contentAvailable = hasContentAvailable ? 1 : 0
         } else {

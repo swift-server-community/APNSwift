@@ -17,19 +17,23 @@ import Foundation
 import Logging
 import NIOCore
 import NIOFoundationCompat
+import NIOSSL
 
 public final class APNSClient {
+    internal static let loggingDisabled = Logger(
+        label: "APNS-do-not-log", factory: { _ in SwiftLogNoOpLogHandler() })
 
     private let configuration: APNSConfiguration
     private let bearerTokenFactory: APNSBearerTokenFactory
     private let httpClient: HTTPClient
 
-    internal let jsonEncoder = JSONEncoder()
-    internal let jsonDecoder = JSONDecoder()
+    internal lazy var jsonEncoder: JSONEncoder = {
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.outputFormatting = .prettyPrinted
+        return jsonEncoder
+    }()
 
-    private var logger: Logger? {
-        configuration.logger
-    }
+    internal let jsonDecoder = JSONDecoder()
 
     /// APNSClient manages the connection and sending of push notifications to Apple's servers
     ///
@@ -42,9 +46,18 @@ public final class APNSClient {
             authenticationConfig: configuration.authenticationConfig,
             logger: configuration.logger
         )
-        self.httpClient = HTTPClient(
-            eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue
+
+        let httpClientConfiguration = HTTPClient.Configuration(
+            proxy: configuration.proxy?.base
         )
+
+        self.httpClient = HTTPClient(
+            eventLoopGroupProvider: configuration.eventLoopGroupProvider.httpClientValue,
+            configuration: httpClientConfiguration,
+            backgroundActivityLogger: configuration.logger ?? APNSClient.loggingDisabled
+        )
+
+        jsonEncoder.outputFormatting = .withoutEscapingSlashes
     }
 
     /// Shuts down the connections
@@ -74,10 +87,12 @@ public final class APNSClient {
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        apnsID: UUID?
+        apnsID: UUID?,
+        logger: Logger? = nil
     ) async throws {
-
         let topic = topic ?? configuration.topic
+        let logger = logger ?? configuration.logger
+
         let urlBase: String =
             environment?.url.absoluteString ?? configuration.environment.url.absoluteString
 
@@ -87,7 +102,7 @@ public final class APNSClient {
         request.headers.add(name: "user-agent", value: "APNS/swift-nio")
         request.headers.add(name: "content-length", value: "\(payload.readableBytes)")
         request.headers.add(name: "apns-topic", value: topic)
-        request.headers.add(name: "apns-push-type", value: pushType.rawValue)
+        request.headers.add(name: "apns-push-type", value: pushType.base.rawValue)
         request.headers.add(name: "host", value: urlBase)
 
         if let priority = priority {
@@ -118,7 +133,9 @@ public final class APNSClient {
             request,
             timeout: configuration.timeout ?? .seconds(30)
         )
+
         logger?.debug("APNS request - finished - \(response.status)")
+
         if response.status != .ok {
             let body = try await response.body.collect(upTo: 1024 * 1024)
 
@@ -130,13 +147,28 @@ public final class APNSClient {
 }
 
 extension APNSClient {
-    public enum PushType: String {
-        case alert
-        case background
-        case mdm
-        case voip
-        case fileprovider
-        case complication
+    public struct PushType: Hashable, Sendable {
+        internal enum Base: String {
+            case alert
+            case background
+            case mdm
+            case voip
+            case fileprovider
+            case complication
+        }
+
+        internal var base: Base
+
+        init(_ base: Base) {
+            self.base = base
+        }
+
+        public static let alert = PushType(.alert)
+        public static let background = PushType(.background)
+        public static let mdm = PushType(.mdm)
+        public static let voip = PushType(.voip)
+        public static let fileprovider = PushType(.fileprovider)
+        public static let complication = PushType(.complication)
     }
 }
 
@@ -172,7 +204,8 @@ extension APNSClient {
         priority: Int? = nil,
         collapseIdentifier: String? = nil,
         topic: String? = nil,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        logger: Logger? = nil
     ) async throws {
         try await self.send(
             APNSPayload(alert: alert),
@@ -184,7 +217,8 @@ extension APNSClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            apnsID: apnsID
+            apnsID: apnsID,
+            logger: logger
         )
     }
 
@@ -218,7 +252,8 @@ extension APNSClient {
         priority: Int? = nil,
         collapseIdentifier: String? = nil,
         topic: String? = nil,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        logger: Logger? = nil
     ) async throws {
         struct BasicNotification: APNSNotification {
             let aps: APNSPayload
@@ -233,7 +268,8 @@ extension APNSClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            apnsID: apnsID
+            apnsID: apnsID,
+            logger: logger
         )
     }
 
@@ -267,7 +303,8 @@ extension APNSClient {
         priority: Int? = nil,
         collapseIdentifier: String? = nil,
         topic: String? = nil,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        logger: Logger? = nil
     ) async throws where Notification: APNSNotification {
         let data: Data
         if let encoder = encoder {
@@ -275,6 +312,13 @@ extension APNSClient {
         } else {
             data = try jsonEncoder.encode(notification)
         }
+
+        let loggerToUse = logger ?? configuration.logger
+        if let loggerLevel = loggerToUse?.logLevel, loggerLevel >= .debug {
+            let payloadString = String(data: data, encoding: .utf8) ?? ""
+            loggerToUse?.debug("APNS Payload: \(payloadString)")
+        }
+
         try await self.send(
             raw: data,
             pushType: pushType,
@@ -284,7 +328,8 @@ extension APNSClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            apnsID: apnsID
+            apnsID: apnsID,
+            logger: loggerToUse
         )
     }
 
@@ -299,7 +344,8 @@ extension APNSClient {
         priority: Int?,
         collapseIdentifier: String?,
         topic: String?,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        logger: Logger? = nil
     ) async throws
     where Bytes: Collection, Bytes.Element == UInt8 {
         var buffer = ByteBufferAllocator().buffer(capacity: payload.count)
@@ -313,7 +359,8 @@ extension APNSClient {
             priority: priority,
             collapseIdentifier: collapseIdentifier,
             topic: topic,
-            apnsID: apnsID
+            apnsID: apnsID,
+            logger: logger
         )
     }
 }

@@ -37,18 +37,33 @@ public struct APNSSoundDictionary: Codable, Equatable {
         self.volume = volume
     }
 }
-/// An enum to define how to use sound.
-/// - Parameter string: use this for a normal alert sound
-/// - Parameter critical: use for a critical alert type
-public enum APNSSoundType: Codable, Equatable {
-    case normal(String)
-    case critical(APNSSoundDictionary)
+
+public struct APNSSoundType: Codable, Equatable {
+    internal enum Base: Codable, Equatable {
+        case normal(String)
+        case critical(APNSSoundDictionary)
+    }
+    internal var base: Base
+
+    public static let none: APNSSoundType? = nil
+
+    init(_ base: Base) {
+        self.base = base
+    }
+
+    public static func makeNormalSound(soundFileName: String) -> APNSSoundType {
+        return APNSSoundType(.normal(soundFileName))
+    }
+
+    public static func makeDictionarySound(soundDictionary: APNSSoundDictionary) -> APNSSoundType {
+        return APNSSoundType(.critical(soundDictionary))
+    }
 }
 
 extension APNSSoundType {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        switch self {
+        switch self.base {
         case .normal(let string):
             try container.encode(string)
         case .critical(let dict):
@@ -59,9 +74,9 @@ extension APNSSoundType {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let critical = try? container.decode(APNSSoundDictionary.self) {
-            self = .critical(critical)
+            self = .init(.critical(critical))
         } else {
-            self = .normal(try container.decode(String.self))
+            self = .init(.normal(try container.decode(String.self)))
         }
     }
 }

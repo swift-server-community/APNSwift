@@ -41,7 +41,7 @@ let apnsProdConfig = APNSConfiguration(
     topic: "com.grasscove.Fern",
     environment: .production,
     eventLoopGroupProvider: .createNew,
-    logger: logger
+    logger: nil
 )
 
 struct AcmeNotification: APNSNotification {
@@ -57,7 +57,8 @@ struct AcmeNotification: APNSNotification {
 let alert = APNSAlert(title: "Hey There", subtitle: "Subtitle", body: "Body")
 let apsSound = APNSSoundDictionary(isCritical: true, name: "cow.wav", volume: 0.8)
 let aps = APNSPayload(
-    alert: alert, badge: 0, sound: .critical(apsSound), hasContentAvailable: true)
+    alert: alert, badge: 0, sound: .makeDictionarySound(soundDictionary: apsSound),
+    hasContentAvailable: true)
 
 let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
 
@@ -68,15 +69,19 @@ let apnsProd = APNSClient(configuration: apnsProdConfig)
 let expiry = Date().addingTimeInterval(5)
 let dispatchGroup = DispatchGroup()
 dispatchGroup.enter()
+var myLogger = Logger(label: "my-logger")
+myLogger.logLevel = .debug
 Task {
     do {
-        try await apns.send(notification, pushType: .alert, to: dt)
+        try await apns.send(notification, pushType: .alert, to: dt, logger: myLogger)
         try await apns.send(
-            notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+            notification, pushType: .alert, to: dt, expiration: expiry, priority: 10, logger: logger
+        )
         try await apns.send(
-            notification, pushType: .alert, to: dt, expiration: expiry, priority: 10)
+            notification, pushType: .alert, to: dt, expiration: expiry, priority: 10, logger: logger
+        )
         /// Overriden environment
-        try await apnsProd.send(aps, to: dt, on: .sandbox)
+        try await apnsProd.send(aps, to: dt, on: .sandbox, logger: nil)
         try await apns.shutdown()
         try await apnsProd.shutdown()
         dispatchGroup.leave()
