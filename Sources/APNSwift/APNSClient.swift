@@ -27,12 +27,7 @@ public final class APNSClient {
     private let bearerTokenFactory: APNSBearerTokenFactory
     private let httpClient: HTTPClient
 
-    internal lazy var jsonEncoder: JSONEncoder = {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.outputFormatting = .prettyPrinted
-        return jsonEncoder
-    }()
-
+    internal let jsonEncoder = JSONEncoder()
     internal let jsonDecoder = JSONDecoder()
 
     /// APNSClient manages the connection and sending of push notifications to Apple's servers
