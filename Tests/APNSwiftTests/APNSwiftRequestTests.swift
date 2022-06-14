@@ -89,7 +89,7 @@ final class APNSRequestTests: XCTestCase {
         XCTAssertFalse(keys?.contains("launch-image") ?? false)
     }
     func testMinimalSwiftPayloadEncoding() throws {
-        let payload = APNSPayload(alert: nil, sound: .normal("pong.wav"))
+        let payload = APNSPayload(alert: nil, sound: .makeNormalSound(soundFileName: "pong.wav"))
 
         let jsonData = try JSONEncoder().encode(payload)
 
@@ -115,7 +115,8 @@ final class APNSRequestTests: XCTestCase {
 
     func testMinimalSwiftPayloadDecoding() throws {
         let payload = APNSPayload(
-            alert: APNSAlert(title: "title", body: "body"), sound: .normal("pong.wav"))
+            alert: APNSAlert(title: "title", body: "body"),
+            sound: .makeNormalSound(soundFileName: "pong.wav"))
 
         let jsonData = try JSONEncoder().encode(payload)
         let decodedPayload = try JSONDecoder().decode(APNSPayload.self, from: jsonData)
