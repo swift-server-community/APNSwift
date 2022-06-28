@@ -30,6 +30,7 @@ struct Main {
     /// To use this example app please provide proper values for variable below.
     static let deviceToken = ""
     static let pushKitDeviceToken = ""
+    static let fileProviderDeviceToken = ""
     static let appBundleID = ""
     static let privateKey = """
     -----BEGIN PRIVATE KEY-----
@@ -68,6 +69,7 @@ struct Main {
             try await Self.sendMutableContentAlert(with: client)
             try await Self.sendBackground(with: client)
             try await Self.sendVoIP(with: client)
+            try await Self.sendFileProvider(with: client)
         } catch {
             self.logger.error("Failed sending push", metadata: ["error": "\(error)"])
         }
@@ -213,6 +215,24 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.pushKitDeviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+}
+
+// MARK: FileProvider
+
+@available(macOS 11.0, *)
+extension Main {
+    static func sendFileProvider(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendFileProviderNotification(
+            .init(
+                expiration: .immediately,
+                appID: self.appBundleID,
+                payload: Payload()
+            ),
+            deviceToken: self.fileProviderDeviceToken,
             deadline: .distantFuture,
             logger: self.logger
         )
