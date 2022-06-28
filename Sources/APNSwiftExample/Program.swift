@@ -66,6 +66,8 @@ struct Main {
             try await Self.sendThreadedAlert(with: client)
             try await Self.sendCustomCategoryAlert(with: client)
             try await Self.sendMutableContentAlert(with: client)
+            try await Self.sendBackground(with: client)
+            try await Self.sendVoIP(with: client)
         } catch {
             self.logger.error("Failed sending push", metadata: ["error": "\(error)"])
         }
@@ -174,6 +176,43 @@ extension Main {
                 mutableContent: 1
             ),
             deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+}
+
+// MARK: Background
+
+@available(macOS 11.0, *)
+extension Main {
+    static func sendBackground(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendBackgroundNotification(
+            .init(
+                expiration: .immediately,
+                topic: self.appBundleID,
+                payload: Payload()
+            ),
+            deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+}
+
+// MARK: VoIP
+
+@available(macOS 11.0, *)
+extension Main {
+    static func sendVoIP(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendVoIPNotification(
+            .init(
+                expiration: .immediately,
+                priority: .immediately,
+                appID: self.appBundleID,
+                payload: Payload()
+            ),
+            deviceToken: self.pushKitDeviceToken,
             deadline: .distantFuture,
             logger: self.logger
         )
