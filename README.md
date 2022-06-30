@@ -14,7 +14,14 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0"),
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
+]
+```
+If youd like to give our bleeding edge release a try, which is what the Readme is expecting. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.4"),
 ]
 ```
 
