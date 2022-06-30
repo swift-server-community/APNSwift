@@ -17,7 +17,7 @@ dependencies: [
     .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
 ]
 ```
-If youd like to give our bleeding edge release a try, which is what the Readme is expecting. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
+If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-alpha.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
 
 ```swift
 dependencies: [
