@@ -119,7 +119,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     /// instead.
     ///
     /// - Important: This will only shutdown the event loop if the provider passed to the client was ``createNew``.
-    /// For shared event loops the owner of the event loop is responsible to handle the lifecycle.
+    /// For shared event loops the owner of the event loop is responsible for handling the lifecycle.
     ///
     /// - Parameters:
     ///   - queue: The queue on which the callback is invoked on.
