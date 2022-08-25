@@ -17,11 +17,11 @@ import Foundation
 import NIO
 
 extension P256.Signing.PrivateKey {
-    public static func loadFrom(filePath: String) throws -> P256.Signing.PrivateKey {
+    public static func loadFrom(filePath: String) throws -> P256.Signing.PrivateKey? {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)),
             let pemString = String(data: data, encoding: .utf8)
         else {
-            throw APNSError.SigningError.certificateFileDoesNotExist
+            return nil
         }
         return try loadFrom(string: pemString)
     }
