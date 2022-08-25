@@ -24,7 +24,7 @@ public final class APNSClient {
         label: "APNS-do-not-log", factory: { _ in SwiftLogNoOpLogHandler() })
 
     private let configuration: APNSConfiguration
-    private let bearerTokenFactory: APNSBearerTokenFactory
+    private let authenticationTokenManager: APNSAuthenticationTokenManager
     private let httpClient: HTTPClient
 
     internal let jsonEncoder = JSONEncoder()
@@ -37,9 +37,11 @@ public final class APNSClient {
         configuration: APNSConfiguration
     ) {
         self.configuration = configuration
-        self.bearerTokenFactory = APNSBearerTokenFactory(
-            authenticationConfig: configuration.authenticationConfig,
-            logger: configuration.logger
+        self.authenticationTokenManager = APNSAuthenticationTokenManager(
+            privateKey: configuration.authenticationConfig.privateKey,
+            teamIdentifier: configuration.authenticationConfig.teamIdentifier,
+            keyIdentifier: configuration.authenticationConfig.keyIdentifier,
+            logger: configuration.logger ?? Self.loggingDisabled
         )
 
         let httpClientConfiguration = HTTPClient.Configuration(
@@ -112,7 +114,7 @@ public final class APNSClient {
             request.headers.add(name: "apns-collapse-id", value: collapseId)
         }
 
-        let bearerToken = try await bearerTokenFactory.getCurrentBearerToken()
+        let bearerToken = try authenticationTokenManager.nextValidToken
 
         request.headers.add(name: "authorization", value: "bearer \(bearerToken)")
 
