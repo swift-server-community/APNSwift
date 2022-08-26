@@ -61,9 +61,121 @@ struct Main {
         }
 
         do {
-            // TODO: Send pushes once semantic APIs land
+            try await Self.sendSimpleAlert(with: client)
+            try await Self.sendLocalizedAlert(with: client)
+            try await Self.sendThreadedAlert(with: client)
+            try await Self.sendCustomCategoryAlert(with: client)
+            try await Self.sendMutableContentAlert(with: client)
         } catch {
             self.logger.error("Failed sending push", metadata: ["error": "\(error)"])
         }
+    }
+}
+
+// MARK: Alerts
+
+@available(macOS 11.0, *)
+extension Main {
+    static func sendSimpleAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendAlertNotification(
+            .init(
+                alert: .init(
+                    title: .raw("Simple Alert"),
+                    subtitle: .raw("Subtitle"),
+                    body: .raw("Body"),
+                    launchImage: nil
+                ),
+                expiration: .immediately,
+                priority: .immediately,
+                topic: self.appBundleID,
+                payload: Payload()
+            ),
+            deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+
+    static func sendLocalizedAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendAlertNotification(
+            .init(
+                alert: .init(
+                    title: .localized(key: "title", arguments: ["Localized"]),
+                    subtitle: .localized(key: "subtitle", arguments: ["APNS"]),
+                    body: .localized(key: "body", arguments: ["APNS"]),
+                    launchImage: nil
+                ),
+                expiration: .immediately,
+                priority: .immediately,
+                topic: self.appBundleID,
+                payload: Payload()
+            ),
+            deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+
+    static func sendThreadedAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendAlertNotification(
+            .init(
+                alert: .init(
+                    title: .raw("Threaded Alert"),
+                    subtitle: .raw("Subtitle"),
+                    body: .raw("Body"),
+                    launchImage: nil
+                ),
+                expiration: .immediately,
+                priority: .immediately,
+                topic: self.appBundleID,
+                payload: Payload(),
+                threadID: "thread"
+            ),
+            deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+
+    static func sendCustomCategoryAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendAlertNotification(
+            .init(
+                alert: .init(
+                    title: .raw("Custom Category Alert"),
+                    subtitle: .raw("Subtitle"),
+                    body: .raw("Body"),
+                    launchImage: nil
+                ),
+                expiration: .immediately,
+                priority: .immediately,
+                topic: self.appBundleID,
+                payload: Payload(),
+                category: "CUSTOM"
+            ),
+            deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
+    }
+
+    static func sendMutableContentAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        try await client.sendAlertNotification(
+            .init(
+                alert: .init(
+                    title: .raw("Mutable Alert"),
+                    subtitle: .raw("Subtitle"),
+                    body: .raw("Body"),
+                    launchImage: nil
+                ),
+                expiration: .immediately,
+                priority: .immediately,
+                topic: self.appBundleID,
+                payload: Payload(),
+                mutableContent: 1
+            ),
+            deviceToken: self.deviceToken,
+            deadline: .distantFuture,
+            logger: self.logger
+        )
     }
 }
