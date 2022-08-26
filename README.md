@@ -104,9 +104,15 @@ try await client.send(
 )
 ```
 
-## More Examples
-
+## Server Example
 Take a look at [Program.swift](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwiftExample/Program.swift)
+
+## iOS Examples
+
+For an iOS example, open the example project within this repo. 
+
+Once inside configure your App Bundle ID and assign your development team. Build and run the ExampleApp to iOS Simulator, grab your device token, and plug it in to server example above. Background the app and run Program.swift
+
 
 #### Original pitch and discussion on API
 
