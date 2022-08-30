@@ -25,6 +25,14 @@ dependencies: [
 ]
 ```
 
+### Foundations
+`APNSwift` is built with a layered approach. It exposes three tiers of API's.
+1. A [raw API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/APNSClient.swift#L254) that takes basic types such as `String`'s
+2. A slightly more [semantically safe API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/APNSClient.swift#L183), which takes types, like [`APNSPriority`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSPriority.swift), [`APNSPushType`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSPushType.swift), [`APNSNotificationExpiration`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSNotificationExpiration.swift), etc.
+3. The [safest API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/Alert/APNSClient%2BAlert.swift#L32) which takes fully semantic types such as [`APNSAlertNotification`](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/Alert/APNSAlertNotification.swift#L177)
+
+**We recommened using number 3, the semantically safest api to ensure your push notification is delivered correctly**. *This README assumes that you are using number 3.* However if you need more granular approach, or something doesn't exist in this library, please use 2 or 1. (Also please open an issue if we missed something so we can get a semantically correct version!)
+
 ## Getting Started
 APNSwift aims to provide sementically correct structures to sending push notifications. You first need to setup a [`APNSClient`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSClient.swift). To do that youll need to know your authentication method 
 
@@ -76,10 +84,28 @@ try await client.sendAlertNotification(
 )
 ```
 
+## Authentication
+`APNSwift` provides two authentication methods. `jwt`, and `TLS`. 
+
+**`jwt` is preferred and recommend by Apple** 
+These can be configured when created your `APNSClientConfiguration`
+
+*Notes: `jwt` requires an encrypted version of your .p8 file from Apple which comes in a `pem` format. If you're having trouble with your key being invalid please confirm it is a PEM file*
+```
+ openssl pkcs8 -nocrypt -in /path/to/my/key.p8 -out ~/Downloads/key.pem
+ ```
+
 ## Logging
 By default APNSwift has a no-op logger which will not log anything. However if you pass a logger in, you will see logs.
 
-## Completely custom
+There are currently two kinds of loggers.
+#### **Background Activity Logger**
+This logger can be passed into the `APNSClient` and will log background things like connection pooling, auth token refreshes, etc. 
+
+#### **Notification Send Logger**
+This logger can be passed into any of the `send:` methods and will log everything related to a single send request. 
+
+## Using the non semantic safe APIs
 
 APNSwift provides the ability to send raw payloads. You can use `Data`, `ByteBuffer`, `DispatchData`, `Array`
 Though this is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
