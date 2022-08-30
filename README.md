@@ -3,29 +3,25 @@
 [![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg)](https://swiftpackageindex.com/swift-server-community/APNSwift/master/documentation/apnswift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/swift-server-community/APNSwift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/swift-server-community/APNSwift)
+<h1> APNSwift</h1>
 
-# APNSwift
+A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on AsyncHttpClient.
 
-A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms.
+- [Foundations](#foundations)
+- [Getting Started](#getting-started)
+- [Sending a simple notification](#sending-a-simple-notification)
+- [Authentication](#authentication)
+- [Logging](#logging)
+    - [**Background Activity Logger**](#background-activity-logger)
+    - [**Notification Send Logger**](#notification-send-logger)
+- [Using the non semantic safe APIs](#using-the-non-semantic-safe-apis)
+- [Server Example](#server-example)
+- [iOS Examples](#ios-examples)
+- [Installation](#installation)
+- [Original pitch and discussion on API](#original-pitch-and-discussion-on-api)
 
-## Installation
 
-To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies).
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
-]
-```
-If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-alpha.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.4"),
-]
-```
-
-### Foundations
+## Foundations
 `APNSwift` is built with a layered approach. It exposes three tiers of API's.
 1. A [raw API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/APNSClient.swift#L254) that takes basic types such as `String`'s
 2. A slightly more [semantically safe API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/APNSClient.swift#L183), which takes types, like [`APNSPriority`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSPriority.swift), [`APNSPushType`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSPushType.swift), [`APNSNotificationExpiration`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSNotificationExpiration.swift), etc.
@@ -139,8 +135,24 @@ For an iOS example, open the example project within this repo.
 
 Once inside configure your App Bundle ID and assign your development team. Build and run the ExampleApp to iOS Simulator, grab your device token, and plug it in to server example above. Background the app and run Program.swift
 
+## Installation
 
-#### Original pitch and discussion on API
+To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies).
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
+]
+```
+If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-alpha.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.4"),
+]
+```
+
+## Original pitch and discussion on API
 
 * Pitch discussion: [Swift Server Forums](https://forums.swift.org/t/apple-push-notification-service-implementation-pitch/20193)
 * Proposal: [SSWG-0006](https://forums.swift.org/t/feedback-nioapns-nio-based-apple-push-notification-service/24393)
