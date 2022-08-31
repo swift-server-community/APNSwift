@@ -3,10 +3,22 @@
 [![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg)](https://swiftpackageindex.com/swift-server-community/APNSwift/master/documentation/apnswift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/swift-server-community/APNSwift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/swift-server-community/APNSwift)
+<h1> APNSwift</h1>
 
-# APNSwift
+A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on AsyncHttpClient.
 
-A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on http/2, SwiftNIO for use on server side swift platforms.
+- [Installation](#installation)
+- [Foundations](#foundations)
+- [Getting Started](#getting-started)
+- [Sending a simple notification](#sending-a-simple-notification)
+- [Authentication](#authentication)
+- [Logging](#logging)
+    - [**Background Activity Logger**](#background-activity-logger)
+    - [**Notification Send Logger**](#notification-send-logger)
+- [Using the non semantic safe APIs](#using-the-non-semantic-safe-apis)
+- [Server Example](#server-example)
+- [iOS Examples](#ios-examples)
+- [Original pitch and discussion on API](#original-pitch-and-discussion-on-api)
 
 ## Installation
 
@@ -21,137 +33,125 @@ If youd like to give our bleeding edge release a try, which is what the Readme i
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.4"),
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.5"),
 ]
 ```
 
+## Foundations
+`APNSwift` is built with a layered approach. It exposes three tiers of API's.
+1. A [raw API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/APNSClient.swift#L254) that takes basic types such as `String`'s
+2. A slightly more [semantically safe API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/APNSClient.swift#L183), which takes types, like [`APNSPriority`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSPriority.swift), [`APNSPushType`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSPushType.swift), [`APNSNotificationExpiration`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSNotificationExpiration.swift), etc.
+3. The [safest API](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/Alert/APNSClient%2BAlert.swift#L32) which takes fully semantic types such as [`APNSAlertNotification`](https://github.com/swift-server-community/APNSwift/blob/d60241fe2b6eb193331567a871697d3f4bdf70fb/Sources/APNSwift/Alert/APNSAlertNotification.swift#L177)
+
+**We recommened using number 3, the semantically safest API to ensure your push notification is delivered correctly**. *This README assumes that you are using number 3.* However if you need more granular approach, or something doesn't exist in this library, please use 2 or 1. (Also please open an issue if we missed something so we can get a semantically correct version!)
+
 ## Getting Started
+APNSwift aims to provide sementically correct structures to sending push notifications. You first need to setup a [`APNSClient`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSClient.swift). To do that youll need to know your authentication method 
 
 ```swift
-struct BasicNotification: APNSNotification {
-    let aps: APNSPayload
-}
-
-var logger = Logger(label: "com.apnswift")
-logger.logLevel = .debug
-
-/// Create your `APNSConfiguration.Authentication`
-
-let authenticationConfig: APNSConfiguration.Authentication = .init(
-    privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
-    teamIdentifier: "ABBM6U9RM5",
-    keyIdentifier: "9UC9ZLQ8YW"
+let client = APNSClient(
+    configuration: .init(
+        authenticationMethod: .jwt(
+            privateKey: try .init(pemRepresentation: privateKey),
+            keyIdentifier: keyIdentifier,
+            teamIdentifier: teamIdentifier
+        ),
+        environment: .sandbox
+    ),
+    eventLoopGroupProvider: .createNew,
+    responseDecoder: JSONDecoder(),
+    requestEncoder: JSONEncoder(),
+    byteBufferAllocator: .init(),
+    backgroundActivityLogger: logger
 )
-
-/// If you need to use a secrets manager instead of reading from the disk, use
-/// `loadfrom(string:)`
-
-let apnsConfig = try APNSConfiguration(
-    authenticationConfig: authenticationConfig,
-    topic: "com.grasscove.Fern",
-    environment: .sandbox,
-    logger: logger
-)
-let apns = APNSClient(configuration: apnsConfig)
-
-let aps = APNSPayload(alert: .init(title: "Hey There", subtitle: "Subtitle", body: "Body"), hasContentAvailable: true)
-let deviceToken = "myDeviceToken"
-try await apns.send(notification, pushType: .alert, to: deviceToken)
-try await apns.shutdown()
-exit(0)
-```
-
-### APNSConfiguration
-
-[`APNSConfiguration`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSConfiguration.swift) is a structure that provides the system with common configuration.
-
-```swift
-let apnsConfig = try APNSConfiguration(
-    authenticationConfig: authenticationConfig,
-    topic: "com.grasscove.Fern",
-    environment: .sandbox,
-    logger: logger
-)
-```
-
-#### APNSConfiguration.Authentication
-[`APNSConfiguration.Authentication`](https://github.com/swift-server-community/APNSwift/blob/master/Sources/APNSwift/APNSConfiguration.swift#L26) is a struct that provides authentication keys and metadata to the signer.
-
-
-```swift
-let authenticationConfig: APNSConfiguration.Authentication = .init(
-    privateKey: try .loadFrom(filePath: "/Users/kylebrowning/Documents/AuthKey_9UC9ZLQ8YW.p8"),
-    teamIdentifier: "ABBM6U9RM5",
-    keyIdentifier: "9UC9ZLQ8YW"
-)
-```
-
-### APNSClient
-
-[`APNSClient`](https://github.com/kylebrowning/swift-nio-http2-apns/blob/master/Sources/APNSwift/APNSClient.swift) provides functions to send a notification to a specific device token string.
-
-
-#### Example `APNSClient`
-```swift
-let apns = APNSClient(configuration: apnsConfig)
-```
-
-### APNSAlert
-
-[`APNSAlert`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSAlert.swift) is the actual meta data of the push notification alert someone wishes to send. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
-
-
-#### Example `APNSAlert`
-```swift
-let alert = APNSAlert(title: "Hey There", subtitle: "Full moon sighting", body: "There was a full moon last night did you see it")
-```
-
-### APNSPayload
-
-[`APNSPayload`](https://github.com/kylebrowning/APNSwift/blob/tn-concise-naming/Sources/APNSwift/APNSPayload.swift) is the meta data of the push notification. Things like the alert, badge count. More details on the specifics of each property are provided [here](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html). They follow a 1-1 naming scheme listed in Apple's documentation
-
-
-#### Example `APNSPayload`
-```swift
-let alert = ...
-let aps = APNSPayload(alert: alert, badge: 1, sound: .normal("cow.wav"))
-```
-
-### Custom Notification Data
-
-Apple provides engineers with the ability to add custom payload data to each notification. In order to facilitate this we have the `APNSNotification`.
-
-#### Example
-```swift
-struct AcmeNotification: APNSwiftNotification {
-    let acme2: [String]
-    let aps: APNSPayload
-
-    init(acme2: [String], aps: APNSPayload) {
-        self.acme2 = acme2
-        self.aps = aps
+defer {
+    client.shutdown { _ in
+        logger.error("Failed to shutdown APNSClient")
     }
 }
-
-let apns: APNSClient: = ...
-let aps: APNSPayload = ...
-let notification = AcmeNotification(acme2: ["bang", "whiz"], aps: aps)
-let res = try apns.send(notification, to: "de1d666223de85db0186f654852cc960551125ee841ca044fdf5ef6a4756a77e")
 ```
 
-### Need a completely custom arbtirary payload and dont like being typecast?
+## Sending a simple notification
+All notifications require a payload, but that payload can be empty. Payload just needs to conform to `Encodable`
+
+```swift
+struct Payload: Codable {}
+
+try await client.sendAlertNotification(
+    .init(
+        alert: .init(
+            title: .raw("Simple Alert"),
+            subtitle: .raw("Subtitle"),
+            body: .raw("Body"),
+            launchImage: nil
+        ),
+        expiration: .immediately,
+        priority: .immediately,
+        topic: "com.app.bundle",
+        payload: Payload()
+    ),
+    deviceToken: "device-token",
+    deadline: .distantFuture,
+    logger: myLogger
+)
+```
+
+## Authentication
+`APNSwift` provides two authentication methods. `jwt`, and `TLS`. 
+
+**`jwt` is preferred and recommend by Apple** 
+These can be configured when created your `APNSClientConfiguration`
+
+*Notes: `jwt` requires an encrypted version of your .p8 file from Apple which comes in a `pem` format. If you're having trouble with your key being invalid please confirm it is a PEM file*
+```
+ openssl pkcs8 -nocrypt -in /path/to/my/key.p8 -out ~/Downloads/key.pem
+ ```
+
+## Logging
+By default APNSwift has a no-op logger which will not log anything. However if you pass a logger in, you will see logs.
+
+There are currently two kinds of loggers.
+#### **Background Activity Logger**
+This logger can be passed into the `APNSClient` and will log background things like connection pooling, auth token refreshes, etc. 
+
+#### **Notification Send Logger**
+This logger can be passed into any of the `send:` methods and will log everything related to a single send request. 
+
+## Using the non semantic safe APIs
 
 APNSwift provides the ability to send raw payloads. You can use `Data`, `ByteBuffer`, `DispatchData`, `Array`
 Though this is to be used with caution. APNSwift cannot gurantee delivery if you do not have the correct payload.
 For more information see: [Creating APN Payload](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html)
 
 ```swift
-let notificationJsonPayload = ...
-let data: Data = try! encoder.encode(notificationJsonPayload)
-try apns.send(raw: data, pushType: .alert, to: "<DEVICETOKEN>")
+/// Extremely Raw,
+try await client.send(
+    payload: payload, 
+    deviceToken: token, 
+    pushType: "alert", deadline: .distantFuture
+)
+
+/// or a little safer but still raw
+try await client.send(
+    payload: payload, 
+    deviceToken: token, 
+    pushType: .alert, 
+    expiration: .immediatly, 
+    priority: .immediatly, 
+    deadline: .distantFuture
+)
 ```
 
-#### Original pitch and discussion on API
+## Server Example
+Take a look at [Program.swift](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwiftExample/Program.swift)
+
+## iOS Examples
+
+For an iOS example, open the example project within this repo. 
+
+Once inside configure your App Bundle ID and assign your development team. Build and run the ExampleApp to iOS Simulator, grab your device token, and plug it in to server example above. Background the app and run Program.swift
+
+## Original pitch and discussion on API
 
 * Pitch discussion: [Swift Server Forums](https://forums.swift.org/t/apple-push-notification-service-implementation-pitch/20193)
 * Proposal: [SSWG-0006](https://forums.swift.org/t/feedback-nioapns-nio-based-apple-push-notification-service/24393)
