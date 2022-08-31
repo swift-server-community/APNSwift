@@ -7,6 +7,7 @@
 
 A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on AsyncHttpClient.
 
+- [Installation](#installation)
 - [Foundations](#foundations)
 - [Getting Started](#getting-started)
 - [Sending a simple notification](#sending-a-simple-notification)
@@ -17,9 +18,24 @@ A non-blocking Swift module for sending remote Apple Push Notification requests 
 - [Using the non semantic safe APIs](#using-the-non-semantic-safe-apis)
 - [Server Example](#server-example)
 - [iOS Examples](#ios-examples)
-- [Installation](#installation)
 - [Original pitch and discussion on API](#original-pitch-and-discussion-on-api)
 
+## Installation
+
+To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies).
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
+]
+```
+If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-alpha.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.5"),
+]
+```
 
 ## Foundations
 `APNSwift` is built with a layered approach. It exposes three tiers of API's.
@@ -115,7 +131,7 @@ try await client.send(
     pushType: "alert", deadline: .distantFuture
 )
 
-/// or alittle safer but still raw
+/// or a little safer but still raw
 try await client.send(
     payload: payload, 
     deviceToken: token, 
@@ -134,23 +150,6 @@ Take a look at [Program.swift](https://github.com/swift-server-community/APNSwif
 For an iOS example, open the example project within this repo. 
 
 Once inside configure your App Bundle ID and assign your development team. Build and run the ExampleApp to iOS Simulator, grab your device token, and plug it in to server example above. Background the app and run Program.swift
-
-## Installation
-
-To install `APNSwift`, just add the package as a dependency in your [**Package.swift**](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies).
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
-]
-```
-If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-alpha.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.4"),
-]
-```
 
 ## Original pitch and discussion on API
 
