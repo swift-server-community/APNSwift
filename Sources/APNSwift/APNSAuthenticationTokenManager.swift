@@ -75,32 +75,35 @@ final class APNSAuthenticationTokenManager {
     /// If there is a previously generated token that is still valid it will be returned, otherwise a fresh token will be generated.
     var nextValidToken: String {
         get throws {
-            // First we check if there is a previously generated token
-            // and if that token is still valid.
-            if let lastGeneratedToken = lastGeneratedToken,
-               self.currentTimeFactory().asSecondsSince1970 - lastGeneratedToken.issuedAt.asSecondsSince1970 < Self
-               .expirationDurationInSeconds
-            {
-                // The last generated token is still valid
+            try lock.withLock {
 
-                logger.debug(
-                    "APNSAuthenticationTokenManager reusing previously generated token",
-                    metadata: [
-                        LoggingKeys.authenticationTokenIssuedAt: "\(lastGeneratedToken.issuedAt)",
-                        LoggingKeys.authenticationTokenIssuer: "\(teamIdentifier)",
-                        LoggingKeys.authenticationTokenKeyID: "\(keyIdentifier)",
-                    ]
-                )
-                return lastGeneratedToken.token
-            } else {
-                let token = try generateNewToken(
-                    privateKey: privateKey,
-                    teamIdentifier: teamIdentifier,
-                    keyIdentifier: keyIdentifier
-                )
-                lastGeneratedToken = token
+                // First we check if there is a previously generated token
+                // and if that token is still valid.
+                if let lastGeneratedToken = lastGeneratedToken,
+                   self.currentTimeFactory().asSecondsSince1970 - lastGeneratedToken.issuedAt.asSecondsSince1970 < Self
+                    .expirationDurationInSeconds
+                {
+                    // The last generated token is still valid
 
-                return token.token
+                    logger.debug(
+                        "APNSAuthenticationTokenManager reusing previously generated token",
+                        metadata: [
+                            LoggingKeys.authenticationTokenIssuedAt: "\(lastGeneratedToken.issuedAt)",
+                            LoggingKeys.authenticationTokenIssuer: "\(teamIdentifier)",
+                            LoggingKeys.authenticationTokenKeyID: "\(keyIdentifier)",
+                        ]
+                    )
+                    return lastGeneratedToken.token
+                } else {
+                    let token = try generateNewToken(
+                        privateKey: privateKey,
+                        teamIdentifier: teamIdentifier,
+                        keyIdentifier: keyIdentifier
+                    )
+                    lastGeneratedToken = token
+
+                    return token.token
+                }
             }
         }
     }
