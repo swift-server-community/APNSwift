@@ -71,7 +71,7 @@
 // MARK: - Extensions -
 
 extension String {
-    @usableFromInline
+    @inlinable
     internal init<Buffer: Collection>(base64Encoding bytes: Buffer, options: Base64.EncodingOptions = [])
         where Buffer.Element == UInt8 {
         self = Base64.encodeString(bytes: bytes, options: options)
@@ -92,11 +92,13 @@ extension Base64 {
     internal struct EncodingOptions: OptionSet {
         @usableFromInline
         internal let rawValue: UInt
-        @usableFromInline
+
+        @inlinable
         internal init(rawValue: UInt) { self.rawValue = rawValue }
 
         @usableFromInline
         internal static let base64UrlAlphabet = EncodingOptions(rawValue: UInt(1 << 0))
+
         @usableFromInline
         internal static let omitPaddingCharacter = EncodingOptions(rawValue: UInt(1 << 1))
     }
@@ -559,7 +561,7 @@ extension Base64 {
         @usableFromInline
         internal let rawValue: UInt
 
-        @usableFromInline
+        @inlinable
         internal init(rawValue: UInt) { self.rawValue = rawValue }
 
         @usableFromInline
