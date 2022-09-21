@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodable {
+public struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodable {
     enum CodingKeys: String, CodingKey {
         case timestamp = "timestamp"
         case event = "event"
@@ -15,11 +15,11 @@ struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodabl
 
     }
 
-    var timestamp: Int
-    var event: String
-    var contentState: ContentState
+    public var timestamp: Int
+    public var event: String
+    public var contentState: ContentState
 
-    init(
+    public init(
         timestamp: Int,
         event: String,
         contentState: ContentState

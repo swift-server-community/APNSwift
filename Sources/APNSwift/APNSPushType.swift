@@ -23,6 +23,7 @@ public struct APNSPushType: Hashable {
         case complication
         case fileprovider
         case mdm
+        case liveactivity
     }
 
     /// The underlying raw value that is send to APNs.
@@ -91,4 +92,6 @@ public struct APNSPushType: Hashable {
     ///
     /// - Important: If you set this push type, you must use the topic from the UID attribute in the subject of your MDM push certificate.
     public static let mdm = Self(configuration: .mdm)
+    
+    public static let liveactivity = Self(configuration: .liveactivity)
 }
