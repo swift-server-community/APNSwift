@@ -19,6 +19,38 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     /// The fixed content to indicate that this is a background notification.
     private var aps: APNSLiveActivityNotificationAPSStorage<ContentState>
 
+    // Timestamp when sending notification
+    public var timestamp: Int {
+        get {
+            return self.aps.timestamp
+        }
+        
+        set {
+            self.aps.timestamp = newValue
+        }
+    }
+    
+    // Event type e.g. update
+    public var event: LiveActivityNotificationEvent {
+        get {
+            return LiveActivityNotificationEvent(rawValue: self.aps.event)
+        }
+        
+        set {
+            self.aps.event = newValue.rawValue
+        }
+    }
+    
+    // Updated content-state of live activity
+    public var contentState: ContentState {
+        get {
+            return self.aps.contentState
+        }
+        
+        set {
+            self.aps.contentState = newValue
+        }
+    }
  
     /// A canonical UUID that identifies the notification. If there is an error sending the notification,
     /// APNs uses this value to identify the notification to your server. The canonical form is 32 lowercase hexadecimal digits,
@@ -49,9 +81,40 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     /// - Parameters:
     ///   - expiration: The date when the notification is no longer valid and can be discarded.
     ///   - priority: The priority of the notification.
-    ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
+    ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.liveactivity`.
     ///   - apnsID: A canonical UUID that identifies the notification.
-    ///   - contentState: Updated content-state on live activity
+    ///   - contentState: Updated content-state of live activity
+    ///   - timestamp: Timestamp when sending notification
+    ///   - event: event type e.g. update
+    public init(
+        expiration: APNSNotificationExpiration,
+        priority: APNSPriority,
+        appID: String,
+        apnsID: UUID? = nil,
+        contentState: ContentState,
+        event: LiveActivityNotificationEvent,
+        timestamp: Int
+    ) {
+        self.init(expiration: expiration,
+                  priority: priority,
+                  topic: appID + ".push-type.liveactivity",
+                  contentState: contentState,
+                  event: event,
+                  timestamp: timestamp)
+    }
+    
+    
+    /// Initializes a new ``APNSAlertNotification``.
+    ///
+    /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
+    /// It is **important** that you do not encode anything with the key `aps`
+    ///
+    /// - Parameters:
+    ///   - expiration: The date when the notification is no longer valid and can be discarded.
+    ///   - priority: The priority of the notification.
+    ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID suffixed with `.push-type.liveactivity`.
+    ///   - apnsID: A canonical UUID that identifies the notification.
+    ///   - contentState: Updated content-state of live activity
     ///   - timestamp: Timestamp when sending notification
     ///   - event: event type e.g. update
     public init(
@@ -71,15 +134,6 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         self.apnsID = apnsID
         self.expiration = expiration
         self.priority = priority
-        self.topic = topic
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        // First we encode the user payload since this might use the `aps` key
-        // and we override it afterward.
-//        try self.payload.encode(to: encoder)
-        try container.encode(self.aps, forKey: .aps)
+        self.topic = topic + ".push-type.liveactivity"
     }
 }

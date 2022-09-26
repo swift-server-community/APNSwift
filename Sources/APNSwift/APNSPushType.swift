@@ -93,5 +93,8 @@ public struct APNSPushType: Hashable {
     /// - Important: If you set this push type, you must use the topic from the UID attribute in the subject of your MDM push certificate.
     public static let mdm = Self(configuration: .mdm)
     
+    /// Use the live activity push type to update your live activity.
+    ///
+    /// - Important: If you set this push type, the topic must use your app’s bundle ID with `.push-type.liveactivity` appended to the end.
     public static let liveactivity = Self(configuration: .liveactivity)
 }
