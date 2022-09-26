@@ -105,12 +105,12 @@ It requires sending `ContentState` matching with the live activity configuration
             .init(
                   expiration: .immediately,
                   priority: .immediately,
-                  topic: "com.app.bundle",
+                  appID: "com.app.bundle",
                   contentState: ContentState,
                   event: .update,
                   timestamp: Int(Date().timeIntervalSince1970)
             ),
-            deviceToken: deviceToken,
+            activityPushToken: activityPushToken,
             deadline: .distantFuture
         )
 ```
