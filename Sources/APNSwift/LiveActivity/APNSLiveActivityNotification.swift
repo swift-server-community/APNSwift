@@ -134,6 +134,6 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         self.apnsID = apnsID
         self.expiration = expiration
         self.priority = priority
-        self.topic = topic + ".push-type.liveactivity"
+        self.topic = topic
     }
 }
