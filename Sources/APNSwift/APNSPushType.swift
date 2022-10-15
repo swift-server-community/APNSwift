@@ -95,6 +95,5 @@ public struct APNSPushType: Hashable {
     
     /// Use the live activity push type to update your live activity.
     ///
-    /// - Important: If you set this push type, the topic must use your app’s bundle ID with `.push-type.liveactivity` appended to the end.
     public static let liveactivity = Self(configuration: .liveactivity)
 }

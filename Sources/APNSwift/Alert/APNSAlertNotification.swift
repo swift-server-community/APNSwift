@@ -84,8 +84,8 @@ public struct APNSAlertNotification<Payload: Encodable>: Encodable {
     ///
     /// If the value is `1`, the system passes the notification to your notification service app extension before delivery.
     /// Use your extension to modify the notification’s content.
-    // Semantically this would make sense to be a Bool. However, APNS accepts any number here so
-    // we need to allow this as well.
+    /// Semantically this would make sense to be a Bool. However, APNS accepts any number here so
+    /// we need to allow this as well.
     public var mutableContent: Double? {
         get {
             self.aps.mutableContent

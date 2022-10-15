@@ -1,9 +1,16 @@
+//===----------------------------------------------------------------------===//
 //
-//  APNSClient+LiveActivity.swift
-//  PushSender
+// This source file is part of the APNSwift open source project
 //
-//  Created by csms on 20/09/2022.
+// Copyright (c) 2022 the APNSwift project authors
+// Licensed under Apache License v2.0
 //
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of APNSwift project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
 
 import NIOCore
 import Logging
@@ -14,7 +21,7 @@ extension APNSClient {
     /// - Parameters:
     ///   - notification: The notification to send.
     ///
-    ///   - activityPushToken: The hexadecimal bytes use to send live activity notification. Your app receives the bytes for this activity token
+    ///   - deviceToken: The hexadecimal bytes use to send live activity notification. Your app receives the bytes for this activity token
     ///    from `pushTokenUpdates` async property of a live activity.
     ///
     ///   - deadline: Point in time by which sending the notification to APNs must complete.
@@ -24,13 +31,13 @@ extension APNSClient {
     @inlinable
     public func sendLiveActivityNotification<ContentState: Encodable>(
         _ notification: APNSLiveActivityNotification<ContentState>,
-        activityPushToken: String,
+        deviceToken: String,
         deadline: NIODeadline,
         logger: Logger = _noOpLogger
     ) async throws -> APNSResponse {
         return try await self.send(
             payload: notification,
-            deviceToken: activityPushToken,
+            deviceToken: deviceToken,
             pushType: .liveactivity,
             apnsID: notification.apnsID,
             expiration: notification.expiration,

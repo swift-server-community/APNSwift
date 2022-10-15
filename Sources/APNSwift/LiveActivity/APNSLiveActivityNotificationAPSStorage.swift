@@ -1,11 +1,16 @@
+//===----------------------------------------------------------------------===//
 //
-//  APNSLiveActivityNotificationAPSStorage.swift
-//  PushSender
+// This source file is part of the APNSwift open source project
 //
-//  Created by csms on 20/09/2022.
+// Copyright (c) 2022 the APNSwift project authors
+// Licensed under Apache License v2.0
 //
-
-import Foundation
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of APNSwift project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
 
 struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodable {
     enum CodingKeys: String, CodingKey {

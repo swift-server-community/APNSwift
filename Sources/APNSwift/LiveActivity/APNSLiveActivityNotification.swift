@@ -1,15 +1,21 @@
+//===----------------------------------------------------------------------===//
 //
-//  APNSLiveActivityNotification.swift
-//  PushSender
+// This source file is part of the APNSwift open source project
 //
-//  Created by csms on 20/09/2022.
+// Copyright (c) 2022 the APNSwift project authors
+// Licensed under Apache License v2.0
 //
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of APNSwift project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
 
 import struct Foundation.UUID
 
 /// An alert notification.
 ///
-/// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
 /// It is **important** that you do not encode anything with the key `aps`.
 public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     enum CodingKeys: CodingKey {
@@ -19,7 +25,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     /// The fixed content to indicate that this is a background notification.
     private var aps: APNSLiveActivityNotificationAPSStorage<ContentState>
 
-    // Timestamp when sending notification
+    /// Timestamp when sending notification
     public var timestamp: Int {
         get {
             return self.aps.timestamp
@@ -30,10 +36,10 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         }
     }
     
-    // Event type e.g. update
-    public var event: LiveActivityNotificationEvent {
+    /// Event type e.g. update
+    public var event: APNSLiveActivityNotificationEvent {
         get {
-            return LiveActivityNotificationEvent(rawValue: self.aps.event)
+            return APNSLiveActivityNotificationEvent(rawValue: self.aps.event)
         }
         
         set {
@@ -41,7 +47,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         }
     }
     
-    // Updated content-state of live activity
+    /// The dynamic content of a Live Activity.
     public var contentState: ContentState {
         get {
             return self.aps.contentState
@@ -73,7 +79,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     /// The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
     public var topic: String
 
-    /// Initializes a new ``APNSAlertNotification``.
+    /// Initializes a new ``APNSLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
     /// It is **important** that you do not encode anything with the key `aps`
@@ -90,21 +96,23 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
         appID: String,
-        apnsID: UUID? = nil,
         contentState: ContentState,
-        event: LiveActivityNotificationEvent,
-        timestamp: Int
+        event: APNSLiveActivityNotificationEvent,
+        timestamp: Int,
+        apnsID: UUID? = nil
     ) {
-        self.init(expiration: expiration,
-                  priority: priority,
-                  topic: appID + ".push-type.liveactivity",
-                  contentState: contentState,
-                  event: event,
-                  timestamp: timestamp)
+        self.init(
+            expiration: expiration,
+            priority: priority,
+            topic: appID + ".push-type.liveactivity",
+            contentState: contentState,
+            event: event,
+            timestamp: timestamp
+        )
     }
     
     
-    /// Initializes a new ``APNSAlertNotification``.
+    /// Initializes a new ``APNSLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
     /// It is **important** that you do not encode anything with the key `aps`
@@ -123,7 +131,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         topic: String,
         apnsID: UUID? = nil,
         contentState: ContentState,
-        event: LiveActivityNotificationEvent,
+        event: APNSLiveActivityNotificationEvent,
         timestamp: Int
     ) {
         self.aps = APNSLiveActivityNotificationAPSStorage(
