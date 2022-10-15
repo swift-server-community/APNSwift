@@ -11,6 +11,7 @@ A non-blocking Swift module for sending remote Apple Push Notification requests 
 - [Foundations](#foundations)
 - [Getting Started](#getting-started)
 - [Sending a simple notification](#sending-a-simple-notification)
+- [Sending Live Activity Update](#sending-live-activity-update)
 - [Authentication](#authentication)
 - [Logging](#logging)
     - [**Background Activity Logger**](#background-activity-logger)
@@ -94,6 +95,24 @@ try await client.sendAlertNotification(
     deadline: .distantFuture,
     logger: myLogger
 )
+```
+
+## Sending Live Activity Update
+It requires sending `ContentState` matching with the live activity configuration to successfully update activity state. `ContentState` needs to conform to `Encodable`
+
+```swift
+        try await client.sendLiveActivityNotification(
+            .init(
+                  expiration: .immediately,
+                  priority: .immediately,
+                  appID: "com.app.bundle",
+                  contentState: ContentState,
+                  event: .update,
+                  timestamp: Int(Date().timeIntervalSince1970)
+            ),
+            activityPushToken: activityPushToken,
+            deadline: .distantFuture
+        )
 ```
 
 ## Authentication
