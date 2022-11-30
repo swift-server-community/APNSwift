@@ -134,6 +134,10 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
         self.backgroundActivityLogger.trace("APNSClient is shutting down")
         try self.httpClient.syncShutdown()
     }
+    
+    deinit {
+        try? self.syncShutdown()
+    }
 }
 
 
