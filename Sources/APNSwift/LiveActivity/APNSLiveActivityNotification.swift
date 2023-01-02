@@ -13,8 +13,9 @@
 //===----------------------------------------------------------------------===//
 
 import struct Foundation.UUID
+import struct Foundation.Date
 
-/// An alert notification.
+/// A live activity notification.
 ///
 /// It is **important** that you do not encode anything with the key `aps`.
 public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
@@ -58,6 +59,15 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         }
     }
  
+    public var dismissalDate: Int? {
+        get {
+            return self.aps.dismissalDate
+        }
+        set {
+            self.aps.dismissalDate = newValue
+        }
+    }
+    
     /// A canonical UUID that identifies the notification. If there is an error sending the notification,
     /// APNs uses this value to identify the notification to your server. The canonical form is 32 lowercase hexadecimal digits,
     /// displayed in five groups separated by hyphens in the form 8-4-4-4-12. An example UUID is as follows:
@@ -78,7 +88,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
 
     /// The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
     public var topic: String
-
+    
     /// Initializes a new ``APNSLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
@@ -90,8 +100,10 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.liveactivity`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
-    ///   - timestamp: Timestamp when sending notification
     ///   - event: event type e.g. update
+    ///   - timestamp: Timestamp when sending notification
+    ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
+    ///    dismiss immediately
     public init(
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
@@ -99,6 +111,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
         timestamp: Int,
+        dismissalDate: Int? = nil,
         apnsID: UUID? = nil
     ) {
         self.init(
@@ -107,11 +120,12 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
             topic: appID + ".push-type.liveactivity",
             contentState: contentState,
             event: event,
-            timestamp: timestamp
+            timestamp: timestamp,
+            dismissalDate: dismissalDate
         )
     }
     
-    
+
     /// Initializes a new ``APNSLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
@@ -123,8 +137,10 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
     ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID suffixed with `.push-type.liveactivity`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
-    ///   - timestamp: Timestamp when sending notification
     ///   - event: event type e.g. update
+    ///   - timestamp: Timestamp when sending notification
+    ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
+    ///    dismiss immediately
     public init(
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
@@ -132,12 +148,14 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         apnsID: UUID? = nil,
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
-        timestamp: Int
+        timestamp: Int,
+        dismissalDate: Int? = nil
     ) {
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
             event: event.rawValue,
-            contentState: contentState
+            contentState: contentState,
+            dismissalDate: dismissalDate
         )
         self.apnsID = apnsID
         self.expiration = expiration

@@ -97,7 +97,7 @@ try await client.sendAlertNotification(
 )
 ```
 
-## Sending Live Activity Update
+## Sending Live Activity Update / End
 It requires sending `ContentState` matching with the live activity configuration to successfully update activity state. `ContentState` needs to conform to `Encodable`
 
 ```swift
@@ -115,6 +115,21 @@ It requires sending `ContentState` matching with the live activity configuration
         )
 ```
 
+```swift
+        try await client.sendLiveActivityNotification(
+            .init(
+                  expiration: .immediately,
+                  priority: .immediately,
+                  appID: "com.app.bundle",
+                  contentState: ContentState,
+                  event: .end,
+                  timestamp: Int(Date().timeIntervalSince1970),
+                  dismissalDate: .dismissImmediately // Optional to alter default behaviour
+            ),
+            activityPushToken: activityPushToken,
+            deadline: .distantFuture
+        )
+```
 ## Authentication
 `APNSwift` provides two authentication methods. `jwt`, and `TLS`. 
 
