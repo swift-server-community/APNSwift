@@ -24,11 +24,11 @@ import NIOSSL
 import NIOTLS
 
 /// A client to talk with the Apple Push Notification services.
-public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder> {
+public final class APNSClient<Client: APNSHttpClient, Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder> {
     /// The configuration used by the ``APNSClient``.
     private let configuration: APNSClientConfiguration
     /// The ``HTTPClient`` used by the ``APNSClient``.
-    private let httpClient: HTTPClient
+    private let httpClient: APNSHttpClient
     /// The logger used by the ``APNSClient``.
     private let backgroundActivityLogger: Logger
     /// The authentication token manager.
@@ -41,14 +41,12 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     /// The ByteBufferAllocator
     @usableFromInline
     /* private */ internal let byteBufferAllocator: ByteBufferAllocator
-    /// Default ``HTTPHeaders`` which will be adapted for each request. This saves some allocations.
-    private let defaultRequestHeaders: HTTPHeaders = {
-        var headers = HTTPHeaders()
-        headers.reserveCapacity(10)
-        headers.add(name: "content-type", value: "application/json")
-        headers.add(name: "user-agent", value: "APNS/swift-nio")
-        return headers
-    }()
+    
+    /// Default Headers which will be adapted for each request. This saves some allocations.
+    private let defaultRequestHeaders: [String: String] = [
+        "content-type": "application/json",
+        "user-agent": "APNS/swift-nio"
+    ]
 
     /// Initializes a new ``APNSClient``.
     ///
@@ -77,7 +75,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
         self.responseDecoder = responseDecoder
         self.requestEncoder = requestEncoder
 
-        var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+
         switch configuration.authenticationMethod.method {
         case .jwt(let privateKey, let teamIdentifier, let keyIdentifier):
             self.authenticationTokenManager = APNSAuthenticationTokenManager(
@@ -86,53 +84,15 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
                 keyIdentifier: keyIdentifier,
                 logger: backgroundActivityLogger
             )
-        case .tls(let privateKey, let certificateChain):
+        case .tls:
             self.authenticationTokenManager = nil
-            tlsConfiguration.privateKey = privateKey
-            tlsConfiguration.certificateChain = certificateChain
         }
-
-        var httpClientConfiguration = HTTPClient.Configuration()
-        httpClientConfiguration.tlsConfiguration = tlsConfiguration
-        httpClientConfiguration.httpVersion = .automatic
-        httpClientConfiguration.proxy = configuration.proxy
-
-        let httpClientEventLoopGroupProvider: HTTPClient.EventLoopGroupProvider
-
-        switch eventLoopGroupProvider {
-        case .shared(let eventLoopGroup):
-            httpClientEventLoopGroupProvider = .shared(eventLoopGroup)
-        case .createNew:
-            httpClientEventLoopGroupProvider = .createNew
-        }
-
-        self.httpClient = HTTPClient(
-            eventLoopGroupProvider: httpClientEventLoopGroupProvider,
-            configuration: httpClientConfiguration,
+        
+        self.httpClient = Client(
+            configuration: configuration,
+            eventLoopGroupProvider: eventLoopGroupProvider,
             backgroundActivityLogger: backgroundActivityLogger
         )
-    }
-
-    /// Shuts down the client and event loop gracefully. This function is clearly an outlier in that it uses a completion
-    /// callback instead of an EventLoopFuture. The reason for that is that NIO's EventLoopFutures will call back on an event loop.
-    /// The virtue of this function is to shut the event loop down. To work around that we call back on a DispatchQueue
-    /// instead.
-    ///
-    /// - Important: This will only shutdown the event loop if the provider passed to the client was ``createNew``.
-    /// For shared event loops the owner of the event loop is responsible for handling the lifecycle.
-    ///
-    /// - Parameters:
-    ///   - queue: The queue on which the callback is invoked on.
-    ///   - callback: The callback that is invoked when everything is shutdown.
-    public func shutdown(queue: DispatchQueue = .global(), callback: @escaping (Error?) -> Void) {
-        self.backgroundActivityLogger.trace("APNSClient is shutting down")
-        self.httpClient.shutdown(callback)
-    }
-
-    /// Shuts down the client and `EventLoopGroup` if it was created by the client.
-    public func syncShutdown() throws {
-        self.backgroundActivityLogger.trace("APNSClient is shutting down")
-        try self.httpClient.syncShutdown()
     }
 }
 
@@ -268,47 +228,41 @@ extension APNSClient {
         var logger = logger
         var headers = self.defaultRequestHeaders
 
-        // Push type
-        headers.add(name: "apns-push-type", value: pushType)
+        /// Push type
+        headers["apns-push-type"] = pushType
 
-        // APNS ID
+        /// APNS ID
         if let apnsID = apnsID {
-            headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
+            headers["apns-id"] = apnsID.uuidString.lowercased()
         }
 
-        // Expiration
+        /// Expiration
         if let expiration = expiration {
-            headers.add(name: "apns-expiration", value: String(expiration))
+            headers["apns-expiration"] = String(expiration)
         }
 
-        // Priority
+        /// Priority
         if let priority = priority {
-            headers.add(name: "apns-priority", value: String(priority))
+            headers["apns-priority"] = String(priority)
         }
 
-        // Topic
+        /// Topic
         if let topic = topic {
-            headers.add(name: "apns-topic", value: topic)
+            headers["apns-topic"] = topic
         }
 
-        // Collapse ID
+        /// Collapse ID
         if let collapseID = collapseID {
-            headers.add(name: "apns-collapse-id", value: collapseID)
+            headers["apns-collapse-id"] = collapseID
         }
 
         // Authorization token
         if let authenticationTokenManager = self.authenticationTokenManager {
-            let token = try authenticationTokenManager.nextValidToken
-            headers.add(name: "authorization", value: token)
+            headers["authorization"] = try authenticationTokenManager.nextValidToken
         }
 
         // Device token
         let requestURL = "\(self.configuration.environment.url)/3/device/\(deviceToken)"
-
-        var request = HTTPClientRequest(url: requestURL)
-        request.method = .POST
-        request.headers = headers
-        request.body = .bytes(payload)
 
         // Attaching all metadata to the logger
         // so that we see it inside AHC as well
@@ -321,21 +275,134 @@ extension APNSClient {
 
         logger.debug("APNSClient sending notification request")
 
-        let response = try await self.httpClient.execute(
-            request,
+        let response = try await httpClient.send(
+            payload: payload,
+            headers: headers,
+            requestURL: requestURL,
+            decoder: responseDecoder,
             deadline: deadline,
-            logger: logger
+            logger: logger,
+            file: file,
+            line: line
         )
+        
+        logger.trace("APNSClient notification sent")
+        
+        return response
+    }
+}
 
-        let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }
+public protocol APNSHttpClient {
+    func shutdown(queue: DispatchQueue, callback: @escaping (Error?) -> Void)
+    func syncShutdown() throws
+    
+    func send(
+        payload: ByteBuffer,
+        headers: [String: String],
+        requestURL: String,
+        decoder: APNSJSONDecoder,
+        deadline: NIODeadline,
+        logger: Logger,
+        file: String,
+        line: Int
+    ) async throws -> APNSResponse
+    
+    init(
+        configuration: APNSClientConfiguration,
+        eventLoopGroupProvider: NIOEventLoopGroupProvider,
+        backgroundActivityLogger: Logger
+    )
+}
 
-        if response.status == .ok {
-            logger.trace("APNSClient notification sent")
-            return APNSResponse(apnsID: apnsID)
+
+struct AsyncHTTPAPNSClient: APNSHttpClient {
+    private let httpClient: HTTPClient
+    /// The logger used by the ``APNSClient``.
+    private let backgroundActivityLogger: Logger
+    
+    init(
+        configuration: APNSClientConfiguration,
+        eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
+        backgroundActivityLogger: Logger = _noOpLogger
+    ) {
+        var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
+        switch configuration.authenticationMethod.method {
+        case .tls(let privateKey, let certificateChain):
+            tlsConfiguration.privateKey = privateKey
+            tlsConfiguration.certificateChain = certificateChain
+        case .jwt:
+            /// no op
+            break
+        }
+        
+        var httpClientConfiguration = HTTPClient.Configuration()
+        httpClientConfiguration.tlsConfiguration = tlsConfiguration
+        httpClientConfiguration.httpVersion = .automatic
+        httpClientConfiguration.proxy = configuration.proxy
+        
+        let httpClientEventLoopGroupProvider: HTTPClient.EventLoopGroupProvider
+
+        switch eventLoopGroupProvider {
+        case .shared(let eventLoopGroup):
+            httpClientEventLoopGroupProvider = .shared(eventLoopGroup)
+        case .createNew:
+            httpClientEventLoopGroupProvider = .createNew
         }
 
+        self.backgroundActivityLogger = backgroundActivityLogger
+        self.httpClient = HTTPClient(
+            eventLoopGroupProvider: httpClientEventLoopGroupProvider,
+            configuration: httpClientConfiguration,
+            backgroundActivityLogger: backgroundActivityLogger
+        )
+        
+    }
+    
+    /// Shuts down the client and event loop gracefully. This function is clearly an outlier in that it uses a completion
+    /// callback instead of an EventLoopFuture. The reason for that is that NIO's EventLoopFutures will call back on an event loop.
+    /// The virtue of this function is to shut the event loop down. To work around that we call back on a DispatchQueue
+    /// instead.
+    ///
+    /// - Important: This will only shutdown the event loop if the provider passed to the client was ``createNew``.
+    /// For shared event loops the owner of the event loop is responsible for handling the lifecycle.
+    ///
+    /// - Parameters:
+    ///   - queue: The queue on which the callback is invoked on.
+    ///   - callback: The callback that is invoked when everything is shutdown.
+    public func shutdown(queue: DispatchQueue = .global(), callback: @escaping (Error?) -> Void) {
+        self.backgroundActivityLogger.trace("APNSClient is shutting down")
+        self.httpClient.shutdown(callback)
+    }
+
+    /// Shuts down the client and `EventLoopGroup` if it was created by the client.
+    public func syncShutdown() throws {
+        self.backgroundActivityLogger.trace("APNSClient is shutting down")
+        try self.httpClient.syncShutdown()
+    }
+    
+    func send(
+        payload: NIOCore.ByteBuffer,
+        headers: [String : String],
+        requestURL: String,
+        decoder: APNSJSONDecoder,
+        deadline: NIOCore.NIODeadline,
+        logger: Logging.Logger,
+        file: String,
+        line: Int
+    ) async throws -> APNSResponse {
+        let headers = HTTPHeaders(headers.map { ($0, $1) })
+        var request = HTTPClientRequest(url: requestURL)
+        request.method = .POST
+        request.headers = headers
+        request.body = .bytes(payload)
+        
+        let response = try await self.httpClient.execute(request, deadline: deadline, logger: logger)
+        let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }
+        if response.status == .ok {
+            return APNSResponse(apnsID: apnsID)
+        }
         let body = try await response.body.collect(upTo: 1024)
-        let errorResponse = try responseDecoder.decode(APNSErrorResponse.self, from: body)
+        let errorResponse = try decoder.decode(APNSErrorResponse.self, from: body)
 
         let error = APNSError(
             responseStatus: response.status,
@@ -345,10 +412,7 @@ extension APNSClient {
             file: file,
             line: line
         )
-
-        logger.debug("APNSClient sending notification failed")
-
+        
         throw error
     }
 }
-
