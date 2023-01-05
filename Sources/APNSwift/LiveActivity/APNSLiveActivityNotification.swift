@@ -13,7 +13,6 @@
 //===----------------------------------------------------------------------===//
 
 import struct Foundation.UUID
-import struct Foundation.Date
 
 /// A live activity notification.
 ///
@@ -111,7 +110,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
         timestamp: Int,
-        dismissalDate: Int? = nil,
+        dismissalDate: APNSLiveActivityDismissalDate = .none,
         apnsID: UUID? = nil
     ) {
         self.init(
@@ -149,13 +148,13 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
         timestamp: Int,
-        dismissalDate: Int? = nil
+        dismissalDate: APNSLiveActivityDismissalDate = .none
     ) {
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
             event: event.rawValue,
             contentState: contentState,
-            dismissalDate: dismissalDate
+            dismissalDate: dismissalDate.dismissal
         )
         self.apnsID = apnsID
         self.expiration = expiration

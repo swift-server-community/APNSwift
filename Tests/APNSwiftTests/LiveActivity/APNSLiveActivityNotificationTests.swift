@@ -23,12 +23,14 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
     }
     
     func testEncodeUpdate() throws {
-        let notification = APNSLiveActivityNotification(expiration: .immediately,
-                                                        priority: .immediately,
-                                                        appID: "test.app.id",
-                                                        contentState: State(),
-                                                        event: .update,
-                                                        timestamp: 1672680658)
+        let notification = APNSLiveActivityNotification(
+            expiration: .immediately,
+            priority: .immediately,
+            appID: "test.app.id",
+            contentState: State(),
+            event: .update,
+            timestamp: 1672680658)
+        
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)
 
@@ -42,12 +44,14 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
     }
     
     func testEncodeEndNoDismiss() throws {
-        let notification = APNSLiveActivityNotification(expiration: .immediately,
-                                                        priority: .immediately,
-                                                        appID: "test.app.id",
-                                                        contentState: State(),
-                                                        event: .end,
-                                                        timestamp: 1672680658)
+        let notification = APNSLiveActivityNotification(
+            expiration: .immediately,
+            priority: .immediately,
+            appID: "test.app.id",
+            contentState: State(),
+            event: .end,
+            timestamp: 1672680658)
+        
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)
 
@@ -61,13 +65,14 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
     }
 
     func testEncodeEndDismiss() throws {
-        let notification = APNSLiveActivityNotification(expiration: .immediately,
-                                                        priority: .immediately,
-                                                        appID: "test.app.id",
-                                                        contentState: State(),
-                                                        event: .end,
-                                                        timestamp: 1672680658,
-                                                        dismissalDate: 1672680800)
+        let notification = APNSLiveActivityNotification(
+            expiration: .immediately,
+            priority: .immediately,
+            appID: "test.app.id",
+            contentState: State(),
+            event: .end,
+            timestamp: 1672680658,
+            dismissalDate: .timeIntervalSince1970InSeconds(1672680800))
         
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)

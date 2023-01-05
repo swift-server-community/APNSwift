@@ -12,8 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.Date
-
 struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodable {
     enum CodingKeys: String, CodingKey {
         case timestamp = "timestamp"
