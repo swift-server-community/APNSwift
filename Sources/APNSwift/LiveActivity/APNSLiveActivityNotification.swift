@@ -87,7 +87,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
 
     /// The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
     public var topic: String
-    
+
     /// Initializes a new ``APNSLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
