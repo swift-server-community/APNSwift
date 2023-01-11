@@ -58,12 +58,12 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: Encodable {
         }
     }
  
-    public var dismissalDate: Int? {
+    public var dismissalDate: APNSLiveActivityDismissalDate? {
         get {
-            return self.aps.dismissalDate
+            return .init(dismissal: self.aps.dismissalDate)
         }
         set {
-            self.aps.dismissalDate = newValue
+            self.aps.dismissalDate = newValue?.dismissal
         }
     }
     
