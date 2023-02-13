@@ -319,9 +319,7 @@ extension APNSClient {
         logger[metadataKey: LoggingKeys.notificationTopic] = "\(topic ?? "nil")"
         logger[metadataKey: LoggingKeys.notificationCollapseID] = "\(collapseID ?? "nil")"
 
-        logger.debug(
-            "APNSClient sending notification request"
-        )
+        logger.debug("APNSClient sending notification request")
 
         let response = try await self.httpClient.execute(
             request,
@@ -332,17 +330,7 @@ extension APNSClient {
         let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }
 
         if response.status == .ok {
-            logger.trace(
-                "APNSClient notification sent",
-                metadata: [
-                    LoggingKeys.notificationPushType: "\(pushType)",
-                    LoggingKeys.notificationID: "\(apnsID?.description ?? "nil")",
-                    LoggingKeys.notificationExpiration: "\(expiration?.description ?? "nil")",
-                    LoggingKeys.notificationPriority: "\(priority?.description ?? "nil")",
-                    LoggingKeys.notificationTopic: "\(topic ?? "nil")",
-                    LoggingKeys.notificationCollapseID: "\(collapseID ?? "nil")",
-                ]
-            )
+            logger.trace("APNSClient notification sent")
             return APNSResponse(apnsID: apnsID)
         }
 
@@ -358,18 +346,7 @@ extension APNSClient {
             line: line
         )
 
-        logger.debug(
-            "APNSClient sending notification failed",
-            metadata: [
-                LoggingKeys.notificationPushType: "\(pushType)",
-                LoggingKeys.notificationID: "\(apnsID?.description ?? "nil")",
-                LoggingKeys.notificationExpiration: "\(expiration?.description ?? "nil")",
-                LoggingKeys.notificationPriority: "\(priority?.description ?? "nil")",
-                LoggingKeys.notificationTopic: "\(topic ?? "nil")",
-                LoggingKeys.notificationCollapseID: "\(collapseID ?? "nil")",
-                LoggingKeys.error: "\(error)",
-            ]
-        )
+        logger.debug("APNSClient sending notification failed")
 
         throw error
     }
