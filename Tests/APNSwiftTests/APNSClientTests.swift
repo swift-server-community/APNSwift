@@ -22,7 +22,7 @@ final class APNSClientTests: XCTestCase {
         let client = self.makeClient()
 
         let expec = expectation(description: "Shutdown expectation")
-        client.shutdown { _ in
+        client.httpClient.shutdown { _ in
             expec.fulfill()
         }
 
@@ -31,7 +31,7 @@ final class APNSClientTests: XCTestCase {
 
     // MARK: - Helper methods
 
-    private func makeClient() -> APNSClient<JSONDecoder, JSONEncoder> {
+    private func makeClient() -> APNSClient<AsyncHTTPAPNSClient> {
         APNSClient(
             configuration: .init(
                 authenticationMethod: .jwt(
@@ -41,7 +41,6 @@ final class APNSClientTests: XCTestCase {
                 ),
                 environment: .sandbox
             ),
-            eventLoopGroupProvider: .createNew,
             responseDecoder: JSONDecoder(),
             requestEncoder: JSONEncoder()
         )

@@ -16,6 +16,7 @@ import AsyncHTTPClient
 import Dispatch
 import struct Foundation.Date
 import struct Foundation.UUID
+import Foundation.NSJSONSerialization
 import Logging
 import NIOConcurrencyHelpers
 import NIOCore
@@ -24,23 +25,20 @@ import NIOSSL
 import NIOTLS
 
 /// A client to talk with the Apple Push Notification services.
-public final class APNSClient<Client: APNSHttpClient, Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder> {
+public final class APNSClient<Client: APNSHttpClient> {
     /// The configuration used by the ``APNSClient``.
     private let configuration: APNSClientConfiguration
-    /// The ``HTTPClient`` used by the ``APNSClient``.
-    private let httpClient: APNSHttpClient
+    /// The ``APNSHttpClient`` used by the ``APNSClient``.
+    public let httpClient: Client
     /// The logger used by the ``APNSClient``.
     private let backgroundActivityLogger: Logger
     /// The authentication token manager.
     private let authenticationTokenManager: APNSAuthenticationTokenManager?
     /// The decoder for the responses from APNs.
-    private let responseDecoder: Decoder
+    private let responseDecoder: JSONDecoder
     /// The encoder for the requests to APNs.
     @usableFromInline
-    /* private */ internal let requestEncoder: Encoder
-    /// The ByteBufferAllocator
-    @usableFromInline
-    /* private */ internal let byteBufferAllocator: ByteBufferAllocator
+    /* private */ internal let requestEncoder: JSONEncoder
     
     /// Default Headers which will be adapted for each request. This saves some allocations.
     private let defaultRequestHeaders: [String: String] = [
@@ -57,20 +55,16 @@ public final class APNSClient<Client: APNSHttpClient, Decoder: APNSJSONDecoder, 
     ///
     /// - Parameters:
     ///   - configuration: The configuration used by the ``APNSClient``.
-    ///   - eventLoopGroupProvider: Specify how EventLoopGroup will be created.
     ///   - responseDecoder: The decoder for the responses from APNs.
     ///   - requestEncoder: The encoder for the requests to APNs.
     ///   - backgroundActivityLogger: The logger used by the ``APNSClient``.
     public init(
         configuration: APNSClientConfiguration,
-        eventLoopGroupProvider: NIOEventLoopGroupProvider,
-        responseDecoder: Decoder,
-        requestEncoder: Encoder,
-        byteBufferAllocator: ByteBufferAllocator = .init(),
+        responseDecoder: JSONDecoder,
+        requestEncoder: JSONEncoder,
         backgroundActivityLogger: Logger = _noOpLogger
     ) {
         self.configuration = configuration
-        self.byteBufferAllocator = byteBufferAllocator
         self.backgroundActivityLogger = backgroundActivityLogger
         self.responseDecoder = responseDecoder
         self.requestEncoder = requestEncoder
@@ -90,7 +84,6 @@ public final class APNSClient<Client: APNSHttpClient, Decoder: APNSJSONDecoder, 
         
         self.httpClient = Client(
             configuration: configuration,
-            eventLoopGroupProvider: eventLoopGroupProvider,
             backgroundActivityLogger: backgroundActivityLogger
         )
     }
@@ -152,14 +145,8 @@ extension APNSClient {
         deadline: NIODeadline,
         logger: Logger = _noOpLogger
     ) async throws -> APNSResponse {
-        var byteBuffer = self.byteBufferAllocator.buffer(capacity: 0)
-
-        if let payload = payload {
-            try self.requestEncoder.encode(payload, into: &byteBuffer)
-        }
-
         return try await self.send(
-            payload: byteBuffer,
+            payload: payload,
             deviceToken: deviceToken,
             pushType: pushType.configuration.rawValue,
             apnsID: apnsID,
@@ -211,8 +198,8 @@ extension APNSClient {
     ///
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
-    public func send(
-        payload: ByteBuffer,
+    public func send<Payload: Encodable>(
+        payload: Payload?,
         deviceToken: String,
         pushType: String,
         apnsID: UUID? = nil,
@@ -293,11 +280,9 @@ extension APNSClient {
 }
 
 public protocol APNSHttpClient {
-    func shutdown(queue: DispatchQueue, callback: @escaping (Error?) -> Void)
-    func syncShutdown() throws
-    
-    func send(
-        payload: ByteBuffer,
+
+    func send<Payload: Encodable>(
+        payload: Payload?,
         headers: [String: String],
         requestURL: String,
         decoder: APNSJSONDecoder,
@@ -309,20 +294,21 @@ public protocol APNSHttpClient {
     
     init(
         configuration: APNSClientConfiguration,
-        eventLoopGroupProvider: NIOEventLoopGroupProvider,
         backgroundActivityLogger: Logger
     )
 }
 
 
-struct AsyncHTTPAPNSClient: APNSHttpClient {
+public struct AsyncHTTPAPNSClient: APNSHttpClient {
     private let httpClient: HTTPClient
     /// The logger used by the ``APNSClient``.
     private let backgroundActivityLogger: Logger
     
-    init(
+    private let byteBufferAllocator: ByteBufferAllocator = .init()
+    
+    public init(
         configuration: APNSClientConfiguration,
-        eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
+        eventLoopGroupProvider: HTTPClient.EventLoopGroupProvider,
         backgroundActivityLogger: Logger = _noOpLogger
     ) {
         var tlsConfiguration = TLSConfiguration.makeClientConfiguration()
@@ -339,23 +325,24 @@ struct AsyncHTTPAPNSClient: APNSHttpClient {
         httpClientConfiguration.tlsConfiguration = tlsConfiguration
         httpClientConfiguration.httpVersion = .automatic
         httpClientConfiguration.proxy = configuration.proxy
-        
-        let httpClientEventLoopGroupProvider: HTTPClient.EventLoopGroupProvider
-
-        switch eventLoopGroupProvider {
-        case .shared(let eventLoopGroup):
-            httpClientEventLoopGroupProvider = .shared(eventLoopGroup)
-        case .createNew:
-            httpClientEventLoopGroupProvider = .createNew
-        }
 
         self.backgroundActivityLogger = backgroundActivityLogger
         self.httpClient = HTTPClient(
-            eventLoopGroupProvider: httpClientEventLoopGroupProvider,
+            eventLoopGroupProvider: eventLoopGroupProvider,
             configuration: httpClientConfiguration,
             backgroundActivityLogger: backgroundActivityLogger
         )
-        
+    }
+    
+    public init(
+        configuration: APNSClientConfiguration,
+        backgroundActivityLogger: Logger = _noOpLogger
+    ) {
+        self.init(
+            configuration: configuration,
+            eventLoopGroupProvider: .createNew,
+            backgroundActivityLogger: backgroundActivityLogger
+        )
     }
     
     /// Shuts down the client and event loop gracefully. This function is clearly an outlier in that it uses a completion
@@ -380,8 +367,8 @@ struct AsyncHTTPAPNSClient: APNSHttpClient {
         try self.httpClient.syncShutdown()
     }
     
-    func send(
-        payload: NIOCore.ByteBuffer,
+    public func send<Payload: Encodable>(
+        payload: Payload?,
         headers: [String : String],
         requestURL: String,
         decoder: APNSJSONDecoder,
@@ -392,9 +379,18 @@ struct AsyncHTTPAPNSClient: APNSHttpClient {
     ) async throws -> APNSResponse {
         let headers = HTTPHeaders(headers.map { ($0, $1) })
         var request = HTTPClientRequest(url: requestURL)
+        
+        
+        var byteBuffer = self.byteBufferAllocator.buffer(capacity: 0)
+
+        if let payload = payload {
+            let data = try JSONEncoder().encode(payload)
+            byteBuffer.writeData(data)
+        }
+        
         request.method = .POST
         request.headers = headers
-        request.body = .bytes(payload)
+        request.body = .bytes(byteBuffer)
         
         let response = try await self.httpClient.execute(request, deadline: deadline, logger: logger)
         let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }

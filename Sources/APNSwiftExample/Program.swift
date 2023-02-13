@@ -40,7 +40,7 @@ struct Main {
     static let teamIdentifier = ""
 
     static func main() async throws {
-        let client = APNSClient(
+        let client = APNSClient<AsyncHTTPAPNSClient>(
             configuration: .init(
                 authenticationMethod: .jwt(
                     privateKey: try .init(pemRepresentation: privateKey),
@@ -49,14 +49,13 @@ struct Main {
                 ),
                 environment: .sandbox
             ),
-            eventLoopGroupProvider: .createNew,
             responseDecoder: JSONDecoder(),
             requestEncoder: JSONEncoder(),
-            byteBufferAllocator: .init(),
             backgroundActivityLogger: logger
         )
+        
         defer {
-            client.shutdown { _ in
+            client.httpClient.shutdown { _ in
                 logger.error("Failed to shutdown APNSClient")
             }
         }
@@ -80,7 +79,7 @@ struct Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendSimpleAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendSimpleAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -100,7 +99,7 @@ extension Main {
         )
     }
 
-    static func sendLocalizedAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendLocalizedAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -120,7 +119,7 @@ extension Main {
         )
     }
 
-    static func sendThreadedAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendThreadedAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -141,7 +140,7 @@ extension Main {
         )
     }
 
-    static func sendCustomCategoryAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendCustomCategoryAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -162,7 +161,7 @@ extension Main {
         )
     }
 
-    static func sendMutableContentAlert(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendMutableContentAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -188,7 +187,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendBackground(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendBackground(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendBackgroundNotification(
             .init(
                 expiration: .immediately,
@@ -206,7 +205,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendVoIP(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendVoIP(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendVoIPNotification(
             .init(
                 expiration: .immediately,
@@ -225,7 +224,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendFileProvider(with client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+    static func sendFileProvider(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
         try await client.sendFileProviderNotification(
             .init(
                 expiration: .immediately,
