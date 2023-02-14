@@ -12,11 +12,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-import NIOCore
 import Logging
 
 extension APNSClient {
-    /// Sends a location request notification to APNs.
+    /// Sends a file provider notification to APNs.
     ///
     /// - Parameters:
     ///   - notification: The notification to send.
@@ -29,19 +28,19 @@ extension APNSClient {
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
-    func sendLocationNotification(
-        _ notification: APNSLocationNotification,
+    public func sendFileProviderNotification<Payload: Encodable>(
+        _ notification: APNSFileProviderNotification<Payload>,
         deviceToken: String,
-        deadline: NIODeadline,
+        deadline: Duration,
         logger: Logger = _noOpLogger
     ) async throws -> APNSResponse {
         try await self.send(
-            // This is just to make the compiler work
-            payload: Int?.none,
+            payload: notification.payload,
             deviceToken: deviceToken,
-            pushType: .location,
-            expiration: .none, // TODO: Figure out if expiration has any impact here
-            priority: notification.priority,
+            pushType: .fileprovider,
+            expiration: notification.expiration,
+            // This always needs to be consideringDevicePower otherwise APNs returns an error
+            priority: .consideringDevicePower,
             topic: notification.topic,
             deadline: deadline,
             logger: logger

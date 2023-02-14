@@ -13,9 +13,6 @@
 //===----------------------------------------------------------------------===//
 
 import Crypto
-import NIOSSL
-import NIOTLS
-import AsyncHTTPClient
 
 /// The configuration of an ``APNSClient``.
 public struct APNSClientConfiguration {
@@ -23,7 +20,7 @@ public struct APNSClientConfiguration {
     public struct AuthenticationMethod {
         internal enum Method {
             case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
-            case tls(privateKey: NIOSSLPrivateKeySource, certificateChain: [NIOSSLCertificateSource])
+//            case tls(privateKey: NIOSSLPrivateKeySource, certificateChain: [NIOSSLCertificateSource])
         }
 
         /// Token-based authentication method.
@@ -47,12 +44,12 @@ public struct APNSClientConfiguration {
         /// - Parameters:
         ///   - privateKey: The private key associated with the leaf certificate.
         ///   - certificateChain: The certificates to offer during negotiation. If not present, no certificates will be offered.
-        public static func tls(
-            privateKey: NIOSSLPrivateKeySource,
-            certificateChain: [NIOSSLCertificateSource]
-        ) -> Self {
-            Self(method: .tls(privateKey: privateKey, certificateChain: certificateChain))
-        }
+//        public static func tls(
+//            privateKey: NIOSSLPrivateKeySource,
+//            certificateChain: [NIOSSLCertificateSource]
+//        ) -> Self {
+//            Self(method: .tls(privateKey: privateKey, certificateChain: certificateChain))
+//        }
 
         internal var method: Method
     }
@@ -81,9 +78,6 @@ public struct APNSClientConfiguration {
 
     /// The environment used by the ``APNSClient``.
     public var environment: Environment
-
-    /// Upstream proxy, defaults to no proxy.
-    public var proxy: HTTPClient.Configuration.Proxy?
 
     /// Initializes a new ``APNSClient.Configuration``.
     ///

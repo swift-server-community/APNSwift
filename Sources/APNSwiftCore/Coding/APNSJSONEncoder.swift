@@ -12,20 +12,4 @@
 //
 //===----------------------------------------------------------------------===//
 
-import APNSwiftCore
-import XCTest
-
-final class APNSVoIPNotificationTests: XCTestCase {
-    func testAppID() {
-        struct Payload: Encodable {
-            let foo = "bar"
-        }
-        let voipNotification = APNSVoIPNotification(
-            priority: .immediately,
-            appID: "com.example.app",
-            payload: Payload()
-        )
-
-        XCTAssertEqual(voipNotification.topic, "com.example.app.voip")
-    }
-}
+import Foundation

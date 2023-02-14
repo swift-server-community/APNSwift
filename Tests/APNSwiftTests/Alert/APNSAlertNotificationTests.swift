@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import APNSwift
+import APNSwiftCore
 import XCTest
 
 final class APNSAlertNotificationTests: XCTestCase {

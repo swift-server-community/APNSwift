@@ -15,16 +15,16 @@
 /// A struct for the error response of APNs.
 ///
 /// This is just used to decode the JSON and should not be exposed.
-struct APNSErrorResponse: Codable {
+public struct APNSErrorResponse: Codable {
     /// The error code indicating the reason for the failure.
-    var reason: String
+    public var reason: String
 
     /// The time, represented in milliseconds since Epoch, at which APNs confirmed the token was no longer valid for the topic.
     /// This key is included only when the error in the `:status` field is `410`.
-    var timestamp: Int?
+    public var timestamp: Int?
 
     /// The time, represented in seconds since Epoch, at which APNs confirmed the token was no longer valid for the topic.
-    var timestampInSeconds: Double? {
+    public var timestampInSeconds: Double? {
         self.timestamp.flatMap { Double($0) / 1000 }
     }
 }

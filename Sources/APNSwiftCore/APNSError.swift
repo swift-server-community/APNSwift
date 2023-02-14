@@ -14,16 +14,16 @@
 
 import struct Foundation.Date
 import struct Foundation.UUID
-import NIOHTTP1
 
 /// An error returned by APNs.
 public struct APNSError: Error {
+    
     /// The error reason returned by APNs.
     ///
     /// For more information please look here: [Reference]( https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns)
     public struct ErrorReason: Hashable {
-        internal enum Reason: RawRepresentable, Hashable {
-            typealias RawValue = String
+        public enum Reason: RawRepresentable, Hashable {
+            public typealias RawValue = String
 
             case badCollapseIdentifier
             case badDeviceToken
@@ -55,8 +55,8 @@ public struct APNSError: Error {
             case serviceUnavailable
             case shutdown
             case unknown(String)
-
-            init(rawValue: RawValue) {
+            
+            public init(rawValue: RawValue) {
                 switch rawValue {
                 case "BadCollapseId":
                     self = .badCollapseIdentifier
@@ -121,7 +121,7 @@ public struct APNSError: Error {
                 }
             }
 
-            var rawValue: RawValue {
+            public var rawValue: RawValue {
                 switch self {
                 case .badCollapseIdentifier:
                     return "BadCollapseId"
@@ -186,7 +186,7 @@ public struct APNSError: Error {
                 }
             }
 
-            var errorDescription: String {
+            public var errorDescription: String {
                 switch self {
                 case .badCollapseIdentifier:
                     return "The collapse identifier exceeds the maximum allowed size"
@@ -379,10 +379,14 @@ public struct APNSError: Error {
         public static var shutdown: Self {
             return .init(_reason: .shutdown)
         }
+        
+        public init(_reason: APNSError.ErrorReason.Reason) {
+            self._reason = _reason
+        }
     }
 
     /// The HTTP status code.
-    public let responseStatus: HTTPResponseStatus
+    public let responseStatus: String
 
     /// The same value as the `apnsID` send in the request.
     ///
@@ -403,6 +407,21 @@ public struct APNSError: Error {
 
     /// The line the request was attempted in.
     public let line: Int
+    
+    public init(
+        responseStatus: String,
+        apnsID: UUID? = nil,
+        reason: APNSError.ErrorReason? = nil,
+        timestamp: Date? = nil,
+        file: String, line: Int
+    ) {
+        self.responseStatus = responseStatus
+        self.apnsID = apnsID
+        self.reason = reason
+        self.timestamp = timestamp
+        self.file = file
+        self.line = line
+    }
 }
 
 extension APNSError: Hashable {

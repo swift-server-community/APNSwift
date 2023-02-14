@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import APNSwift
+@testable import APNSwiftCore
 import Crypto
 import Logging
 import XCTest

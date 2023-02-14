@@ -14,7 +14,6 @@
 
 import Crypto
 import Foundation
-import NIO
 
 extension P256.Signing.PrivateKey {
     public static func loadFrom(filePath: String) throws -> P256.Signing.PrivateKey? {

@@ -12,7 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import APNSwift
+import APNSwiftCore
+import APNSwiftAHC
 import Foundation
 import Logging
 
@@ -94,7 +95,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.deviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -114,7 +115,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.deviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -135,7 +136,7 @@ extension Main {
                 threadID: "thread"
             ),
             deviceToken: self.deviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -156,7 +157,7 @@ extension Main {
                 category: "CUSTOM"
             ),
             deviceToken: self.deviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -177,7 +178,7 @@ extension Main {
                 mutableContent: 1
             ),
             deviceToken: self.deviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -195,7 +196,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.deviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -214,7 +215,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.pushKitDeviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }
@@ -232,7 +233,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.fileProviderDeviceToken,
-            deadline: .distantFuture,
+            deadline: .nanoseconds(Int64.max),
             logger: self.logger
         )
     }

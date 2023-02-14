@@ -1,15 +1,16 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7
 import PackageDescription
 
 let package = Package(
     name: "apnswift",
     platforms: [
-        .macOS(.v12),
-        .iOS(.v15),
+        .macOS(.v13),
+        .iOS(.v16),
     ],
     products: [
         .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
-        .library(name: "APNSwift", targets: ["APNSwift"]),
+        .library(name: "APNSwiftCore", targets: ["APNSwiftCore"]),
+        .library(name: "APNSwiftAHC", targets: ["APNSwiftAHC"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
@@ -21,19 +22,28 @@ let package = Package(
         .executableTarget(
             name: "APNSwiftExample",
             dependencies: [
-                .target(name: "APNSwift")
+                .target(name: "APNSwiftCore"),
+                .target(name: "APNSwiftAHC")
             ]),
         .testTarget(
             name: "APNSwiftTests",
             dependencies: [
-                .target(name: "APNSwift")
+                .target(name: "APNSwiftCore"),
+                .target(name: "APNSwiftAHC")
             ]),
         .target(
-            name: "APNSwift",
+            name: "APNSwiftCore",
             dependencies: [
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto"),
+            ]
+        ),
+        .target(
+            name: "APNSwiftAHC",
+            dependencies: [
+                .target(name: "APNSwiftCore"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
-            ]),
+            ]
+        ),
     ]
 )

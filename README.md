@@ -92,7 +92,7 @@ try await client.sendAlertNotification(
         payload: Payload()
     ),
     deviceToken: "device-token",
-    deadline: .distantFuture,
+    deadline: .nanoseconds(Int64.max),
     logger: myLogger
 )
 ```

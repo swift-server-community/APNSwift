@@ -15,7 +15,6 @@
 import Crypto
 import Dispatch
 import Logging
-import NIOConcurrencyHelpers
 
 /// A class to manage the authentication tokens for a single APNS connection.
 final class APNSAuthenticationTokenManager {
@@ -43,7 +42,7 @@ final class APNSAuthenticationTokenManager {
     private let currentTimeFactory: () -> DispatchWallTime
 
     /// The lock used to protect access to the ``lastGeneratedToken``.
-    private let lock = Lock()
+//    private let lock = Lock()
 
     /// The last generated token.
     private var lastGeneratedToken: Token?
@@ -75,7 +74,7 @@ final class APNSAuthenticationTokenManager {
     /// If there is a previously generated token that is still valid it will be returned, otherwise a fresh token will be generated.
     var nextValidToken: String {
         get throws {
-            try lock.withLock {
+//            try lock.withLock {
 
                 // First we check if there is a previously generated token
                 // and if that token is still valid.
@@ -104,7 +103,7 @@ final class APNSAuthenticationTokenManager {
 
                     return token.token
                 }
-            }
+//            }
         }
     }
 

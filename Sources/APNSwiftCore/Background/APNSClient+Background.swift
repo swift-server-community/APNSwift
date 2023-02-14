@@ -12,7 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import NIOCore
 import Logging
 
 extension APNSClient {
@@ -32,7 +31,7 @@ extension APNSClient {
     public func sendBackgroundNotification<Payload: Encodable>(
         _ notification: APNSBackgroundNotification<Payload>,
         deviceToken: String,
-        deadline: NIODeadline,
+        deadline: Duration,
         logger: Logger = _noOpLogger
     ) async throws -> APNSResponse {
         try await self.send(

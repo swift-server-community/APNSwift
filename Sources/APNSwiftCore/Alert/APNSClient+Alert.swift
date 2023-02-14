@@ -13,10 +13,9 @@
 //===----------------------------------------------------------------------===//
 
 import Logging
-import NIOCore
 
 extension APNSClient {
-    /// Sends a complication notification to APNs.
+    /// Sends an alert notification to APNs.
     ///
     /// - Parameters:
     ///   - notification: The notification to send.
@@ -29,16 +28,17 @@ extension APNSClient {
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
-    public func sendComplicationNotification<Payload: Encodable>(
-        _ notification: APNSComplicationNotification<Payload>,
+    public func sendAlertNotification<Payload: Encodable>(
+        _ notification: APNSAlertNotification<Payload>,
         deviceToken: String,
-        deadline: NIODeadline,
+        deadline: Duration,
         logger: Logger = _noOpLogger
     ) async throws -> APNSResponse {
-        try await self.send(
-            payload: notification.payload,
+        return try await self.send(
+            payload: notification,
             deviceToken: deviceToken,
-            pushType: .complication,
+            pushType: .alert,
+            apnsID: notification.apnsID,
             expiration: notification.expiration,
             priority: notification.priority,
             topic: notification.topic,
