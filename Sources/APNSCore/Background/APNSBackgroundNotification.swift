@@ -94,3 +94,18 @@ public struct APNSBackgroundNotification<Payload: Encodable>: APNSMessage {
         try container.encode(self.aps, forKey: .aps)
     }
 }
+
+extension APNSBackgroundNotification where Payload == EmptyPayload {
+    public init(
+        expiration: APNSNotificationExpiration,
+        topic: String,
+        apnsID: UUID? = nil
+    ) {
+        self.init(
+            expiration: expiration,
+            topic: topic,
+            payload: EmptyPayload(),
+            apnsID: apnsID
+        )
+    }
+}

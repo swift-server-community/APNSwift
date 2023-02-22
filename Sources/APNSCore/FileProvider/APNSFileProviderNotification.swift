@@ -82,3 +82,25 @@ public struct APNSFileProviderNotification<Payload: Encodable>: APNSMessage {
         self.apnsID = apnsID
     }
 }
+
+extension APNSFileProviderNotification where Payload == EmptyPayload {
+    /// Initializes a new ``APNSFileProviderNotification`` with an EmptyPayload.
+    ///
+    /// - Parameters:
+    ///   - expiration: The date when the notification is no longer valid and can be discarded
+    ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.pushkit.fileprovider`.
+    ///   - payload: Your custom payload.
+    ///   - apnsID: A canonical UUID that identifies the notification.
+    public init(
+        expiration: APNSNotificationExpiration,
+        appID: String,
+        apnsID: UUID? = nil
+    ) {
+        self.init(
+            expiration: expiration,
+            topic: appID + ".pushkit.fileprovider",
+            payload: EmptyPayload(),
+            apnsID: apnsID
+        )
+    }
+}

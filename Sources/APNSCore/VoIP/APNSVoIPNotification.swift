@@ -95,3 +95,30 @@ public struct APNSVoIPNotification<Payload: Encodable>: APNSMessage {
     }
 }
 
+extension APNSVoIPNotification where Payload == EmptyPayload {
+    /// Initializes a new ``APNSVoIPNotification`` with an EmptyPayload.
+    ///
+    /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
+    /// It is **important** that you do not encode anything with the key `aps`
+    ///
+    /// - Parameters:
+    ///   - expiration: The date when the notification is no longer valid and can be discarded. Defaults to `.immediately`
+    ///   - priority: The priority of the notification.
+    ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.voip`.
+    ///   - payload: Your custom payload.
+    ///   - apnsID: A canonical UUID that identifies the notification.
+    public init(
+        expiration: APNSNotificationExpiration = .immediately,
+        priority: APNSPriority,
+        appID: String,
+        apnsID: UUID? = nil
+    ) {
+        self.init(
+            expiration: expiration,
+            priority: priority,
+            topic: appID + ".voip",
+            payload: EmptyPayload(),
+            apnsID: apnsID
+        )
+    }
+}

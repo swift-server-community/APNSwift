@@ -91,3 +91,28 @@ public struct APNSComplicationNotification<Payload: Encodable>: APNSMessage {
         self.apnsID = apnsID
     }
 }
+
+extension APNSComplicationNotification where Payload == EmptyPayload {
+    /// Initializes a new ``APNSComplicationNotification`` with an EmptyPayload.
+    ///
+    /// - Parameters:
+    ///   - expiration: The date when the notification is no longer valid and can be discarded.
+    ///   - priority: The priority of the notification.
+    ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.complication`.
+    ///   - payload: Your custom payload.
+    ///   - apnsID: A canonical UUID that identifies the notification.
+    public init(
+        expiration: APNSNotificationExpiration,
+        priority: APNSPriority,
+        appID: String,
+        apnsID: UUID? = nil
+    ) {
+        self.init(
+            expiration: expiration,
+            priority: priority,
+            topic: appID + ".complication",
+            payload: EmptyPayload(),
+            apnsID: apnsID
+        )
+    }
+}

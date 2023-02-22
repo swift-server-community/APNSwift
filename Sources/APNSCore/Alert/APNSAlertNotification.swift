@@ -220,3 +220,57 @@ public struct APNSAlertNotification<Payload: Encodable>: APNSMessage, Sendable {
         try container.encode(self.aps, forKey: .aps)
     }
 }
+
+extension APNSAlertNotification where Payload == EmptyPayload {
+    /// Initializes a new ``APNSAlertNotification`` with an empty Payload.
+    ///
+    /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
+    /// It is **important** that you do not encode anything with the key `aps`
+    ///
+    /// - Parameters:
+    ///   - alert: The information for displaying an alert.
+    ///   - expiration: The date when the notification is no longer valid and can be discarded.
+    ///   - priority: The priority of the notification.
+    ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
+    ///   - badge: The number to display in a badge on your app’s icon.
+    ///   - sound: The sound to play for your alert.
+    ///   - threadID: An app-specific identifier for grouping related notifications.
+    ///   - category: The notification’s type.
+    ///   - mutableContent: The notification service app extension flag.
+    ///   - targetContentID: The identifier of the window brought forward.
+    ///   - interruptionLevel: A string that indicates the importance and delivery timing of a notification.
+    ///   - relevanceScore: The relevance score, a number between `0` and `1`, that the system uses to sort the notifications from your app.
+    ///   - apnsID: A canonical UUID that identifies the notification.
+    public init(
+        alert: APNSAlertNotificationContent,
+        expiration: APNSNotificationExpiration,
+        priority: APNSPriority,
+        topic: String,
+        badge: Int? = nil,
+        sound: APNSAlertNotificationSound? = nil,
+        threadID: String? = nil,
+        category: String? = nil,
+        mutableContent: Double? = nil,
+        targetContentID: String? = nil,
+        interruptionLevel: APNSAlertNotificationInterruptionLevel? = nil,
+        relevanceScore: Double? = nil,
+        apnsID: UUID? = nil
+    ) {
+        self.aps = APNSAlertNotificationAPSStorage(
+            alert: alert,
+            badge: badge,
+            sound: sound,
+            threadID: threadID,
+            category: category,
+            mutableContent: mutableContent,
+            targetContentID: targetContentID,
+            interruptionLevel: interruptionLevel,
+            relevanceScore: relevanceScore
+        )
+        self.apnsID = apnsID
+        self.expiration = expiration
+        self.priority = priority
+        self.topic = topic
+        self.payload = EmptyPayload()
+    }
+}
