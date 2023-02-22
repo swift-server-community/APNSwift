@@ -12,6 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-protocol APNSClient {
-  func send(_ request: APNSRequest<some APNSMessage>) async throws -> APNSResponse
+public protocol APNSClient {
+    func send(_ request: APNSRequest<some APNSMessage>) async throws -> APNSResponse
 }

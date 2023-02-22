@@ -1,4 +1,4 @@
-import APNSwiftCore
+import APNSCore
 import AsyncHTTPClient
 import Dispatch
 import struct Foundation.Date
