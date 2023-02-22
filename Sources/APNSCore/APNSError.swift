@@ -22,8 +22,8 @@ public struct APNSError: Error {
     ///
     /// For more information please look here: [Reference]( https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns)
     public struct ErrorReason: Hashable {
-        public enum Reason: RawRepresentable, Hashable {
-            public typealias RawValue = String
+        enum Reason: RawRepresentable, Hashable {
+            typealias RawValue = String
 
             case badCollapseIdentifier
             case badDeviceToken
@@ -380,7 +380,7 @@ public struct APNSError: Error {
             return .init(_reason: .shutdown)
         }
         
-        public init(_reason: APNSError.ErrorReason.Reason) {
+        init(_reason: APNSError.ErrorReason.Reason) {
             self._reason = _reason
         }
     }

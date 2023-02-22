@@ -150,6 +150,9 @@ public struct APNSAlertNotification<Payload: Encodable>: APNSMessage, Sendable {
 
     /// The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
     public var topic: String
+    
+    /// The collapse identifier
+    public var collapseID: String?
 
     /// Your custom payload.
     public var payload: Payload

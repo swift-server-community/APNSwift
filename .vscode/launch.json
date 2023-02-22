@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug APNSwiftExample",
+            "program": "${workspaceFolder:APNSwift}/.build/debug/APNSwiftExample",
+            "args": [],
+            "cwd": "${workspaceFolder:APNSwift}",
+            "preLaunchTask": "swift: Build Debug APNSwiftExample"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Release APNSwiftExample",
+            "program": "${workspaceFolder:APNSwift}/.build/release/APNSwiftExample",
+            "args": [],
+            "cwd": "${workspaceFolder:APNSwift}",
+            "preLaunchTask": "swift: Build Release APNSwiftExample"
+        }
+    ]
+}

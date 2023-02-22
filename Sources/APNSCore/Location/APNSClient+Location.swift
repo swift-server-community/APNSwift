@@ -31,8 +31,7 @@ extension APNSClient {
     func sendLocationNotification(
         _ notification: APNSLocationNotification,
         deviceToken: String,
-        deadline: Duration,
-        logger: Logger = _noOpLogger
+        deadline: Duration
     ) async throws -> APNSResponse {
         let request = APNSRequest(
             message: notification,
@@ -41,7 +40,8 @@ extension APNSClient {
             expiration: APNSNotificationExpiration.none,
             priority: notification.priority,
             apnsID: notification.apnsID,
-            topic: notification.topic
+            topic: notification.topic,
+            collapseID: nil
         )
         return try await send(request)
     }

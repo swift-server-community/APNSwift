@@ -29,11 +29,11 @@ public struct APNSRequest<Message: APNSMessage> {
             message: Message,
             deviceToken: String,
             pushType: APNSPushType,
-            expiration: APNSNotificationExpiration? = nil,
-            priority: APNSPriority? = nil,
-            apnsID: UUID? = nil,
-            topic: String? = nil,
-            collapseID: String? = nil
+            expiration: APNSNotificationExpiration?,
+            priority: APNSPriority?,
+            apnsID: UUID?,
+            topic: String?,
+            collapseID: String?
         ) {
             self.message = message
             self.deviceToken = deviceToken
@@ -52,11 +52,11 @@ public struct APNSRequest<Message: APNSMessage> {
         message: Message,
         deviceToken: String,
         pushType: APNSPushType,
-        expiration: APNSNotificationExpiration? = nil,
-        priority: APNSPriority? = nil,
-        apnsID: UUID? = nil,
-        topic: String? = nil,
-        collapseID: String? = nil
+        expiration: APNSNotificationExpiration?,
+        priority: APNSPriority?,
+        apnsID: UUID?,
+        topic: String?,
+        collapseID: String?
     ) {
         self._storage = _Storage(
             message: message,

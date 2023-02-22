@@ -12,5 +12,4 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
 public protocol APNSMessage: Encodable, Sendable {}

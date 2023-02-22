@@ -31,8 +31,7 @@ extension APNSClient {
     public func sendFileProviderNotification<Payload: Encodable>(
         _ notification: APNSFileProviderNotification<Payload>,
         deviceToken: String,
-        deadline: Duration,
-        logger: Logger = _noOpLogger
+        deadline: Duration
     ) async throws -> APNSResponse {
         let request = APNSRequest(
             message: notification,
@@ -42,7 +41,8 @@ extension APNSClient {
             // This always needs to be consideringDevicePower otherwise APNs returns an error
             priority: .consideringDevicePower,
             apnsID: notification.apnsID,
-            topic: notification.topic
+            topic: notification.topic,
+            collapseID: nil
         )
         return try await send(request)
     }

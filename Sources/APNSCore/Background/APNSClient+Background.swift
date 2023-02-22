@@ -31,8 +31,7 @@ extension APNSClient {
     public func sendBackgroundNotification<Payload: Encodable>(
         _ notification: APNSBackgroundNotification<Payload>,
         deviceToken: String,
-        deadline: Duration,
-        logger: Logger = _noOpLogger
+        deadline: Duration
     ) async throws -> APNSResponse {
         let request = APNSRequest(
             message: notification,
@@ -41,7 +40,8 @@ extension APNSClient {
             expiration: notification.expiration,
             priority: .consideringDevicePower,
             apnsID: notification.apnsID,
-            topic: notification.topic
+            topic: notification.topic,
+            collapseID: nil
         )
         return try await send(request)
     }
