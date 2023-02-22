@@ -8,41 +8,64 @@ let package = Package(
         .iOS(.v16),
     ],
     products: [
-        .executable(name: "APNSwiftExample", targets: ["APNSwiftExample"]),
-        .library(name: "APNSwiftCore", targets: ["APNSwiftCore"]),
-        .library(name: "APNSwiftAHC", targets: ["APNSwiftAHC"]),
+        .executable(name: "APNSExample", targets: ["APNSExample"]),
+        .library(name: "APNSCore", targets: ["APNSCore"]),
+        .library(name: "APNSURLSession", targets: ["APNSURLSession"]),
+        .library(name: "APNSTestServer", targets: ["APNSTestServer"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0"..<"3.0.0"),
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.10.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.42.0"),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.6.0"),
+        .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.9.0"),
     ],
     targets: [
         .executableTarget(
-            name: "APNSwiftExample",
+            name: "APNSExample",
             dependencies: [
-                .target(name: "APNSwiftCore"),
-                .target(name: "APNSwiftAHC")
+                .target(name: "APNSCore"),
+                .target(name: "APNS"),
+                .target(name: "APNSURLSession"),
             ]),
         .testTarget(
-            name: "APNSwiftTests",
+            name: "APNSTests",
             dependencies: [
-                .target(name: "APNSwiftCore"),
-                .target(name: "APNSwiftAHC")
+                .target(name: "APNSCore"),
             ]),
         .target(
-            name: "APNSwiftCore",
+            name: "APNSCore",
             dependencies: [
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
         ),
         .target(
-            name: "APNSwiftAHC",
+            name: "APNS",
             dependencies: [
-                .target(name: "APNSwiftCore"),
-                .product(name: "AsyncHTTPClient", package: "async-http-client"),
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Crypto", package: "swift-crypto"),
+                .target(name: "APNSCore"),
+            ]
+        ),
+        .target(
+            name: "APNSTestServer",
+            dependencies: [
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "NIOCore", package: "swift-nio"),
+                .product(name: "NIOPosix", package: "swift-nio"),
+                .product(name: "NIOSSL", package: "swift-nio-ssl"),
+                .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "NIOHTTP2", package: "swift-nio-http2"),
+            ]
+        ),
+        .target(
+            name: "APNSURLSession",
+            dependencies: [
+                .target(name: "APNSCore"),
             ]
         ),
     ]
