@@ -1,7 +1,7 @@
 import APNSCore
 import Foundation.NSJSONSerialization
 
-public struct APNSUrlSessionClient: APNSClient {
+public struct APNSURLSessionClient: APNSClient {
     public let configuration: APNSClientConfiguration
     public let authenticationTokenManager: APNSAuthenticationTokenManager?
     
