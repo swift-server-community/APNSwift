@@ -12,6 +12,3 @@ enum LoggingKeys {
     static let notificationTopic = "notification.topic"
     static let notificationCollapseID = "notification.collapseID"
 }
-
-/// A no-op logger.
-public let _noOpLogger = Logger(label: "no-op") { _ in SwiftLogNoOpLogHandler() }

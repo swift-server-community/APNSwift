@@ -210,38 +210,6 @@
 //        var logger = logger
 //        var headers = self.defaultRequestHeaders
 //
-//        /// Push type
-//        headers["apns-push-type"] = pushType
-//
-//        /// APNS ID
-//        if let apnsID = apnsID {
-//            headers["apns-id"] = apnsID.uuidString.lowercased()
-//        }
-//
-//        /// Expiration
-//        if let expiration = expiration {
-//            headers["apns-expiration"] = String(expiration)
-//        }
-//
-//        /// Priority
-//        if let priority = priority {
-//            headers["apns-priority"] = String(priority)
-//        }
-//
-//        /// Topic
-//        if let topic = topic {
-//            headers["apns-topic"] = topic
-//        }
-//
-//        /// Collapse ID
-//        if let collapseID = collapseID {
-//            headers["apns-collapse-id"] = collapseID
-//        }
-//
-//        // Authorization token
-//        if let authenticationTokenManager = self.authenticationTokenManager {
-//            headers["authorization"] = try authenticationTokenManager.nextValidToken
-//        }
 //
 //        // Device token
 //        let requestURL = "\(self.configuration.environment.url)/3/device/\(deviceToken)"

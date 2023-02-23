@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import APNSwiftCore
-import APNSwiftAHC
+@testable import APNSCore
+import APNSURLSession
 import Crypto
 import Logging
 import XCTest
@@ -21,19 +21,12 @@ import XCTest
 final class APNSClientTests: XCTestCase {
     func testShutdown() {
         let client = self.makeClient()
-
-        let expec = expectation(description: "Shutdown expectation")
-        client.httpClient.shutdown { _ in
-            expec.fulfill()
-        }
-
-        wait(for: [expec], timeout: 0.1)
     }
 
     // MARK: - Helper methods
 
-    private func makeClient() -> APNSClient<AsyncHTTPAPNSClient> {
-        APNSClient(
+    private func makeClient() -> APNSUrlSessionClient {
+        APNSUrlSessionClient(
             configuration: .init(
                 authenticationMethod: .jwt(
                     privateKey: try! P256.Signing.PrivateKey(pemRepresentation: self.jwtPrivateKey),
@@ -41,9 +34,7 @@ final class APNSClientTests: XCTestCase {
                     teamIdentifier: "MY_TEAM_ID"
                 ),
                 environment: .sandbox
-            ),
-            responseDecoder: JSONDecoder(),
-            requestEncoder: JSONEncoder()
+            )
         )
     }
 

@@ -401,26 +401,22 @@ public struct APNSError: Error {
     ///
     /// This is only set when the error reason is `unregistered`.
     public let timestamp: Date?
-
-    /// The file the request was attempted in.
-    public let file: String
-
-    /// The line the request was attempted in.
-    public let line: Int
     
     public init(
         responseStatus: String,
         apnsID: UUID? = nil,
-        reason: APNSError.ErrorReason? = nil,
-        timestamp: Date? = nil,
-        file: String, line: Int
+        apnsResponse: APNSErrorResponse? = nil,
+        timestamp: Date? = nil
     ) {
         self.responseStatus = responseStatus
         self.apnsID = apnsID
-        self.reason = reason
+        if let apnsResponse {
+            self.reason = .init(_reason: .init(rawValue: apnsResponse.reason))
+        } else {
+            self.reason = nil
+        }
+        
         self.timestamp = timestamp
-        self.file = file
-        self.line = line
     }
 }
 

@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import APNSwiftCore
-import APNSwiftAHC
+import APNSCore
+import APNSURLSession
 import Foundation
 import Logging
 
@@ -34,32 +34,21 @@ struct Main {
     static let fileProviderDeviceToken = ""
     static let appBundleID = ""
     static let privateKey = """
-    -----BEGIN PRIVATE KEY-----
-    -----END PRIVATE KEY-----
     """
     static let keyIdentifier = ""
     static let teamIdentifier = ""
 
     static func main() async throws {
-        let client = APNSClient<AsyncHTTPAPNSClient>(
+        let client = APNSUrlSessionClient(
             configuration: .init(
                 authenticationMethod: .jwt(
                     privateKey: try .init(pemRepresentation: privateKey),
                     keyIdentifier: keyIdentifier,
                     teamIdentifier: teamIdentifier
                 ),
-                environment: .sandbox
-            ),
-            responseDecoder: JSONDecoder(),
-            requestEncoder: JSONEncoder(),
-            backgroundActivityLogger: logger
+                environment: .production
+            )
         )
-        
-        defer {
-            client.httpClient.shutdown { _ in
-                logger.error("Failed to shutdown APNSClient")
-            }
-        }
 
         do {
             try await Self.sendSimpleAlert(with: client)
@@ -80,7 +69,7 @@ struct Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendSimpleAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendSimpleAlert(with client: some APNSClient) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -95,12 +84,11 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 
-    static func sendLocalizedAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendLocalizedAlert(with client: some APNSClient) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -115,12 +103,11 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 
-    static func sendThreadedAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendThreadedAlert(with client: some APNSClient) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -136,12 +123,11 @@ extension Main {
                 threadID: "thread"
             ),
             deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 
-    static func sendCustomCategoryAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendCustomCategoryAlert(with client: some APNSClient) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -157,12 +143,11 @@ extension Main {
                 category: "CUSTOM"
             ),
             deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 
-    static func sendMutableContentAlert(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendMutableContentAlert(with client: some APNSClient) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -178,8 +163,7 @@ extension Main {
                 mutableContent: 1
             ),
             deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 }
@@ -188,7 +172,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendBackground(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendBackground(with client: some APNSClient) async throws {
         try await client.sendBackgroundNotification(
             .init(
                 expiration: .immediately,
@@ -196,8 +180,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 }
@@ -206,7 +189,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendVoIP(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendVoIP(with client: some APNSClient) async throws {
         try await client.sendVoIPNotification(
             .init(
                 expiration: .immediately,
@@ -215,8 +198,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.pushKitDeviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 }
@@ -225,7 +207,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendFileProvider(with client: APNSClient<AsyncHTTPAPNSClient>) async throws {
+    static func sendFileProvider(with client: some APNSClient) async throws {
         try await client.sendFileProviderNotification(
             .init(
                 expiration: .immediately,
@@ -233,8 +215,7 @@ extension Main {
                 payload: Payload()
             ),
             deviceToken: self.fileProviderDeviceToken,
-            deadline: .nanoseconds(Int64.max),
-            logger: self.logger
+            deadline: .nanoseconds(Int64.max)
         )
     }
 }

@@ -13,18 +13,8 @@
 //===----------------------------------------------------------------------===//
 
 import Crypto
-import Foundation
 
 extension P256.Signing.PrivateKey {
-    public static func loadFrom(filePath: String) throws -> P256.Signing.PrivateKey? {
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)),
-            let pemString = String(data: data, encoding: .utf8)
-        else {
-            return nil
-        }
-        return try loadFrom(string: pemString)
-    }
-
     public static func loadFrom(string: String) throws -> P256.Signing.PrivateKey {
         try .init(pemRepresentation: string)
     }

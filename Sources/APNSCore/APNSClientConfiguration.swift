@@ -18,9 +18,9 @@ import Crypto
 public struct APNSClientConfiguration {
     /// The authentication method used by the ``APNSClient``.
     public struct AuthenticationMethod {
-        internal enum Method {
+        public enum Method {
             case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
-//            case tls(privateKey: NIOSSLPrivateKeySource, certificateChain: [NIOSSLCertificateSource])
+            case tls
         }
 
         /// Token-based authentication method.
@@ -44,14 +44,11 @@ public struct APNSClientConfiguration {
         /// - Parameters:
         ///   - privateKey: The private key associated with the leaf certificate.
         ///   - certificateChain: The certificates to offer during negotiation. If not present, no certificates will be offered.
-//        public static func tls(
-//            privateKey: NIOSSLPrivateKeySource,
-//            certificateChain: [NIOSSLCertificateSource]
-//        ) -> Self {
-//            Self(method: .tls(privateKey: privateKey, certificateChain: certificateChain))
-//        }
+        public static func tls() -> Self {
+            Self(method: .tls)
+        }
 
-        internal var method: Method
+        public var method: Method
     }
 
     /// The APNs environment.
@@ -70,7 +67,7 @@ public struct APNSClientConfiguration {
         }
 
         /// The environment's URL.
-        let url: String
+        public let url: String
     }
 
     /// The authentication method used by the ``APNSClient``.

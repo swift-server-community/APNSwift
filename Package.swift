@@ -27,13 +27,13 @@ let package = Package(
             name: "APNSExample",
             dependencies: [
                 .target(name: "APNSCore"),
-                .target(name: "APNS"),
                 .target(name: "APNSURLSession"),
             ]),
         .testTarget(
             name: "APNSTests",
             dependencies: [
                 .target(name: "APNSCore"),
+                .target(name: "APNSURLSession"),
             ]),
         .target(
             name: "APNSCore",

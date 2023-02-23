@@ -48,6 +48,39 @@ public struct APNSRequest<Message: APNSMessage> {
 
     private var _storage: _Storage
     
+    public var headers: [String: String] {
+        var computedHeaders: [String: String] = [:]
+        
+        /// Push type
+        computedHeaders["apns-push-type"] = pushType.configuration.rawValue
+
+        /// APNS ID
+        if let apnsID = apnsID {
+            computedHeaders["apns-id"] = apnsID.uuidString.lowercased()
+        }
+
+        /// Expiration
+        if let expiration = expiration?.expiration {
+            computedHeaders["apns-expiration"] = "\(expiration)"
+        }
+
+        /// Priority
+        if let priority = priority?.rawValue {
+            computedHeaders["apns-priority"] = "\(priority)"
+        }
+
+        /// Topic
+        if let topic = topic {
+            computedHeaders["apns-topic"] = topic
+        }
+
+        /// Collapse ID
+        if let collapseID = collapseID {
+            computedHeaders["apns-collapse-id"] = collapseID
+        }
+        
+        return computedHeaders
+    }
     public init(
         message: Message,
         deviceToken: String,

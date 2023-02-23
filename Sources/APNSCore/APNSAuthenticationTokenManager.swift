@@ -17,7 +17,7 @@ import Dispatch
 import Logging
 
 /// A class to manage the authentication tokens for a single APNS connection.
-final class APNSAuthenticationTokenManager {
+public final class APNSAuthenticationTokenManager {
     private struct Token {
         /// This is the actual JWT token prefixed with `bearer`.
         ///
@@ -36,7 +36,7 @@ final class APNSAuthenticationTokenManager {
     /// The private key's identifier.
     private let keyIdentifier: String
     /// The logger.
-    private let logger: Logger
+    private let logger: Logger?
     /// A closure to get the current time. This allows for properly testing the behaviour.
     /// Furthermore, we can expose this to clients at some point if they want to provide an NTP synced date.
     private let currentTimeFactory: () -> DispatchWallTime
@@ -55,11 +55,11 @@ final class APNSAuthenticationTokenManager {
     ///   - keyIdentifier: The private key's identifier.
     ///   - logger: The logger.
     ///   - currentTimeFactory: A closure to get the current time.
-    init(
+    public init(
         privateKey: P256.Signing.PrivateKey,
         teamIdentifier: String,
         keyIdentifier: String,
-        logger: Logger,
+        logger: Logger? = nil,
         currentTimeFactory: @escaping () -> DispatchWallTime = { .now() }
     ) {
         self.privateKey = privateKey
@@ -72,7 +72,7 @@ final class APNSAuthenticationTokenManager {
     /// This returns the next valid token.
     ///
     /// If there is a previously generated token that is still valid it will be returned, otherwise a fresh token will be generated.
-    var nextValidToken: String {
+    public var nextValidToken: String {
         get throws {
 //            try lock.withLock {
 
@@ -84,7 +84,7 @@ final class APNSAuthenticationTokenManager {
                 {
                     // The last generated token is still valid
 
-                    logger.debug(
+                    logger?.debug(
                         "APNSAuthenticationTokenManager reusing previously generated token",
                         metadata: [
                             LoggingKeys.authenticationTokenIssuedAt: "\(lastGeneratedToken.issuedAt)",
@@ -155,7 +155,7 @@ final class APNSAuthenticationTokenManager {
         encodedData.append(period)
         encodedData.append(contentsOf: base64Signature)
 
-        logger.debug(
+        logger?.debug(
             "APNSAuthenticationTokenManager generated new token",
             metadata: [
                 LoggingKeys.authenticationTokenIssuedAt: "\(issueAtTime)",
