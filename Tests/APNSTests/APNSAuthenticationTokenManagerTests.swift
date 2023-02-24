@@ -73,10 +73,11 @@ final class APNSAuthenticationTokenManagerTests: XCTestCase {
             options: [.base64UrlAlphabet, .omitPaddingCharacter]
         )
         let payload = String(bytes: decodedPayload, encoding: .utf8)
+        let issuedAtTime = DispatchWallTime.now()
         let expectedPayload = """
         {
             "iss": "foo",
-            "iat": "0",
+            "iat": "\(issuedAtTime.asSecondsSince1970)",
             "kid": "bar"
         }
         """

@@ -3,23 +3,12 @@ import Foundation.NSJSONSerialization
 
 public struct APNSURLSessionClient: APNSClient {
     private let configuration: APNSURLSessionClientConfiguration
-    private let authenticationTokenManager: APNSAuthenticationTokenManager<ContinuousClock>
     
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
     
     public init(configuration: APNSURLSessionClientConfiguration) {
         self.configuration = configuration
-        
-        switch configuration.authenticationMethod.method {
-        case .jwt(let privateKey, let teamIdentifier, let keyIdentifier):
-            self.authenticationTokenManager = APNSAuthenticationTokenManager(
-                privateKey: privateKey,
-                teamIdentifier: teamIdentifier,
-                keyIdentifier: keyIdentifier,
-                clock: ContinuousClock()
-            )
-        }
     }
     
     public func send(
@@ -33,7 +22,7 @@ public struct APNSURLSessionClient: APNSClient {
             urlRequest.setValue(value, forHTTPHeaderField: header)
         }
         
-        await urlRequest.setValue(try authenticationTokenManager.nextValidToken, forHTTPHeaderField: "Authorization")
+        await urlRequest.setValue(try configuration.nextValidToken(), forHTTPHeaderField: "Authorization")
         
         /// Set Body
         urlRequest.httpBody = try encoder.encode(request.message)

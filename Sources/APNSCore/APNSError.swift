@@ -21,8 +21,8 @@ public struct APNSError: Error {
     /// The error reason returned by APNs.
     ///
     /// For more information please look here: [Reference]( https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns)
-    public struct ErrorReason: Hashable {
-        enum Reason: RawRepresentable, Hashable {
+    internal struct ErrorReason: Hashable {
+        internal enum Reason: RawRepresentable, Hashable {
             typealias RawValue = String
 
             case badCollapseIdentifier
@@ -56,7 +56,7 @@ public struct APNSError: Error {
             case shutdown
             case unknown(String)
             
-            public init(rawValue: RawValue) {
+            internal init(rawValue: RawValue) {
                 switch rawValue {
                 case "BadCollapseId":
                     self = .badCollapseIdentifier
@@ -264,119 +264,119 @@ public struct APNSError: Error {
             self._reason.errorDescription
         }
 
-        public static var badCollapseIdentifier: Self {
+        internal static var badCollapseIdentifier: Self {
             return .init(_reason: .badCollapseIdentifier)
         }
 
-        public static var badDeviceToken: Self {
+        internal static var badDeviceToken: Self {
             return .init(_reason: .badDeviceToken)
         }
 
-        public static var badExpirationDate: Self {
+        internal static var badExpirationDate: Self {
             return .init(_reason: .badExpirationDate)
         }
 
-        public static var badMessageId: Self {
+        internal static var badMessageId: Self {
             return .init(_reason: .badMessageId)
         }
 
-        public static var badPriority: Self {
+        internal static var badPriority: Self {
             return .init(_reason: .badPriority)
         }
 
-        public static var badTopic: Self {
+        internal static var badTopic: Self {
             return .init(_reason: .badTopic)
         }
 
-        public static var deviceTokenNotForTopic: Self {
+        internal static var deviceTokenNotForTopic: Self {
             return .init(_reason: .deviceTokenNotForTopic)
         }
 
-        public static var duplicateHeaders: Self {
+        internal static var duplicateHeaders: Self {
             return .init(_reason: .duplicateHeaders)
         }
 
-        public static var idleTimeout: Self {
+        internal static var idleTimeout: Self {
             return .init(_reason: .idleTimeout)
         }
 
-        public static var invalidPushType: Self {
+        internal static var invalidPushType: Self {
             return .init(_reason: .invalidPushType)
         }
 
-        public static var missingDeviceToken: Self {
+        internal static var missingDeviceToken: Self {
             return .init(_reason: .missingDeviceToken)
         }
 
-        public static var missingTopic: Self {
+        internal static var missingTopic: Self {
             return .init(_reason: .missingTopic)
         }
 
-        public static var payloadEmpty: Self {
+        internal static var payloadEmpty: Self {
             return .init(_reason: .payloadEmpty)
         }
 
-        public static var topicDisallowed: Self {
+        internal static var topicDisallowed: Self {
             return .init(_reason: .topicDisallowed)
         }
 
-        public static var badCertificate: Self {
+        internal static var badCertificate: Self {
             return .init(_reason: .badCertificate)
         }
 
-        public static var badCertificateEnvironment: Self {
+        internal static var badCertificateEnvironment: Self {
             return .init(_reason: .badCertificateEnvironment)
         }
 
-        public static var expiredProviderToken: Self {
+        internal static var expiredProviderToken: Self {
             return .init(_reason: .expiredProviderToken)
         }
 
-        public static var forbidden: Self {
+        internal static var forbidden: Self {
             return .init(_reason: .forbidden)
         }
 
-        public static var invalidProviderToken: Self {
+        internal static var invalidProviderToken: Self {
             return .init(_reason: .invalidProviderToken)
         }
 
-        public static var missingProviderToken: Self {
+        internal static var missingProviderToken: Self {
             return .init(_reason: .missingProviderToken)
         }
 
-        public static var badPath: Self {
+        internal static var badPath: Self {
             return .init(_reason: .badPath)
         }
 
-        public static var methodNotAllowed: Self {
+        internal static var methodNotAllowed: Self {
             return .init(_reason: .methodNotAllowed)
         }
 
-        public static var unregistered: Self {
+        internal static var unregistered: Self {
             return .init(_reason: .unregistered)
         }
 
-        public static var payloadTooLarge: Self {
+        internal static var payloadTooLarge: Self {
             return .init(_reason: .payloadTooLarge)
         }
 
-        public static var tooManyProviderTokenUpdates: Self {
+        internal static var tooManyProviderTokenUpdates: Self {
             return .init(_reason: .tooManyProviderTokenUpdates)
         }
 
-        public static var tooManyRequests: Self {
+        internal static var tooManyRequests: Self {
             return .init(_reason: .tooManyRequests)
         }
 
-        public static var internalServerError: Self {
+        internal static var internalServerError: Self {
             return .init(_reason: .internalServerError)
         }
 
-        public static var serviceUnavailable: Self {
+        internal static var serviceUnavailable: Self {
             return .init(_reason: .serviceUnavailable)
         }
 
-        public static var shutdown: Self {
+        internal static var shutdown: Self {
             return .init(_reason: .shutdown)
         }
         
@@ -395,7 +395,7 @@ public struct APNSError: Error {
     public let apnsID: UUID?
 
     /// The error code indicating the reason for the failure.
-    public let reason: ErrorReason?
+    private let reason: ErrorReason?
 
     /// The date at which APNs confirmed the token was no longer valid for the topic.
     ///

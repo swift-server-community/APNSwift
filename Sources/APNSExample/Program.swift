@@ -35,12 +35,10 @@ struct Main {
     static func main() async throws {
         let client = APNSURLSessionClient(
             configuration: .init(
-                authenticationMethod: .jwt(
-                    privateKey: try .init(pemRepresentation: privateKey),
-                    keyIdentifier: keyIdentifier,
-                    teamIdentifier: teamIdentifier
-                ),
-                environment: .production
+                environment: .production,
+                privateKey: try .init(pemRepresentation: privateKey),
+                keyIdentifier: keyIdentifier,
+                teamIdentifier: teamIdentifier
             )
         )
 

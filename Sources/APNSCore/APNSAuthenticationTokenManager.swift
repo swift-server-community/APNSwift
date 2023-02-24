@@ -99,7 +99,7 @@ public final actor APNSAuthenticationTokenManager<Clock: _Concurrency.Clock> whe
         }
         """
 
-        let issueAtTime = DispatchWallTime(timespec: .init(clock.now.duration(to: clock.now)))
+        let issueAtTime = DispatchWallTime.now()
         let payload = """
         {
             "iss": "\(teamIdentifier)",
@@ -143,7 +143,7 @@ public final actor APNSAuthenticationTokenManager<Clock: _Concurrency.Clock> whe
     }
 }
 
-private extension DispatchWallTime {
+internal extension DispatchWallTime {
     var asSecondsSince1970: Int64 {
         -Int64(bitPattern: rawValue) / 1_000_000_000
     }
