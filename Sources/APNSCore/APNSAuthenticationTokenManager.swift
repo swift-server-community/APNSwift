@@ -14,20 +14,19 @@
 
 import Crypto
 import Dispatch
-import Logging
 
 /// A class to manage the authentication tokens for a single APNS connection.
-public final class APNSAuthenticationTokenManager {
+public final actor APNSAuthenticationTokenManager<Clock: _Concurrency.Clock> where Clock.Duration == Duration {
     private struct Token {
         /// This is the actual JWT token prefixed with `bearer`.
         ///
         /// This is stored as a ``String`` since we use it as an HTTP headers.
         var token: String
-        var issuedAt: DispatchWallTime
+        var issuedAt: Clock.Instant
     }
 
     /// APNS rejects any token that is more than 1 hour old. We set the duration to be slightly less to refresh earlier.
-    private static let expirationDurationInSeconds: Int = 60 * 55
+    private let expirationDurationInSeconds: Int = 60 * 55
 
     /// The private key used for signing the tokens.
     private let privateKey: P256.Signing.PrivateKey
@@ -35,14 +34,10 @@ public final class APNSAuthenticationTokenManager {
     private let teamIdentifier: String
     /// The private key's identifier.
     private let keyIdentifier: String
-    /// The logger.
-    private let logger: Logger?
+
     /// A closure to get the current time. This allows for properly testing the behaviour.
     /// Furthermore, we can expose this to clients at some point if they want to provide an NTP synced date.
-    private let currentTimeFactory: () -> DispatchWallTime
-
-    /// The lock used to protect access to the ``lastGeneratedToken``.
-//    private let lock = Lock()
+    private let clock: Clock
 
     /// The last generated token.
     private var lastGeneratedToken: Token?
@@ -59,14 +54,12 @@ public final class APNSAuthenticationTokenManager {
         privateKey: P256.Signing.PrivateKey,
         teamIdentifier: String,
         keyIdentifier: String,
-        logger: Logger? = nil,
-        currentTimeFactory: @escaping () -> DispatchWallTime = { .now() }
+        clock: Clock
     ) {
         self.privateKey = privateKey
         self.teamIdentifier = teamIdentifier
         self.keyIdentifier = keyIdentifier
-        self.logger = logger
-        self.currentTimeFactory = currentTimeFactory
+        self.clock = clock
     }
 
     /// This returns the next valid token.
@@ -74,36 +67,22 @@ public final class APNSAuthenticationTokenManager {
     /// If there is a previously generated token that is still valid it will be returned, otherwise a fresh token will be generated.
     public var nextValidToken: String {
         get throws {
-//            try lock.withLock {
-
-                // First we check if there is a previously generated token
-                // and if that token is still valid.
-                if let lastGeneratedToken = lastGeneratedToken,
-                   self.currentTimeFactory().asSecondsSince1970 - lastGeneratedToken.issuedAt.asSecondsSince1970 < Self
-                    .expirationDurationInSeconds
-                {
-                    // The last generated token is still valid
-
-                    logger?.debug(
-                        "APNSAuthenticationTokenManager reusing previously generated token",
-                        metadata: [
-                            LoggingKeys.authenticationTokenIssuedAt: "\(lastGeneratedToken.issuedAt)",
-                            LoggingKeys.authenticationTokenIssuer: "\(teamIdentifier)",
-                            LoggingKeys.authenticationTokenKeyID: "\(keyIdentifier)",
-                        ]
-                    )
-                    return lastGeneratedToken.token
-                } else {
-                    let token = try generateNewToken(
-                        privateKey: privateKey,
-                        teamIdentifier: teamIdentifier,
-                        keyIdentifier: keyIdentifier
-                    )
-                    lastGeneratedToken = token
-
-                    return token.token
-                }
-//            }
+            /// First we check if there is a previously generated token
+            /// and if that token is still valid.
+            if let lastGeneratedToken = lastGeneratedToken,
+               lastGeneratedToken.issuedAt.duration(to: self.clock.now) < .seconds(60 * 55) {
+                /// The last generated token is still valid
+                return lastGeneratedToken.token
+            } else {
+                let token = try generateNewToken(
+                    privateKey: privateKey,
+                    teamIdentifier: teamIdentifier,
+                    keyIdentifier: keyIdentifier
+                )
+                lastGeneratedToken = token
+                
+                return token.token
+            }
         }
     }
 
@@ -120,7 +99,7 @@ public final class APNSAuthenticationTokenManager {
         }
         """
 
-        let issueAtTime = currentTimeFactory()
+        let issueAtTime = DispatchWallTime(timespec: .init(clock.now.duration(to: clock.now)))
         let payload = """
         {
             "iss": "\(teamIdentifier)",
@@ -155,20 +134,11 @@ public final class APNSAuthenticationTokenManager {
         encodedData.append(period)
         encodedData.append(contentsOf: base64Signature)
 
-        logger?.debug(
-            "APNSAuthenticationTokenManager generated new token",
-            metadata: [
-                LoggingKeys.authenticationTokenIssuedAt: "\(issueAtTime)",
-                LoggingKeys.authenticationTokenIssuer: "\(teamIdentifier)",
-                LoggingKeys.authenticationTokenKeyID: "\(keyIdentifier)",
-            ]
-        )
-
         // We are prefixing the token here to avoid an additional
         // allocation for setting the header.
         return Token(
             token: "bearer " + String(decoding: encodedData, as: UTF8.self),
-            issuedAt: issueAtTime
+            issuedAt: clock.now
         )
     }
 }

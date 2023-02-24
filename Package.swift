@@ -38,14 +38,12 @@ let package = Package(
         .target(
             name: "APNSCore",
             dependencies: [
-                .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
         ),
         .target(
             name: "APNS",
             dependencies: [
-                .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .target(name: "APNSCore"),
             ]

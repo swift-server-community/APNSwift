@@ -2,13 +2,13 @@ import APNSCore
 import Foundation.NSJSONSerialization
 
 public struct APNSURLSessionClient: APNSClient {
-    public let configuration: APNSClientConfiguration
-    public let authenticationTokenManager: APNSAuthenticationTokenManager?
+    private let configuration: APNSURLSessionClientConfiguration
+    private let authenticationTokenManager: APNSAuthenticationTokenManager<ContinuousClock>
     
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
     
-    public init(configuration: APNSClientConfiguration) {
+    public init(configuration: APNSURLSessionClientConfiguration) {
         self.configuration = configuration
         
         switch configuration.authenticationMethod.method {
@@ -16,10 +16,9 @@ public struct APNSURLSessionClient: APNSClient {
             self.authenticationTokenManager = APNSAuthenticationTokenManager(
                 privateKey: privateKey,
                 teamIdentifier: teamIdentifier,
-                keyIdentifier: keyIdentifier
+                keyIdentifier: keyIdentifier,
+                clock: ContinuousClock()
             )
-        case .tls:
-            self.authenticationTokenManager = nil
         }
     }
     
@@ -34,9 +33,7 @@ public struct APNSURLSessionClient: APNSClient {
             urlRequest.setValue(value, forHTTPHeaderField: header)
         }
         
-        if let authenticationTokenManager {
-            urlRequest.setValue(try authenticationTokenManager.nextValidToken, forHTTPHeaderField: "Authorization")
-        }
+        await urlRequest.setValue(try authenticationTokenManager.nextValidToken, forHTTPHeaderField: "Authorization")
         
         /// Set Body
         urlRequest.httpBody = try encoder.encode(request.message)

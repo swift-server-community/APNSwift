@@ -12,15 +12,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+import APNSCore
 import Crypto
 
 /// The configuration of an ``APNSClient``.
-public struct APNSClientConfiguration {
+public struct APNSURLSessionClientConfiguration {
     /// The authentication method used by the ``APNSClient``.
     public struct AuthenticationMethod {
         public enum Method {
             case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
-            case tls
         }
 
         /// Token-based authentication method.
@@ -33,48 +33,21 @@ public struct APNSClientConfiguration {
         ///   - keyIdentifier: The private encryption key identifier obtained through the developer portal.
         ///   - teamIdentifier: The team id.
         public static func jwt(
-            privateKey: P256.Signing.PrivateKey, keyIdentifier: String,
+            privateKey: P256.Signing.PrivateKey,
+            keyIdentifier: String,
             teamIdentifier: String
         ) -> Self {
             Self(method: .jwt(privateKey: privateKey, teamIdentifier: teamIdentifier, keyIdentifier: keyIdentifier))
         }
 
-        /// Certificate based authentication method.
-        ///
-        /// - Parameters:
-        ///   - privateKey: The private key associated with the leaf certificate.
-        ///   - certificateChain: The certificates to offer during negotiation. If not present, no certificates will be offered.
-        public static func tls() -> Self {
-            Self(method: .tls)
-        }
-
         public var method: Method
-    }
-
-    /// The APNs environment.
-    public struct Environment {
-        /// The production APNs environment.
-        public static let production = Self(url: "https://api.push.apple.com")
-
-        /// The sandbox APNs environment.
-        public static let sandbox = Self(url: "https://api.development.push.apple.com")
-
-        /// Creates an APNs environment with a custom URL.
-        ///
-        /// - Note: This is mostly used for testing purposes.
-        public static func custom(url: String) -> Self {
-            Self(url: url)
-        }
-
-        /// The environment's URL.
-        public let url: String
     }
 
     /// The authentication method used by the ``APNSClient``.
     public var authenticationMethod: AuthenticationMethod
 
     /// The environment used by the ``APNSClient``.
-    public var environment: Environment
+    public var environment: APNSEnvironment
 
     /// Initializes a new ``APNSClient.Configuration``.
     ///
@@ -83,7 +56,7 @@ public struct APNSClientConfiguration {
     ///   - environment: The environment used by the ``APNSClient``.
     public init(
         authenticationMethod: AuthenticationMethod,
-        environment: Environment
+        environment: APNSEnvironment
     ) {
         self.authenticationMethod = authenticationMethod
         self.environment = environment

@@ -12,8 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Logging
-
 extension APNSClient {
     /// Sends a live activity notification.
     ///

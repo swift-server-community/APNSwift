@@ -15,18 +15,12 @@
 import APNSCore
 import APNSURLSession
 import Foundation
-import Logging
 
 @available(macOS 11.0, *)
 @main
 struct Main {
     // TODO: Maybe provide this in the package
     struct Payload: Codable {}
-    static let logger: Logger = {
-        var logger = Logger(label: "APNSExample")
-        logger.logLevel = .trace
-        return logger
-    }()
 
     /// To use this example app please provide proper values for variable below.
     static let deviceToken = ""
@@ -39,7 +33,7 @@ struct Main {
     static let teamIdentifier = ""
 
     static func main() async throws {
-        let client = APNSUrlSessionClient(
+        let client = APNSURLSessionClient(
             configuration: .init(
                 authenticationMethod: .jwt(
                     privateKey: try .init(pemRepresentation: privateKey),
@@ -50,18 +44,14 @@ struct Main {
             )
         )
 
-        do {
-            try await Self.sendSimpleAlert(with: client)
-            try await Self.sendLocalizedAlert(with: client)
-            try await Self.sendThreadedAlert(with: client)
-            try await Self.sendCustomCategoryAlert(with: client)
-            try await Self.sendMutableContentAlert(with: client)
-            try await Self.sendBackground(with: client)
-            try await Self.sendVoIP(with: client)
-            try await Self.sendFileProvider(with: client)
-        } catch {
-            self.logger.error("Failed sending push", metadata: ["error": "\(error)"])
-        }
+        try await Self.sendSimpleAlert(with: client)
+        try await Self.sendLocalizedAlert(with: client)
+        try await Self.sendThreadedAlert(with: client)
+        try await Self.sendCustomCategoryAlert(with: client)
+        try await Self.sendMutableContentAlert(with: client)
+        try await Self.sendBackground(with: client)
+        try await Self.sendVoIP(with: client)
+        try await Self.sendFileProvider(with: client)
     }
 }
 

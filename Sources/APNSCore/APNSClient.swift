@@ -13,7 +13,5 @@
 //===----------------------------------------------------------------------===//
 
 public protocol APNSClient {
-    var configuration: APNSClientConfiguration { get }
-    var authenticationTokenManager: APNSAuthenticationTokenManager? { get }
     func send(_ request: APNSRequest<some APNSMessage>) async throws -> APNSResponse
 }

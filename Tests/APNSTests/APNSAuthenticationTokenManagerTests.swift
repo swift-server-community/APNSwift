@@ -14,7 +14,6 @@
 
 @testable import APNSCore
 import Crypto
-import Logging
 import XCTest
 
 final class APNSAuthenticationTokenManagerTests: XCTestCase {
@@ -24,40 +23,37 @@ final class APNSAuthenticationTokenManagerTests: XCTestCase {
     AwEHoUQDQgAEbWmxH/HLvIJIVUt8bB42ntiBZUSb6Bxx7F36mDSHssBaRBU0BYYj
     NVeBKbgP2rVE/nOAexjhmWE2S5G98nkEPg==
     -----END EC PRIVATE KEY-----
-
+    
     """
-    private var currentTime: DispatchWallTime!
-    private var tokenManager: APNSAuthenticationTokenManager!
-
+    private var clock: TestClock<Duration>!
+    private var tokenManager: APNSAuthenticationTokenManager<TestClock<Duration>>!
+    
     override func setUp() {
         super.setUp()
-
+        clock = TestClock()
         tokenManager = APNSAuthenticationTokenManager(
             privateKey: try! .init(pemRepresentation: Self.signingKey),
             teamIdentifier: "foo",
             keyIdentifier: "bar",
-            logger: Logger(label: "tests"),
-            currentTimeFactory: { self.currentTime }
+            clock: clock
         )
     }
-
+    
     override func tearDown() {
         super.tearDown()
-
+        
         tokenManager = nil
-        currentTime = nil
+        clock = nil
     }
-
+    
     func testToken() async throws {
-        currentTime = .init(timespec: .init(tv_sec: 1_647_530_000, tv_nsec: 0))
-
-        let token = try tokenManager.nextValidToken
-
+        let token = try await tokenManager.nextValidToken
+        
         // We need to split twice here since the expected format of the token is
         // "bearer encodedHeader.encodedPayload.ecnodedSignature"
         let splitToken = try XCTUnwrap(token.split(separator: " ").last)
             .split(separator: ".")
-
+        
         let decodedHeader = try Base64.decode(
             string: String(splitToken[0]),
             options: [.base64UrlAlphabet, .omitPaddingCharacter]
@@ -71,7 +67,7 @@ final class APNSAuthenticationTokenManagerTests: XCTestCase {
         }
         """
         XCTAssertEqual(header, expectedHeader)
-
+        
         let decodedPayload = try Base64.decode(
             string: String(splitToken[1]),
             options: [.base64UrlAlphabet, .omitPaddingCharacter]
@@ -80,34 +76,67 @@ final class APNSAuthenticationTokenManagerTests: XCTestCase {
         let expectedPayload = """
         {
             "iss": "foo",
-            "iat": "1647530000",
+            "iat": "0",
             "kid": "bar"
         }
         """
         XCTAssertEqual(payload, expectedPayload)
     }
-
-    func testTokenIsReused() async throws {
-        currentTime = .init(timespec: .init(tv_sec: 1_647_530_000, tv_nsec: 0))
-
-        let token1 = try tokenManager.nextValidToken
-
-        // 50 minutes later
-        currentTime = .init(timespec: .init(tv_sec: 1_647_533_000, tv_nsec: 0))
-        let token2 = try tokenManager.nextValidToken
-
-        XCTAssertEqual(token1, token2)
-    }
+    
+        func testTokenIsReused() async throws {
+   
+            let token1 = try await tokenManager.nextValidToken
+            // 48 minutes later
+            let temp = clock.now.advanced(by: .init(secondsComponent: 2880, attosecondsComponent: 0))
+            clock.now = temp
+            let token2 = try await tokenManager.nextValidToken
+    
+            XCTAssertEqual(token1, token2)
+        }
 
     func testTokenIsRefreshed() async throws {
-        currentTime = .init(timespec: .init(tv_sec: 1_647_530_000, tv_nsec: 0))
-
-        let token1 = try tokenManager.nextValidToken
-
+        let token1 = try await tokenManager.nextValidToken
+        
         // 56 minutes later
-        currentTime = .init(timespec: .init(tv_sec: 1_647_533_360, tv_nsec: 0))
-        let token2 = try tokenManager.nextValidToken
+        let temp = clock.now.advanced(by: .init(secondsComponent: 3360, attosecondsComponent: 0))
+        clock.now = temp
+        let token2 = try await tokenManager.nextValidToken
 
         XCTAssertNotEqual(token1, token2)
+    }
+}
+
+final class TestClock<Duration: DurationProtocol & Hashable>: Clock, Sendable {
+    struct Instant: InstantProtocol {
+        public var offset: Duration
+        
+        public init(offset: Duration = .zero) {
+            self.offset = offset
+        }
+        
+        public func advanced(by duration: Duration) -> Self {
+            .init(offset: self.offset + duration)
+        }
+        
+        public func duration(to other: Self) -> Duration {
+            other.offset - self.offset
+        }
+        
+        public static func < (lhs: Self, rhs: Self) -> Bool {
+            lhs.offset < rhs.offset
+        }
+    }
+    
+    let minimumResolution: Duration = .zero
+    var now: Instant
+
+    
+    public init(now: Instant = .init()) {
+        self.now = .init()
+    }
+    
+    public func sleep(until deadline: Instant, tolerance: Duration? = nil) async throws {
+        try Task.checkCancellation()
+        try await Task.sleep(until: deadline, clock: self)
     }
 }

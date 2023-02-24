@@ -15,7 +15,6 @@
 @testable import APNSCore
 import APNSURLSession
 import Crypto
-import Logging
 import XCTest
 
 final class APNSClientTests: XCTestCase {
@@ -25,8 +24,8 @@ final class APNSClientTests: XCTestCase {
 
     // MARK: - Helper methods
 
-    private func makeClient() -> APNSUrlSessionClient {
-        APNSUrlSessionClient(
+    private func makeClient() -> APNSURLSessionClient {
+        APNSURLSessionClient(
             configuration: .init(
                 authenticationMethod: .jwt(
                     privateKey: try! P256.Signing.PrivateKey(pemRepresentation: self.jwtPrivateKey),

@@ -12,8 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Logging
-
 extension APNSClient {
     /// Sends a file provider notification to APNs.
     ///

@@ -12,7 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Logging
 
 extension APNSClient {
     /// Sends a VoIP notification to APNs.

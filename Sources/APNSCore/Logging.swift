@@ -1,4 +1,3 @@
-import Logging
 
 enum LoggingKeys {
     static let error = "error"
