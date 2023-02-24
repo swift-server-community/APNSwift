@@ -71,8 +71,7 @@ extension Main {
                 topic: self.appBundleID,
                 payload: Payload()
             ),
-            deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.deviceToken
         )
     }
 
@@ -90,8 +89,7 @@ extension Main {
                 topic: self.appBundleID,
                 payload: Payload()
             ),
-            deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.deviceToken
         )
     }
 
@@ -110,8 +108,7 @@ extension Main {
                 payload: Payload(),
                 threadID: "thread"
             ),
-            deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.deviceToken
         )
     }
 
@@ -130,8 +127,7 @@ extension Main {
                 payload: Payload(),
                 category: "CUSTOM"
             ),
-            deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.deviceToken
         )
     }
 
@@ -150,8 +146,7 @@ extension Main {
                 payload: Payload(),
                 mutableContent: 1
             ),
-            deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.deviceToken
         )
     }
 }
@@ -167,8 +162,7 @@ extension Main {
                 topic: self.appBundleID,
                 payload: Payload()
             ),
-            deviceToken: self.deviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.deviceToken
         )
     }
 }
@@ -185,8 +179,7 @@ extension Main {
                 appID: self.appBundleID,
                 payload: Payload()
             ),
-            deviceToken: self.pushKitDeviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.pushKitDeviceToken
         )
     }
 }
@@ -202,8 +195,7 @@ extension Main {
                 appID: self.appBundleID,
                 payload: Payload()
             ),
-            deviceToken: self.fileProviderDeviceToken,
-            deadline: .nanoseconds(Int64.max)
+            deviceToken: self.fileProviderDeviceToken
         )
     }
 }

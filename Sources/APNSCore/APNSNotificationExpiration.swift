@@ -16,8 +16,7 @@
 public struct APNSNotificationExpiration: Encodable, Hashable, Sendable {
     /// The date at which the notification is no longer valid.
     /// This value is a UNIX epoch expressed in seconds (UTC)
-    @usableFromInline
-    let expiration: Int?
+    public let expiration: Int?
 
     /// Omits sending an expiration for APNs. APNs will default to a default value.
     public static let none = Self(expiration: nil)

@@ -14,8 +14,7 @@
 
 /// A struct which represents the different supported APNs push types.
 public struct APNSPushType: Hashable {
-    @usableFromInline
-    internal enum Configuration: String, Hashable {
+    public enum Configuration: String, Hashable {
         case alert
         case background
         case location
@@ -27,8 +26,7 @@ public struct APNSPushType: Hashable {
     }
 
     /// The underlying raw value that is send to APNs.
-    @usableFromInline
-    internal var configuration: Configuration
+    public var configuration: Configuration
 
     /// Use the alert push type for notifications that trigger a user interaction—for example, an alert, badge, or sound.
     ///

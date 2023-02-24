@@ -22,15 +22,13 @@ extension APNSClient {
     ///   - deviceToken: The hexadecimal bytes that identify the user’s device. Your app receives the bytes for this device token
     ///    when registering for remote notifications.
     ///
-    ///   - deadline: Point in time by which sending the notification to APNs must complete.
     ///
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
     public func sendAlertNotification<Payload: Encodable>(
         _ notification: APNSAlertNotification<Payload>,
-        deviceToken: String,
-        deadline: Duration
+        deviceToken: String
     ) async throws -> APNSResponse {
         let request = APNSRequest(
             message: notification,

@@ -9,6 +9,7 @@ let package = Package(
     ],
     products: [
         .executable(name: "APNSExample", targets: ["APNSExample"]),
+        .library(name: "APNS", targets: ["APNS"]),
         .library(name: "APNSCore", targets: ["APNSCore"]),
         .library(name: "APNSURLSession", targets: ["APNSURLSession"]),
         .library(name: "APNSTestServer", targets: ["APNSTestServer"]),
@@ -45,6 +46,7 @@ let package = Package(
             name: "APNS",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "AsyncHTTPClient", package: "async-http-client"),
                 .target(name: "APNSCore"),
             ]
         ),

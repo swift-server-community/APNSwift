@@ -15,29 +15,29 @@
 import APNSCore
 import Crypto
 
-/// The configuration of an ``APNSClient``.
+/// The configuration of an ``APNSURLSessionClient``.
 public struct APNSURLSessionClientConfiguration {
-    /// The authentication method used by the ``APNSClient``.
+    /// The authentication method used by the ``APNSURLSessionClient``.
     private enum AuthenticationMethod {
         case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
     }
 
-    /// The authentication method used by the ``APNSClient``.
+    /// The authentication method used by the ``APNSURLSessionClient``.
     private var authenticationMethod: AuthenticationMethod
 
-    /// The environment used by the ``APNSClient``.
+    /// The environment used by the ``APNSURLSessionClient``.
     public var environment: APNSEnvironment
     
     private let authenticationTokenManager: APNSAuthenticationTokenManager<ContinuousClock>
     
-    public func nextValidToken() async throws -> String {
+    internal func nextValidToken() async throws -> String {
         try await authenticationTokenManager.nextValidToken
     }
 
     /// Initializes a new ``APNSClient.Configuration``.
     ///
     /// - Parameters:
-    ///   - environment: The environment used by the ``APNSClient``.
+    ///   - environment: The environment used by the ``APNSURLSessionClient``.
     ///   - privateKey: The private encryption key obtained through the developer portal.
     ///   - keyIdentifier: The private encryption key identifier obtained through the developer portal.
     ///   - teamIdentifier: The team id.

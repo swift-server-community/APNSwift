@@ -21,15 +21,13 @@ extension APNSClient {
     ///   - deviceToken: The hexadecimal bytes use to send live activity notification. Your app receives the bytes for this activity token
     ///    from `pushTokenUpdates` async property of a live activity.
     ///
-    ///   - deadline: Point in time by which sending the notification to APNs must complete.
     ///
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
     public func sendLiveActivityNotification<ContentState: Encodable>(
         _ notification: APNSLiveActivityNotification<ContentState>,
-        deviceToken: String,
-        deadline: Duration
+        deviceToken: String
     ) async throws -> APNSResponse {
         let request = APNSRequest(
             message: notification,

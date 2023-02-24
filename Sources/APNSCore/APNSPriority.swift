@@ -15,8 +15,7 @@
 /// A struct which represents the supported priorities by APNs.
 public struct APNSPriority: Hashable, Encodable, Sendable {
     /// The underlying raw value that is send to APNs.
-    @usableFromInline
-    internal let rawValue: Int
+    public let rawValue: Int
 
     /// Specifies that the notification should be send immediately.
     public static let immediately = Self(rawValue: 10)

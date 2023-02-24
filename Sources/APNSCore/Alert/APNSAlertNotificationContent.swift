@@ -14,7 +14,7 @@
 
 /// The information for displaying an alert.
 public struct APNSAlertNotificationContent: Encodable, Sendable {
-    public struct StringValue: Encodable, Hashable {
+    public struct StringValue: Encodable, Hashable, Sendable {
         internal enum Configuration: Encodable, Hashable {
             case raw(String)
             case localized(key: String, arguments: [String])
