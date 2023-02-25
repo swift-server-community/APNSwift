@@ -1,5 +1,5 @@
 import APNSCore
-import Foundation.NSJSONSerialization
+import Foundation
 
 public struct APNSURLSessionClient: APNSClient {
     private let configuration: APNSURLSessionClientConfiguration
