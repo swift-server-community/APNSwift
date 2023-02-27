@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 
-extension APNSClient {
+extension APNSClientProtocol {
     /// Sends a background update notification to APNs.
     ///
     /// - Parameters:

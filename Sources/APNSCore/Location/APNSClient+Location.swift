@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-extension APNSClient {
+extension APNSClientProtocol {
     /// Sends a location request notification to APNs.
     ///
     /// - Parameters:

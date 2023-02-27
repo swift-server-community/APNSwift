@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-extension APNSClient {
+extension APNSClientProtocol {
     /// Sends a file provider notification to APNs.
     ///
     /// - Parameters:

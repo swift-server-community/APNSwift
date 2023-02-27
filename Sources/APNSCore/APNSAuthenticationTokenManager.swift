@@ -26,7 +26,7 @@ public final actor APNSAuthenticationTokenManager<Clock: _Concurrency.Clock> whe
     }
 
     /// APNS rejects any token that is more than 1 hour old. We set the duration to be slightly less to refresh earlier.
-    private let expirationDurationInSeconds: Int = 60 * 55
+    private let expirationDurationInSeconds: Duration = .seconds(60 * 55)
 
     /// The private key used for signing the tokens.
     private let privateKey: P256.Signing.PrivateKey
@@ -143,8 +143,8 @@ public final actor APNSAuthenticationTokenManager<Clock: _Concurrency.Clock> whe
     }
 }
 
-internal extension DispatchWallTime {
-    var asSecondsSince1970: Int64 {
+extension DispatchWallTime {
+    internal var asSecondsSince1970: Int64 {
         -Int64(bitPattern: rawValue) / 1_000_000_000
     }
 }

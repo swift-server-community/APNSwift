@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-extension APNSClient {
+extension APNSClientProtocol {
     /// Sends a live activity notification.
     ///
     /// - Parameters:

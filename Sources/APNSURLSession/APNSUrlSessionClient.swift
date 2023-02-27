@@ -1,7 +1,7 @@
 import APNSCore
 import Foundation
 
-public struct APNSURLSessionClient: APNSClient {
+public struct APNSURLSessionClient: APNSClientProtocol {
     private let configuration: APNSURLSessionClientConfiguration
     
     let encoder = JSONEncoder()

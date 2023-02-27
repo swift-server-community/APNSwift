@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 
-extension APNSClient {
+extension APNSClientProtocol {
     /// Sends a VoIP notification to APNs.
     ///
     /// - Parameters:

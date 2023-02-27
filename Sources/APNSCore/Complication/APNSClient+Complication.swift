@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-extension APNSClient {
+extension APNSClientProtocol {
     /// Sends a complication notification to APNs.
     ///
     /// - Parameters:

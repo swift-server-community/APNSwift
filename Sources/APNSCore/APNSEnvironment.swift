@@ -15,15 +15,15 @@
 /// The APNs environment.
 public struct APNSEnvironment {
     /// The production APNs environment.
-    public static let production = Self(url: "https://api.push.apple.com", port: "443")
+    public static let production = Self(url: "https://api.push.apple.com", port: 443)
 
     /// The sandbox APNs environment.
-    public static let sandbox = Self(url: "https://api.development.push.apple.com", port: "443")
+    public static let sandbox = Self(url: "https://api.development.push.apple.com", port: 443)
 
     /// Creates an APNs environment with a custom URL.
     ///
     /// - Note: This is mostly used for testing purposes.
-    public static func custom(url: String, port: String = "443") -> Self {
+    public static func custom(url: String, port: Int = 443) -> Self {
         Self(url: url, port: port)
     }
 
@@ -31,5 +31,12 @@ public struct APNSEnvironment {
     public let url: String
     
     /// The environment's port.
-    public let port: String
+    public let port: Int
+    
+    /// The fully constructed URL.
+    public var absoluteUrl: String {
+        "\(url):\(port)/3/device"
+    }
+    
+    
 }

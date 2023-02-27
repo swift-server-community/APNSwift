@@ -57,7 +57,7 @@ struct Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendSimpleAlert(with client: some APNSClient) async throws {
+    static func sendSimpleAlert(with client: some APNSClientProtocol) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -75,7 +75,7 @@ extension Main {
         )
     }
 
-    static func sendLocalizedAlert(with client: some APNSClient) async throws {
+    static func sendLocalizedAlert(with client: some APNSClientProtocol) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -93,7 +93,7 @@ extension Main {
         )
     }
 
-    static func sendThreadedAlert(with client: some APNSClient) async throws {
+    static func sendThreadedAlert(with client: some APNSClientProtocol) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -112,7 +112,7 @@ extension Main {
         )
     }
 
-    static func sendCustomCategoryAlert(with client: some APNSClient) async throws {
+    static func sendCustomCategoryAlert(with client: some APNSClientProtocol) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -131,7 +131,7 @@ extension Main {
         )
     }
 
-    static func sendMutableContentAlert(with client: some APNSClient) async throws {
+    static func sendMutableContentAlert(with client: some APNSClientProtocol) async throws {
         try await client.sendAlertNotification(
             .init(
                 alert: .init(
@@ -155,7 +155,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendBackground(with client: some APNSClient) async throws {
+    static func sendBackground(with client: some APNSClientProtocol) async throws {
         try await client.sendBackgroundNotification(
             .init(
                 expiration: .immediately,
@@ -171,7 +171,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendVoIP(with client: some APNSClient) async throws {
+    static func sendVoIP(with client: some APNSClientProtocol) async throws {
         try await client.sendVoIPNotification(
             .init(
                 expiration: .immediately,
@@ -188,7 +188,7 @@ extension Main {
 
 @available(macOS 11.0, *)
 extension Main {
-    static func sendFileProvider(with client: some APNSClient) async throws {
+    static func sendFileProvider(with client: some APNSClientProtocol) async throws {
         try await client.sendFileProviderNotification(
             .init(
                 expiration: .immediately,
