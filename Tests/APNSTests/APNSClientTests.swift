@@ -18,13 +18,14 @@ import Crypto
 import XCTest
 
 final class APNSClientTests: XCTestCase {
-    func testShutdown() {
+    func testShutdown() throws {
         let client = self.makeClient()
+        try client.syncShutdown()
     }
 
     // MARK: - Helper methods
 
-    private func makeClient() -> APNSClientProtocol {
+    private func makeClient() -> APNSClient<JSONDecoder, JSONEncoder> {
         APNSClient(
             configuration: .init(
                 authenticationMethod: .jwt(
