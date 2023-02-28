@@ -13,15 +13,12 @@
 //===----------------------------------------------------------------------===//
 
 import APNSCore
-import APNSURLSession
+import APNS
 import Foundation
 
 @available(macOS 11.0, *)
 @main
 struct Main {
-    // TODO: Maybe provide this in the package
-    struct Payload: Codable {}
-
     /// To use this example app please provide proper values for variable below.
     static let deviceToken = ""
     static let pushKitDeviceToken = ""
@@ -33,13 +30,18 @@ struct Main {
     static let teamIdentifier = ""
 
     static func main() async throws {
-        let client = APNSURLSessionClient(
+        let client = APNSClient(
             configuration: .init(
-                environment: .production,
-                privateKey: try .init(pemRepresentation: privateKey),
-                keyIdentifier: keyIdentifier,
-                teamIdentifier: teamIdentifier
-            )
+                authenticationMethod: .jwt(
+                    privateKey: try .init(pemRepresentation: privateKey),
+                    keyIdentifier: keyIdentifier,
+                    teamIdentifier: teamIdentifier
+                ),
+                environment: .sandbox
+            ),
+            eventLoopGroupProvider: .createNew,
+            responseDecoder: JSONDecoder(),
+            requestEncoder: JSONEncoder()
         )
 
         try await Self.sendSimpleAlert(with: client)
@@ -69,7 +71,7 @@ extension Main {
                 expiration: .immediately,
                 priority: .immediately,
                 topic: self.appBundleID,
-                payload: Payload()
+                payload: EmptyPayload()
             ),
             deviceToken: self.deviceToken
         )
@@ -87,7 +89,7 @@ extension Main {
                 expiration: .immediately,
                 priority: .immediately,
                 topic: self.appBundleID,
-                payload: Payload()
+                payload: EmptyPayload()
             ),
             deviceToken: self.deviceToken
         )
@@ -105,7 +107,7 @@ extension Main {
                 expiration: .immediately,
                 priority: .immediately,
                 topic: self.appBundleID,
-                payload: Payload(),
+                payload: EmptyPayload(),
                 threadID: "thread"
             ),
             deviceToken: self.deviceToken
@@ -124,7 +126,7 @@ extension Main {
                 expiration: .immediately,
                 priority: .immediately,
                 topic: self.appBundleID,
-                payload: Payload(),
+                payload: EmptyPayload(),
                 category: "CUSTOM"
             ),
             deviceToken: self.deviceToken
@@ -143,7 +145,7 @@ extension Main {
                 expiration: .immediately,
                 priority: .immediately,
                 topic: self.appBundleID,
-                payload: Payload(),
+                payload: EmptyPayload(),
                 mutableContent: 1
             ),
             deviceToken: self.deviceToken
@@ -160,7 +162,7 @@ extension Main {
             .init(
                 expiration: .immediately,
                 topic: self.appBundleID,
-                payload: Payload()
+                payload: EmptyPayload()
             ),
             deviceToken: self.deviceToken
         )
@@ -177,7 +179,7 @@ extension Main {
                 expiration: .immediately,
                 priority: .immediately,
                 appID: self.appBundleID,
-                payload: Payload()
+                payload: EmptyPayload()
             ),
             deviceToken: self.pushKitDeviceToken
         )
@@ -193,7 +195,7 @@ extension Main {
             .init(
                 expiration: .immediately,
                 appID: self.appBundleID,
-                payload: Payload()
+                payload: EmptyPayload()
             ),
             deviceToken: self.fileProviderDeviceToken
         )

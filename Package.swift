@@ -30,7 +30,7 @@ let package = Package(
             name: "APNSExample",
             dependencies: [
                 .target(name: "APNSCore"),
-                .target(name: "APNSURLSession"),
+                .target(name: "APNS"),
             ]),
         .testTarget(
             name: "APNSTests",

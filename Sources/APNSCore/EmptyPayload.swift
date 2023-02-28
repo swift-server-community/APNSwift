@@ -11,4 +11,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-public struct EmptyPayload: Encodable {}
+public struct EmptyPayload: Encodable {
+    public init() {}
+}
