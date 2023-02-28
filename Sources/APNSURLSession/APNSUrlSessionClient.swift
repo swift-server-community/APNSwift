@@ -14,7 +14,7 @@ public struct APNSURLSessionClient: APNSClientProtocol {
     public func send(
         _ request: APNSRequest<some APNSMessage>
     ) async throws -> APNSResponse {
-        var urlRequest = URLRequest(url: URL(string: configuration.environment.url + "/3/device/\(request.deviceToken)")!)
+        var urlRequest = URLRequest(url: URL(string: configuration.environment.absoluteURL + "/\(request.deviceToken)")!)
         urlRequest.httpMethod = "POST"
         // Set headers
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
