@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 @testable import APNSCore
-import APNSURLSession
+import APNS
 import Crypto
 import XCTest
 
@@ -24,14 +24,19 @@ final class APNSClientTests: XCTestCase {
 
     // MARK: - Helper methods
 
-    private func makeClient() -> APNSURLSessionClient {
-        APNSURLSessionClient(
+    private func makeClient() -> APNSClientProtocol {
+        APNSClient(
             configuration: .init(
-                environment: .sandbox,
-                privateKey: try! P256.Signing.PrivateKey(pemRepresentation: self.jwtPrivateKey),
-                keyIdentifier: "MY_KEY_ID",
-                teamIdentifier: "MY_TEAM_ID"
-            )
+                authenticationMethod: .jwt(
+                    privateKey: try! P256.Signing.PrivateKey(pemRepresentation: self.jwtPrivateKey),
+                    keyIdentifier: "MY_KEY_ID",
+                    teamIdentifier: "MY_TEAM_ID"
+                ),
+                environment: .sandbox
+            ),
+            eventLoopGroupProvider: .createNew,
+            responseDecoder: JSONDecoder(),
+            requestEncoder: JSONEncoder()
         )
     }
 
