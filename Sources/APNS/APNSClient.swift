@@ -24,7 +24,7 @@ import NIOSSL
 import NIOTLS
 
 /// A client to talk with the Apple Push Notification services.
-public final class APNS<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSClientProtocol {
+public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSClientProtocol {
    
     /// The configuration used by the ``APNS``.
     private let configuration: APNSClientConfiguration
@@ -139,7 +139,7 @@ public final class APNS<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APN
 
 // MARK: - Raw sending
 
-extension APNS {
+extension APNSClient {
     
     public func send(_ request: APNSCore.APNSRequest<some APNSCore.APNSMessage>) async throws -> APNSCore.APNSResponse {
         var headers = self.defaultRequestHeaders
@@ -179,7 +179,7 @@ extension APNS {
         }
 
         // Device token
-        let requestURL = "\(self.configuration.environment.absoluteUrl)/\(request.deviceToken)"
+        let requestURL = "\(self.configuration.environment.absoluteURL)/\(request.deviceToken)"
         var byteBuffer = self.byteBufferAllocator.buffer(capacity: 0)
 
         try self.requestEncoder.encode(request.message, into: &byteBuffer)

@@ -34,7 +34,7 @@ public struct APNSEnvironment {
     public let port: Int
     
     /// The fully constructed URL.
-    public var absoluteUrl: String {
+    public var absoluteURL: String {
         "\(url):\(port)/3/device"
     }
     
