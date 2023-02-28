@@ -26,7 +26,7 @@ import NIOTLS
 /// A client to talk with the Apple Push Notification services.
 public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSClientProtocol {
    
-    /// The configuration used by the ``APNS``.
+    /// The configuration used by the ``APNSClient``.
     private let configuration: APNSClientConfiguration
     
     /// The ``HTTPClient`` used by the APNS.
@@ -201,7 +201,7 @@ extension APNSClient {
         let errorResponse = try responseDecoder.decode(APNSErrorResponse.self, from: body)
 
         let error = APNSError(
-            responseStatus: response.status.description,
+            responseStatus: Int(response.status.code),
             apnsID: apnsID,
             apnsResponse: errorResponse,
             timestamp: errorResponse.timestampInSeconds.flatMap { Date(timeIntervalSince1970: $0) }

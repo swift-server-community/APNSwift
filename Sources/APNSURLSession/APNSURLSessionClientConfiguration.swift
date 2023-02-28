@@ -18,12 +18,12 @@ import Crypto
 /// The configuration of an ``APNSURLSessionClient``.
 public struct APNSURLSessionClientConfiguration {
     /// The authentication method used by the ``APNSURLSessionClient``.
-    private enum AuthenticationMethod {
+    public enum AuthenticationMethod {
         case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
     }
 
     /// The authentication method used by the ``APNSURLSessionClient``.
-    private var authenticationMethod: AuthenticationMethod
+    public var authenticationMethod: AuthenticationMethod
 
     /// The environment used by the ``APNSURLSessionClient``.
     public var environment: APNSEnvironment

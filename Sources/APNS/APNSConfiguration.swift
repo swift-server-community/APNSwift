@@ -18,9 +18,9 @@ import NIOSSL
 import NIOTLS
 import AsyncHTTPClient
 
-/// The configuration of an ``APNS``.
+/// The configuration of an ``APNSClient``.
 public struct APNSClientConfiguration {
-    /// The authentication method used by the ``APNS``.
+    /// The authentication method used by the ``APNSClient``.
     public struct AuthenticationMethod {
         internal enum Method {
             case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
@@ -58,10 +58,10 @@ public struct APNSClientConfiguration {
         internal var method: Method
     }
 
-    /// The authentication method used by the ``APNS``.
+    /// The authentication method used by the ``APNSClient``.
     public var authenticationMethod: AuthenticationMethod
 
-    /// The environment used by the ``APNS``.
+    /// The environment used by the ``APNSClient``.
     public var environment: APNSEnvironment
 
     /// Upstream proxy, defaults to no proxy.
@@ -70,8 +70,8 @@ public struct APNSClientConfiguration {
     /// Initializes a new ``APNSClient.Configuration``.
     ///
     /// - Parameters:
-    ///   - authenticationMethod: The authentication method used by the ``APNS``.
-    ///   - environment: The environment used by the ``APNS``.
+    ///   - authenticationMethod: The authentication method used by the ``APNSClient``.
+    ///   - environment: The environment used by the ``APNSClient``.
     public init(
         authenticationMethod: AuthenticationMethod,
         environment: APNSEnvironment

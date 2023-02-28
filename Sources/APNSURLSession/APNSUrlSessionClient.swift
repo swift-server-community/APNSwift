@@ -1,6 +1,10 @@
 import APNSCore
 import Foundation
 
+enum APNSUrlSessionClientError: Error {
+    case urlResponseNotFound
+}
+
 public struct APNSURLSessionClient: APNSClientProtocol {
     private let configuration: APNSURLSessionClientConfiguration
     
@@ -14,9 +18,11 @@ public struct APNSURLSessionClient: APNSClientProtocol {
     public func send(
         _ request: APNSRequest<some APNSMessage>
     ) async throws -> APNSResponse {
+        
+        /// Construct URL
         var urlRequest = URLRequest(url: URL(string: configuration.environment.absoluteURL + "/\(request.deviceToken)")!)
         urlRequest.httpMethod = "POST"
-        // Set headers
+        /// Set headers
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         for (header, value) in request.headers {
             urlRequest.setValue(value, forHTTPHeaderField: header)
@@ -26,25 +32,30 @@ public struct APNSURLSessionClient: APNSClientProtocol {
         
         /// Set Body
         urlRequest.httpBody = try encoder.encode(request.message)
-        
-        var apnsID: UUID? = nil
-        
+    
+        /// Make request
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
-        if let response = response as? HTTPURLResponse,
-           response.statusCode == 200,
-           let apnsIDString = response.allHeaderFields["apns-id"] as? String {
-            apnsID = UUID(uuidString: apnsIDString)
-            return APNSResponse(apnsID: apnsID)
+        
+        /// Unwrap response
+        guard let response = response as? HTTPURLResponse,
+              let apnsIDString = response.allHeaderFields["apns-id"] as? String else {
+            throw APNSUrlSessionClientError.urlResponseNotFound
         }
         
-        let errorResponse = try decoder.decode(APNSErrorResponse.self, from: data)
-        let error = APNSError(
-            responseStatus: response.description,
-            apnsID: apnsID,
-            apnsResponse: errorResponse,
-            timestamp: errorResponse.timestampInSeconds.flatMap { Date(timeIntervalSince1970: $0) }
-        )
+        let apnsID = UUID(uuidString: apnsIDString)
         
-        throw error
+        /// Detect an error
+        if let errorResponse = try? decoder.decode(APNSErrorResponse.self, from: data) {
+            let error = APNSError(
+                responseStatus: response.statusCode,
+                apnsID: apnsID,
+                apnsResponse: errorResponse,
+                timestamp: errorResponse.timestampInSeconds.flatMap { Date(timeIntervalSince1970: $0) }
+            )
+            throw error
+        } else {
+            /// Return APNSResponse
+            return APNSResponse(apnsID: apnsID)
+        }
     }
 }

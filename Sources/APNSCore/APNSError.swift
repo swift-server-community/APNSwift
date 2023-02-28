@@ -264,119 +264,119 @@ public struct APNSError: Error {
             self._reason.errorDescription
         }
 
-        internal static var badCollapseIdentifier: Self {
+        public static var badCollapseIdentifier: Self {
             return .init(_reason: .badCollapseIdentifier)
         }
 
-        internal static var badDeviceToken: Self {
+        public static var badDeviceToken: Self {
             return .init(_reason: .badDeviceToken)
         }
 
-        internal static var badExpirationDate: Self {
+        public static var badExpirationDate: Self {
             return .init(_reason: .badExpirationDate)
         }
 
-        internal static var badMessageId: Self {
+        public static var badMessageId: Self {
             return .init(_reason: .badMessageId)
         }
 
-        internal static var badPriority: Self {
+        public static var badPriority: Self {
             return .init(_reason: .badPriority)
         }
 
-        internal static var badTopic: Self {
+        public static var badTopic: Self {
             return .init(_reason: .badTopic)
         }
 
-        internal static var deviceTokenNotForTopic: Self {
+        public static var deviceTokenNotForTopic: Self {
             return .init(_reason: .deviceTokenNotForTopic)
         }
 
-        internal static var duplicateHeaders: Self {
+        public static var duplicateHeaders: Self {
             return .init(_reason: .duplicateHeaders)
         }
 
-        internal static var idleTimeout: Self {
+        public static var idleTimeout: Self {
             return .init(_reason: .idleTimeout)
         }
 
-        internal static var invalidPushType: Self {
+        public static var invalidPushType: Self {
             return .init(_reason: .invalidPushType)
         }
 
-        internal static var missingDeviceToken: Self {
+        public static var missingDeviceToken: Self {
             return .init(_reason: .missingDeviceToken)
         }
 
-        internal static var missingTopic: Self {
+        public static var missingTopic: Self {
             return .init(_reason: .missingTopic)
         }
 
-        internal static var payloadEmpty: Self {
+        public static var payloadEmpty: Self {
             return .init(_reason: .payloadEmpty)
         }
 
-        internal static var topicDisallowed: Self {
+        public static var topicDisallowed: Self {
             return .init(_reason: .topicDisallowed)
         }
 
-        internal static var badCertificate: Self {
+        public static var badCertificate: Self {
             return .init(_reason: .badCertificate)
         }
 
-        internal static var badCertificateEnvironment: Self {
+        public static var badCertificateEnvironment: Self {
             return .init(_reason: .badCertificateEnvironment)
         }
 
-        internal static var expiredProviderToken: Self {
+        public static var expiredProviderToken: Self {
             return .init(_reason: .expiredProviderToken)
         }
 
-        internal static var forbidden: Self {
+        public static var forbidden: Self {
             return .init(_reason: .forbidden)
         }
 
-        internal static var invalidProviderToken: Self {
+        public static var invalidProviderToken: Self {
             return .init(_reason: .invalidProviderToken)
         }
 
-        internal static var missingProviderToken: Self {
+        public static var missingProviderToken: Self {
             return .init(_reason: .missingProviderToken)
         }
 
-        internal static var badPath: Self {
+        public static var badPath: Self {
             return .init(_reason: .badPath)
         }
 
-        internal static var methodNotAllowed: Self {
+        public static var methodNotAllowed: Self {
             return .init(_reason: .methodNotAllowed)
         }
 
-        internal static var unregistered: Self {
+        public static var unregistered: Self {
             return .init(_reason: .unregistered)
         }
 
-        internal static var payloadTooLarge: Self {
+        public static var payloadTooLarge: Self {
             return .init(_reason: .payloadTooLarge)
         }
 
-        internal static var tooManyProviderTokenUpdates: Self {
+        public static var tooManyProviderTokenUpdates: Self {
             return .init(_reason: .tooManyProviderTokenUpdates)
         }
 
-        internal static var tooManyRequests: Self {
+        public static var tooManyRequests: Self {
             return .init(_reason: .tooManyRequests)
         }
 
-        internal static var internalServerError: Self {
+        public static var internalServerError: Self {
             return .init(_reason: .internalServerError)
         }
 
-        internal static var serviceUnavailable: Self {
+        public static var serviceUnavailable: Self {
             return .init(_reason: .serviceUnavailable)
         }
 
-        internal static var shutdown: Self {
+        public static var shutdown: Self {
             return .init(_reason: .shutdown)
         }
         
@@ -386,7 +386,7 @@ public struct APNSError: Error {
     }
 
     /// The HTTP status code.
-    public let responseStatus: String
+    public let responseStatus: Int
 
     /// The same value as the `apnsID` send in the request.
     ///
@@ -403,7 +403,7 @@ public struct APNSError: Error {
     public let timestamp: Date?
     
     public init(
-        responseStatus: String,
+        responseStatus: Int,
         apnsID: UUID? = nil,
         apnsResponse: APNSErrorResponse? = nil,
         timestamp: Date? = nil
