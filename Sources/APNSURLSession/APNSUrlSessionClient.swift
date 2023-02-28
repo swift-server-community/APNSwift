@@ -1,5 +1,6 @@
 import APNSCore
 import Foundation
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 
 enum APNSUrlSessionClientError: Error {
     case urlResponseNotFound
@@ -59,3 +60,5 @@ public struct APNSURLSessionClient: APNSClientProtocol {
         }
     }
 }
+
+#endif

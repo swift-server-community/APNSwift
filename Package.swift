@@ -6,6 +6,8 @@ let package = Package(
     platforms: [
         .macOS(.v13),
         .iOS(.v16),
+        .watchOS(.v9),
+        .tvOS(.v16),
     ],
     products: [
         .executable(name: "APNSExample", targets: ["APNSExample"]),
