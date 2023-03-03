@@ -1,25 +1,5 @@
-[![sswg:incubating|94x20](https://img.shields.io/badge/sswg-incubating-yellow.svg)](https://github.com/swift-server/sswg/blob/master/process/incubation.md#sandbox-level)
-[![Build](https://github.com/kylebrowning/APNSwift/workflows/test/badge.svg)](https://github.com/kylebrowning/APNSwift/actions)
-[![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg)](https://swiftpackageindex.com/swift-server-community/APNSwift/main/documentation/apnswift)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/swift-server-community/APNSwift)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/swift-server-community/APNSwift)
-<h1> APNSwift</h1>
-
-A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on AsyncHttpClient.
-
-- [Installation](#installation)
-- [Foundations](#foundations)
-- [Getting Started](#getting-started)
-- [Sending a simple notification](#sending-a-simple-notification)
-- [Sending Live Activity Update](#sending-live-activity-update)
-- [Authentication](#authentication)
-- [Logging](#logging)
-    - [**Background Activity Logger**](#background-activity-logger)
-    - [**Notification Send Logger**](#notification-send-logger)
-- [Using the non semantic safe APIs](#using-the-non-semantic-safe-apis)
-- [Server Example](#server-example)
-- [iOS Examples](#ios-examples)
-- [Original pitch and discussion on API](#original-pitch-and-discussion-on-api)
+# ``APNSwift``
+A non-blocking Swift package for sending remote Apple Push Notification requests to Apple's APNS.
 
 ## Installation
 
@@ -30,11 +10,11 @@ dependencies: [
     .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
 ]
 ```
-If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-beta.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
+If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-alpha.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-beta.2"),
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-alpha.5"),
 ]
 ```
 
@@ -97,39 +77,6 @@ try await client.sendAlertNotification(
 )
 ```
 
-## Sending Live Activity Update / End
-It requires sending `ContentState` matching with the live activity configuration to successfully update activity state. `ContentState` needs to conform to `Encodable`
-
-```swift
-        try await client.sendLiveActivityNotification(
-            .init(
-                  expiration: .immediately,
-                  priority: .immediately,
-                  appID: "com.app.bundle",
-                  contentState: ContentState,
-                  event: .update,
-                  timestamp: Int(Date().timeIntervalSince1970)
-            ),
-            activityPushToken: activityPushToken,
-            deadline: .distantFuture
-        )
-```
-
-```swift
-        try await client.sendLiveActivityNotification(
-            .init(
-                  expiration: .immediately,
-                  priority: .immediately,
-                  appID: "com.app.bundle",
-                  contentState: ContentState,
-                  event: .end,
-                  timestamp: Int(Date().timeIntervalSince1970),
-                  dismissalDate: .dismissImmediately // Optional to alter default behaviour
-            ),
-            activityPushToken: activityPushToken,
-            deadline: .distantFuture
-        )
-```
 ## Authentication
 `APNSwift` provides two authentication methods. `jwt`, and `TLS`. 
 
