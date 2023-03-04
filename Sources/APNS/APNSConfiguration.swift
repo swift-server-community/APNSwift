@@ -19,7 +19,7 @@ import NIOTLS
 import AsyncHTTPClient
 
 /// The configuration of an ``APNSClient``.
-public struct APNSClientConfiguration {
+public struct APNSClientConfiguration: Sendable {
     /// The authentication method used by the ``APNSClient``.
     public struct AuthenticationMethod {
         internal enum Method {

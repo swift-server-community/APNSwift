@@ -20,7 +20,7 @@ import struct Foundation.UUID
 /// It is **important** that you do not encode anything with the key `aps`.
 public struct APNSBackgroundNotification<Payload: Encodable>: APNSMessage {
     @usableFromInline
-    struct APS: Encodable {
+    struct APS: Encodable, Sendable {
         enum CodingKeys: String, CodingKey {
             case contentAvailable = "content-available"
         }

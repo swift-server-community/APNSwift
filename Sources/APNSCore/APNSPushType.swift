@@ -13,8 +13,8 @@
 //===----------------------------------------------------------------------===//
 
 /// A struct which represents the different supported APNs push types.
-public struct APNSPushType: Hashable {
-    public enum Configuration: String, Hashable {
+public struct APNSPushType: Hashable, Sendable {
+    public enum Configuration: String, Hashable, Sendable {
         case alert
         case background
         case location
