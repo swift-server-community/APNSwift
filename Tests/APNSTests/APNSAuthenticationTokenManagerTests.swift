@@ -107,8 +107,8 @@ final class APNSAuthenticationTokenManagerTests: XCTestCase {
     }
 }
 
-final class TestClock<Duration: DurationProtocol & Hashable>: Clock, Sendable {
-    struct Instant: InstantProtocol, Sendable {
+final class TestClock<Duration: DurationProtocol & Hashable>: Clock {
+    struct Instant: InstantProtocol {
         public var offset: Duration
         
         public init(offset: Duration = .zero) {
