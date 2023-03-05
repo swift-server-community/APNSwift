@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// The APNs environment.
-public struct APNSEnvironment {
+public struct APNSEnvironment: Sendable {
     /// The production APNs environment.
     public static let production = Self(url: "https://api.push.apple.com", port: 443)
 

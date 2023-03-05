@@ -15,7 +15,7 @@
 import struct Foundation.UUID
 
 /// A complication notification.
-public struct APNSComplicationNotification<Payload: Encodable>: APNSMessage {
+public struct APNSComplicationNotification<Payload: Encodable & Sendable>: APNSMessage {
     /// A canonical UUID that identifies the notification. If there is an error sending the notification,
     /// APNs uses this value to identify the notification to your server. The canonical form is 32 lowercase hexadecimal digits,
     /// displayed in five groups separated by hyphens in the form 8-4-4-4-12. An example UUID is as follows:

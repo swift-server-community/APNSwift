@@ -18,7 +18,7 @@ import struct Foundation.UUID
 ///
 /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
 /// It is **important** that you do not encode anything with the key `aps`.
-public struct APNSAlertNotification<Payload: Encodable>: APNSMessage, Sendable {
+public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage, Sendable {
     enum CodingKeys: CodingKey {
         case aps
     }

@@ -19,9 +19,9 @@ import NIOTLS
 import AsyncHTTPClient
 
 /// The configuration of an ``APNSClient``.
-public struct APNSClientConfiguration {
+public struct APNSClientConfiguration: Sendable {
     /// The authentication method used by the ``APNSClient``.
-    public struct AuthenticationMethod {
+    public struct AuthenticationMethod: Sendable {
         internal enum Method {
             case jwt(privateKey: P256.Signing.PrivateKey, teamIdentifier: String, keyIdentifier: String)
             case tls(privateKey: NIOSSLPrivateKeySource, certificateChain: [NIOSSLCertificateSource])

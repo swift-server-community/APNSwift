@@ -26,7 +26,7 @@ extension APNSClientProtocol {
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
-    public func sendVoIPNotification<Payload: Encodable>(
+    public func sendVoIPNotification<Payload: Encodable & Sendable>(
         _ notification: APNSVoIPNotification<Payload>,
         deviceToken: String
     ) async throws -> APNSResponse {

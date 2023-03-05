@@ -26,7 +26,7 @@ extension APNSClientProtocol {
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
-    public func sendBackgroundNotification<Payload: Encodable>(
+    public func sendBackgroundNotification<Payload: Encodable & Sendable>(
         _ notification: APNSBackgroundNotification<Payload>,
         deviceToken: String
     ) async throws -> APNSResponse {

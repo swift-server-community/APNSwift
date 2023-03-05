@@ -25,7 +25,7 @@ extension APNSClientProtocol {
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
-    public func sendFileProviderNotification<Payload: Encodable>(
+    public func sendFileProviderNotification<Payload: Encodable & Sendable>(
         _ notification: APNSFileProviderNotification<Payload>,
         deviceToken: String
     ) async throws -> APNSResponse {
