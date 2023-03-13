@@ -1,5 +1,5 @@
 version: 1
 builder:
   configs:
-    - documentation_targets: [APNSwift]
+    - documentation_targets: [APNS]
       scheme: APNSwift
