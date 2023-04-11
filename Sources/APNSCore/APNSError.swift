@@ -395,7 +395,7 @@ public struct APNSError: Error {
     public let apnsID: UUID?
 
     /// The error code indicating the reason for the failure.
-    private let reason: ErrorReason?
+    public let reason: ErrorReason?
 
     /// The date at which APNs confirmed the token was no longer valid for the topic.
     ///
