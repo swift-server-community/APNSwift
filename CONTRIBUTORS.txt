@@ -12,6 +12,7 @@ needs to be listed here.
 - Craig Newell <craign@ieee.org>
 - Eduardo Perez <sabeatra@gmail.com>
 - Florian Reinhart <florian.reinhart@gmail.com>
+- Franz Busch <f.busch@apple.com>
 - Geoff Verdouw <geoff@verdouw.id.au>
 - Jeffrey Macko <mackoj@users.noreply.github.com>
 - Jonny <lightscreen.app@gmail.com>
@@ -19,12 +20,17 @@ needs to be listed here.
 - Laurent Gaches <laurent@binimo.com>
 - Lukáš Petr <luka.petr@gmail.com>
 - Mads Odgaard <mads@madsodgaard.com>
+- Mark Woollard <mark.woollard@urbanthings.co>
 - Nikola Paunović <nikola@applycolo.rs>
 - Roderic Campbell <roderic@gmail.com>
 - Simon Kempendorf <simon@code28.de>
+- Sven A. Schmidt <sas@finestructure.co>
 - Tanner <me@tanner.xyz>
 - Tanner Nelson <me@tanner.xyz>
+- Tim Condon <0xTim@users.noreply.github.com>
 - Timothy Ellis <3098078+TimAEllis@users.noreply.github.com>
+- Timothy Ellis <timothy.ellis@carsales.com.au>
+- Vojtech Rylko <vojta.rylko@gmail.com>
 - grosch <scott.grosch@icloud.com>
 - itcohorts <ben@itcohorts.com>
 - tanner0101 <me@tanner.xyz>

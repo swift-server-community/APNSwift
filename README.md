@@ -27,14 +27,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "4.0.0"),
-]
-```
-If youd like to give our bleeding edge release a try, which is what the Readme is expecting use `5.0.0-beta.N`. If you need the old Readme, see [here](https://github.com/swift-server-community/APNSwift/tree/4.0.0)
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0-beta.2"),
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0"),
 ]
 ```
 
@@ -189,3 +182,4 @@ Once inside configure your App Bundle ID and assign your development team. Build
 
 * Pitch discussion: [Swift Server Forums](https://forums.swift.org/t/apple-push-notification-service-implementation-pitch/20193)
 * Proposal: [SSWG-0006](https://forums.swift.org/t/feedback-nioapns-nio-based-apple-push-notification-service/24393)
+* 5.0 breaking changings: [Swift Server Forums]([Blog post here on breaking changing](https://forums.swift.org/t/apnswift-5-0-0-beta-release/60075/3))
