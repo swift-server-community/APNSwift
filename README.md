@@ -170,7 +170,7 @@ try await client.send(
 ```
 
 ## Server Example
-Take a look at [Program.swift](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwiftExample/Program.swift)
+Take a look at [Program.swift](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSExample/Program.swift)
 
 ## iOS Examples
 
