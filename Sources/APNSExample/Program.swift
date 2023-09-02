@@ -22,6 +22,7 @@ struct Main {
     /// To use this example app please provide proper values for variable below.
     static let deviceToken = ""
     static let pushKitDeviceToken = ""
+    static let ephemeralPushToken = "" // PTT
     static let fileProviderDeviceToken = ""
     static let appBundleID = ""
     static let privateKey = """
@@ -52,6 +53,7 @@ struct Main {
         try await Self.sendBackground(with: client)
         try await Self.sendVoIP(with: client)
         try await Self.sendFileProvider(with: client)
+        try await Self.sendPushToTalk(with: client)
     }
 }
 
@@ -198,6 +200,24 @@ extension Main {
                 payload: EmptyPayload()
             ),
             deviceToken: self.fileProviderDeviceToken
+        )
+    }
+}
+
+
+// MARK: Push to Talk (PTT)
+
+@available(macOS 11.0, *)
+extension Main {
+    static func sendPushToTalk(with client: some APNSClientProtocol) async throws {
+        try await client.sendPushToTalkNotification(
+            .init(
+                expiration: .immediately,
+                priority: .immediately,
+                appID: self.appBundleID,
+                payload: EmptyPayload()
+            ),
+            deviceToken: self.ephemeralPushToken
         )
     }
 }
