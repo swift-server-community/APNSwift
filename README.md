@@ -40,7 +40,7 @@ dependencies: [
 **We recommened using number 3, the semantically safest API to ensure your push notification is delivered correctly**. *This README assumes that you are using number 3.* However if you need more granular approach, or something doesn't exist in this library, please use 2 or 1. (Also please open an issue if we missed something so we can get a semantically correct version!)
 
 ## Getting Started
-APNSwift aims to provide sementically correct structures to sending push notifications. You first need to setup a [`APNSClient`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSClient.swift). To do that youll need to know your authentication method 
+APNSwift aims to provide semantically correct structures to sending push notifications. You first need to setup a [`APNSClient`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSClient.swift). To do that youll need to know your authentication method 
 
 ```swift
 let client = APNSClient(
