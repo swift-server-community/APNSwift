@@ -38,7 +38,8 @@ extension APNSClientProtocol {
             priority: notification.priority,
             apnsID: notification.apnsID,
             topic: notification.topic,
-            collapseID: notification.collapseID
+            collapseID: notification.collapseID,
+            rawPayloadData: notification.rawPayloadData
         )
         return try await send(request)
     }

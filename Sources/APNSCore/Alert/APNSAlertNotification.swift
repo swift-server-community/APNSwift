@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
+import Foundation
 
 /// An alert notification.
 ///
@@ -156,6 +156,9 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
 
     /// Your custom payload.
     public var payload: Payload
+    
+    /// Your whole raw payload data
+    public var rawPayloadData: Data?
 
     /// Initializes a new ``APNSAlertNotification``.
     ///
@@ -183,6 +186,7 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
         priority: APNSPriority,
         topic: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         badge: Int? = nil,
         sound: APNSAlertNotificationSound? = nil,
         threadID: String? = nil,
@@ -209,6 +213,7 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
         self.priority = priority
         self.topic = topic
         self.payload = payload
+        self.rawPayloadData = rawPayloadData
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -254,7 +259,8 @@ extension APNSAlertNotification where Payload == EmptyPayload {
         targetContentID: String? = nil,
         interruptionLevel: APNSAlertNotificationInterruptionLevel? = nil,
         relevanceScore: Double? = nil,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        rawPayloadData: Data? = nil
     ) {
         self.aps = APNSAlertNotificationAPSStorage(
             alert: alert,
@@ -272,5 +278,6 @@ extension APNSAlertNotification where Payload == EmptyPayload {
         self.priority = priority
         self.topic = topic
         self.payload = EmptyPayload()
+        self.rawPayloadData = rawPayloadData
     }
 }

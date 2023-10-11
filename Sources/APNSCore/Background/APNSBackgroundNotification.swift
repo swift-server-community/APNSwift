@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
+import Foundation
 
 /// A background notification.
 ///
@@ -57,6 +57,9 @@ public struct APNSBackgroundNotification<Payload: Encodable & Sendable>: APNSMes
 
     /// Your custom payload.
     public var payload: Payload
+    
+    /// Your whole raw payload data
+    public var rawPayloadData: Data?
 
     /// Initializes a new ``APNSBackgroundNotification``.
     ///
@@ -76,9 +79,11 @@ public struct APNSBackgroundNotification<Payload: Encodable & Sendable>: APNSMes
         expiration: APNSNotificationExpiration,
         topic: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.payload = payload
+        self.rawPayloadData = rawPayloadData
         self.apnsID = apnsID
         self.expiration = expiration
         self.topic = topic
@@ -99,12 +104,14 @@ extension APNSBackgroundNotification where Payload == EmptyPayload {
     public init(
         expiration: APNSNotificationExpiration,
         topic: String,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        rawPayloadData: Data? = nil
     ) {
         self.init(
             expiration: expiration,
             topic: topic,
             payload: EmptyPayload(),
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }

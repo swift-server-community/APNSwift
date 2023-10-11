@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
+import Foundation
 
 /// A file provider notification.
 public struct APNSFileProviderNotification<Payload: Encodable & Sendable>: APNSMessage {
@@ -37,6 +37,9 @@ public struct APNSFileProviderNotification<Payload: Encodable & Sendable>: APNSM
     /// Your custom payload.
     public var payload: Payload
 
+    /// Your whole raw payload data
+    public var rawPayloadData: Data?
+    
     /// Initializes a new ``APNSFileProviderNotification``.
     ///
     /// - Parameters:
@@ -49,12 +52,14 @@ public struct APNSFileProviderNotification<Payload: Encodable & Sendable>: APNSM
         expiration: APNSNotificationExpiration,
         appID: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.init(
             expiration: expiration,
             topic: appID + ".pushkit.fileprovider",
             payload: payload,
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }
@@ -74,11 +79,13 @@ public struct APNSFileProviderNotification<Payload: Encodable & Sendable>: APNSM
         expiration: APNSNotificationExpiration,
         topic: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.expiration = expiration
         self.topic = topic
         self.payload = payload
+        self.rawPayloadData = rawPayloadData
         self.apnsID = apnsID
     }
 }
@@ -94,12 +101,14 @@ extension APNSFileProviderNotification where Payload == EmptyPayload {
     public init(
         expiration: APNSNotificationExpiration,
         appID: String,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        rawPayloadData: Data? = nil
     ) {
         self.init(
             expiration: expiration,
             topic: appID + ".pushkit.fileprovider",
             payload: EmptyPayload(),
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }

@@ -142,71 +142,78 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
 extension APNSClient {
     
     public func send(_ request: APNSCore.APNSRequest<some APNSCore.APNSMessage>) async throws -> APNSCore.APNSResponse {
+        
+        // Device token
+        let deviceToken = request.deviceToken;
+        
+        // Headers
+        let headers = try await headers(of: request)
+        
+        // Payload ByteBuffer
+        var byteBuffer = self.byteBufferAllocator.buffer(capacity: 0)
+        
+        // Write Payload Data into Payload ByteBuffer
+        if let rawPayloadData = request.rawPayloadData {
+            byteBuffer.writeBytes(rawPayloadData)
+        } else {
+            try self.requestEncoder.encode(request.message, into: &byteBuffer)
+        }
+        
+        // Send Payload with deviceToken and Request Headers
+        let response = try await send(with: deviceToken, headers: headers, payload: byteBuffer)
+        
+        return response
+    }
+}
+
+extension APNSClient {
+    
+    private func headers(of request: APNSCore.APNSRequest<some APNSCore.APNSMessage>) async throws -> HTTPHeaders {
+        
+        // Default Request Headers
         var headers = self.defaultRequestHeaders
-
-        // Push type
-        headers.add(name: "apns-push-type", value: request.pushType.configuration.rawValue)
-
-        // APNS ID
-        if let apnsID = request.apnsID {
-            headers.add(name: "apns-id", value: apnsID.uuidString.lowercased())
+        
+        // Request Heaaders
+        request.headers.forEach {  key, value in
+            headers.add(name: key, value: value)
         }
-
-        // Expiration
-        if let expiration = request.expiration?.expiration {
-            headers.add(name: "apns-expiration", value: String(expiration))
-        }
-
-        // Priority
-        if let priority = request.priority?.rawValue {
-            headers.add(name: "apns-priority", value: String(priority))
-        }
-
-        // Topic
-        if let topic = request.topic {
-            headers.add(name: "apns-topic", value: topic)
-        }
-
-        // Collapse ID
-        if let collapseID = request.collapseID {
-            headers.add(name: "apns-collapse-id", value: collapseID)
-        }
-
+        
         // Authorization token
         if let authenticationTokenManager = self.authenticationTokenManager {
             let token = try await authenticationTokenManager.nextValidToken
             headers.add(name: "authorization", value: token)
         }
-
-        // Device token
-        let requestURL = "\(self.configuration.environment.absoluteURL)/\(request.deviceToken)"
-        var byteBuffer = self.byteBufferAllocator.buffer(capacity: 0)
-
-        try self.requestEncoder.encode(request.message, into: &byteBuffer)
+        
+        return headers
+    }
+    
+    private func send(with deviceToken: String, headers: HTTPHeaders, payload: ByteBuffer) async throws -> APNSCore.APNSResponse {
+        
+        let requestURL = "\(self.configuration.environment.absoluteURL)/\(deviceToken)"
         
         var httpClientRequest = HTTPClientRequest(url: requestURL)
         httpClientRequest.method = .POST
         httpClientRequest.headers = headers
-        httpClientRequest.body = .bytes(byteBuffer)
-
+        httpClientRequest.body = .bytes(payload)
+        
         let response = try await self.httpClient.execute(httpClientRequest, deadline: .distantFuture)
-
+        
         let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }
-
+        
         if response.status == .ok {
             return APNSResponse(apnsID: apnsID)
         }
-
+        
         let body = try await response.body.collect(upTo: 1024)
         let errorResponse = try responseDecoder.decode(APNSErrorResponse.self, from: body)
-
+        
         let error = APNSError(
             responseStatus: Int(response.status.code),
             apnsID: apnsID,
             apnsResponse: errorResponse,
             timestamp: errorResponse.timestampInSeconds.flatMap { Date(timeIntervalSince1970: $0) }
         )
-
+        
         throw error
     }
 }

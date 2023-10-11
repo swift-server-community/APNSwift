@@ -12,9 +12,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
+import Foundation
 
 public struct APNSRequest<Message: APNSMessage> {
+    
     fileprivate final class _Storage {
         var message: Message
         var deviceToken: String
@@ -24,6 +25,7 @@ public struct APNSRequest<Message: APNSMessage> {
         var apnsID: UUID?
         var topic: String?
         var collapseID: String?
+        var rawPayloadData: Foundation.Data?
         
         init(
             message: Message,
@@ -33,7 +35,8 @@ public struct APNSRequest<Message: APNSMessage> {
             priority: APNSPriority?,
             apnsID: UUID?,
             topic: String?,
-            collapseID: String?
+            collapseID: String?,
+            rawPayloadData: Data?
         ) {
             self.message = message
             self.deviceToken = deviceToken
@@ -43,6 +46,7 @@ public struct APNSRequest<Message: APNSMessage> {
             self.apnsID = apnsID
             self.topic = topic
             self.collapseID = collapseID
+            self.rawPayloadData = rawPayloadData
         }
     }
 
@@ -81,6 +85,7 @@ public struct APNSRequest<Message: APNSMessage> {
         
         return computedHeaders
     }
+    
     public init(
         message: Message,
         deviceToken: String,
@@ -89,7 +94,8 @@ public struct APNSRequest<Message: APNSMessage> {
         priority: APNSPriority?,
         apnsID: UUID?,
         topic: String?,
-        collapseID: String?
+        collapseID: String?,
+        rawPayloadData: Data?
     ) {
         self._storage = _Storage(
             message: message,
@@ -99,7 +105,8 @@ public struct APNSRequest<Message: APNSMessage> {
             priority: priority,
             apnsID: apnsID,
             topic: topic,
-            collapseID: collapseID
+            collapseID: collapseID,
+            rawPayloadData: rawPayloadData
         )
     }
 }
@@ -114,7 +121,8 @@ extension APNSRequest._Storage {
             priority: priority,
             apnsID: apnsID,
             topic: topic,
-            collapseID: collapseID
+            collapseID: collapseID,
+            rawPayloadData: rawPayloadData
         )
     }
 }
@@ -214,6 +222,18 @@ extension APNSRequest {
                 self._storage = self._storage.copy()
             }
             self._storage.collapseID = newValue
+        }
+    }
+    
+    public var rawPayloadData: Data? {
+        get {
+            return self._storage.rawPayloadData
+        }
+        set {
+            if !isKnownUniquelyReferenced(&self._storage) {
+                self._storage = self._storage.copy()
+            }
+            self._storage.rawPayloadData = newValue
         }
     }
 }

@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
+import Foundation
 
 /// A voice-over-IP notification.
 public struct APNSVoIPNotification<Payload: Encodable & Sendable>: APNSMessage {
@@ -39,6 +39,9 @@ public struct APNSVoIPNotification<Payload: Encodable & Sendable>: APNSMessage {
 
     /// Your custom payload.
     public var payload: Payload
+    
+    /// Your whole raw payload data
+    public var rawPayloadData: Data?
 
     /// Initializes a new ``APNSVoIPNotification``.
     ///
@@ -57,6 +60,7 @@ public struct APNSVoIPNotification<Payload: Encodable & Sendable>: APNSMessage {
         priority: APNSPriority,
         appID: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.init(
@@ -64,6 +68,7 @@ public struct APNSVoIPNotification<Payload: Encodable & Sendable>: APNSMessage {
             priority: priority,
             topic: appID + ".voip",
             payload: payload,
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }
@@ -85,12 +90,14 @@ public struct APNSVoIPNotification<Payload: Encodable & Sendable>: APNSMessage {
         priority: APNSPriority,
         topic: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.expiration = expiration
         self.priority = priority
         self.topic = topic
         self.payload = payload
+        self.rawPayloadData = rawPayloadData
         self.apnsID = apnsID
     }
 }
@@ -111,13 +118,15 @@ extension APNSVoIPNotification where Payload == EmptyPayload {
         expiration: APNSNotificationExpiration = .immediately,
         priority: APNSPriority,
         appID: String,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        rawPayloadData: Data? = nil
     ) {
         self.init(
             expiration: expiration,
             priority: priority,
             topic: appID + ".voip",
             payload: EmptyPayload(),
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }

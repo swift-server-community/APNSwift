@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
+import Foundation
 
 /// A complication notification.
 public struct APNSComplicationNotification<Payload: Encodable & Sendable>: APNSMessage {
@@ -39,6 +39,9 @@ public struct APNSComplicationNotification<Payload: Encodable & Sendable>: APNSM
 
     /// Your custom payload.
     public var payload: Payload
+    
+    /// Your whole raw payload data
+    public var rawPayloadData: Data?
 
     /// Initializes a new ``APNSComplicationNotification``.
     ///
@@ -54,6 +57,7 @@ public struct APNSComplicationNotification<Payload: Encodable & Sendable>: APNSM
         priority: APNSPriority,
         appID: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.init(
@@ -61,6 +65,7 @@ public struct APNSComplicationNotification<Payload: Encodable & Sendable>: APNSM
             priority: priority,
             topic: appID + ".complication",
             payload: payload,
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }
@@ -82,12 +87,14 @@ public struct APNSComplicationNotification<Payload: Encodable & Sendable>: APNSM
         priority: APNSPriority,
         topic: String,
         payload: Payload,
+        rawPayloadData: Data? = nil,
         apnsID: UUID? = nil
     ) {
         self.expiration = expiration
         self.priority = priority
         self.topic = topic
         self.payload = payload
+        self.rawPayloadData = rawPayloadData
         self.apnsID = apnsID
     }
 }
@@ -105,13 +112,15 @@ extension APNSComplicationNotification where Payload == EmptyPayload {
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
         appID: String,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        rawPayloadData: Data? = nil
     ) {
         self.init(
             expiration: expiration,
             priority: priority,
             topic: appID + ".complication",
             payload: EmptyPayload(),
+            rawPayloadData: rawPayloadData,
             apnsID: apnsID
         )
     }
