@@ -25,7 +25,7 @@ extension APNSClientProtocol {
     ///   - logger: The logger to use for sending this notification.
     @discardableResult
     @inlinable
-    func sendLocationNotification(
+    public func sendLocationNotification(
         _ notification: APNSLocationNotification,
         deviceToken: String
     ) async throws -> APNSResponse {
