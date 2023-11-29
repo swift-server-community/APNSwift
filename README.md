@@ -32,7 +32,7 @@ dependencies: [
 ```
 
 ## Getting Started
-APNSwift aims to provide semantically correct structures to sending push notifications. You first need to setup a [`APNSClient`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSwift/APNSClient.swift). To do that youll need to know your authentication method 
+APNSwift aims to provide semantically correct structures to sending push notifications. You first need to setup a [`APNSClient`](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNS/APNSClient.swift). To do that youll need to know your authentication method 
 
 ```swift
 let client = APNSClient(
