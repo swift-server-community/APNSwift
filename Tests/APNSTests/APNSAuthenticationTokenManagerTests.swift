@@ -15,6 +15,7 @@
 @testable import APNSCore
 import Crypto
 import XCTest
+import NIOConcurrencyHelpers
 
 final class APNSAuthenticationTokenManagerTests: XCTestCase {
     private static let signingKey = """
@@ -129,11 +130,19 @@ final class TestClock<Duration: DurationProtocol & Hashable>: Clock {
     }
     
     let minimumResolution: Duration = .zero
-    var now: Instant
+    private let _now: NIOLockedValueBox<Instant>
+    
+    var now: Instant {
+        get {
+            self._now.withLockedValue { $0 }
+        } set {
+            self._now.withLockedValue { $0 = newValue }
+        }
+    }
 
     
     public init(now: Instant = .init()) {
-        self.now = .init()
+        self._now = .init(now)
     }
     
     public func sleep(until deadline: Instant, tolerance: Duration? = nil) async throws {
