@@ -22,6 +22,7 @@ import NIOCore
 import NIOHTTP1
 import NIOSSL
 import NIOTLS
+import NIOPosix
 
 /// A client to talk with the Apple Push Notification services.
 public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSClientProtocol {
@@ -100,19 +101,17 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
         httpClientConfiguration.httpVersion = .automatic
         httpClientConfiguration.proxy = configuration.proxy
 
-        let httpClientEventLoopGroupProvider: HTTPClient.EventLoopGroupProvider
-
         switch eventLoopGroupProvider {
         case .shared(let eventLoopGroup):
-            httpClientEventLoopGroupProvider = .shared(eventLoopGroup)
+            self.httpClient = HTTPClient(
+                eventLoopGroupProvider: .shared(eventLoopGroup),
+                configuration: httpClientConfiguration
+            )
         case .createNew:
-            httpClientEventLoopGroupProvider = .createNew
+            self.httpClient = HTTPClient(
+                configuration: httpClientConfiguration
+            )
         }
-
-        self.httpClient = HTTPClient(
-            eventLoopGroupProvider: httpClientEventLoopGroupProvider,
-            configuration: httpClientConfiguration
-        )
     }
 
     /// Shuts down the client and event loop gracefully. This function is clearly an outlier in that it uses a completion
