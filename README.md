@@ -8,15 +8,13 @@
 A non-blocking Swift module for sending remote Apple Push Notification requests to [APNS](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server) built on AsyncHttpClient.
 
 - [Installation](#installation)
-- [Foundations](#foundations)
 - [Getting Started](#getting-started)
 - [Sending a simple notification](#sending-a-simple-notification)
-- [Sending Live Activity Update](#sending-live-activity-update)
+- [Sending Live Activity Update](#sending-live-activity-update--end)
 - [Authentication](#authentication)
 - [Logging](#logging)
     - [**Background Activity Logger**](#background-activity-logger)
     - [**Notification Send Logger**](#notification-send-logger)
-- [Using the non semantic safe APIs](#using-the-non-semantic-safe-apis)
 - [Server Example](#server-example)
 - [iOS Examples](#ios-examples)
 - [Original pitch and discussion on API](#original-pitch-and-discussion-on-api)
