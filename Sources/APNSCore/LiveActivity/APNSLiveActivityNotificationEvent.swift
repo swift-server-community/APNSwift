@@ -18,6 +18,9 @@ public struct APNSLiveActivityNotificationEvent: Hashable {
     @usableFromInline
     internal let rawValue: String
     
+    /// Specifies that live activity should be started
+    public static let update = Self(rawValue: "start")
+    
     /// Specifies that live activity should be updated
     public static let update = Self(rawValue: "update")
     
