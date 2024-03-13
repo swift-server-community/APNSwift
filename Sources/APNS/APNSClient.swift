@@ -135,6 +135,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     }
 }
 
+extension APNSClient: Sendable where Decoder: Sendable, Encoder: Sendable {}
 
 // MARK: - Raw sending
 
