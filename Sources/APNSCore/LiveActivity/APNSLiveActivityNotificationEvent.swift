@@ -13,7 +13,6 @@
 //===----------------------------------------------------------------------===//
 
 public struct APNSLiveActivityNotificationEvent: Hashable {
-    
     /// The underlying raw value that is send to APNs.
     @usableFromInline
     internal let rawValue: String
@@ -23,4 +22,6 @@ public struct APNSLiveActivityNotificationEvent: Hashable {
     
     /// Specifies that live activity should be ended
     public static let end = Self(rawValue: "end")
+
+		public static let start = Self(rawValue: "start")
 }
