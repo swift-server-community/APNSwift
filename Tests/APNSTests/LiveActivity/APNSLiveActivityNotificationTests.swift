@@ -53,14 +53,16 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
             contentState: State(),
             // Need the fully qualified name here
             event: APNSLiveActivityNotificationEventStart(
-                attributes: .init(type: "State", state: State())),
+                attributes: .init(type: "State", state: State()),
+                alert: .init(title: .raw("Update"))
+            ),
             timestamp: 1_672_680_658)
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)
 
         let expectedJSONString = """
-            {"aps":{"event":"start", "attributes-type": "State", "attributes": {"string":"Test","number":123},"content-state":{"string":"Test","number":123},"timestamp":1672680658}}
+            {"aps":{"event":"start", "alert": { "title": "Update" }, "attributes-type": "State", "attributes": {"string":"Test","number":123},"content-state":{"string":"Test","number":123},"timestamp":1672680658}}
             """
 
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary

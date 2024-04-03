@@ -22,6 +22,7 @@ struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable & Hashable
         case dismissalDate = "dismissal-date"
         case attributesType = "attributes-type"
         case attributesContent = "attributes"
+        case alert = "alert"
     }
 
     var timestamp: Int
@@ -30,19 +31,23 @@ struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable & Hashable
     var attributesContent: ContentState?
     var contentState: ContentState
     var dismissalDate: Int?
+    var alert: APNSAlertNotificationContent?
 
     init(
         timestamp: Int,
-        event: String,
-        attributes: APNSLiveActivityNotificationEventStart<ContentState>.Attributes?,
+        event: any APNSLiveActivityNotificationEvent,
         contentState: ContentState,
         dismissalDate: Int?
     ) {
         self.timestamp = timestamp
-        self.event = event
-        self.attributesType = attributes?.type
-        self.attributesContent = attributes?.state
         self.contentState = contentState
         self.dismissalDate = dismissalDate
+        self.event = event.rawValue
+
+        if let event = event as? APNSLiveActivityNotificationEventStart<ContentState> {
+            self.attributesType = event.attributes.type
+            self.attributesContent = event.attributes.state
+            self.alert = event.alert
+        }
     }
 }

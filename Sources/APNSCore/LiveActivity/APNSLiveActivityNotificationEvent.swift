@@ -44,9 +44,11 @@ public struct APNSLiveActivityNotificationEventStart<State: Encodable & Hashable
 
     public let rawValue = "start"
     public let attributes: Attributes
+    public let alert: APNSAlertNotificationContent
 
-    public init(attributes: Attributes) {
+    public init(attributes: Attributes, alert: APNSAlertNotificationContent) {
         self.attributes = attributes
+        self.alert = alert
     }
 }
 
@@ -64,9 +66,11 @@ extension APNSLiveActivityNotificationEvent where Self == APNSLiveActivityNotifi
 
 extension APNSLiveActivityNotificationEvent
 where Self: APNSLiveActivityNotificationEventStartStateProtocol {
-    public static func start(type: String, state: State) -> APNSLiveActivityNotificationEventStart<
-        State
-    > {
-        .init(attributes: .init(type: type, state: state))
+    public static func start(type: String, state: State, alert: APNSAlertNotificationContent)
+        -> APNSLiveActivityNotificationEventStart<
+            State
+        >
+    {
+        .init(attributes: .init(type: type, state: state), alert: alert)
     }
 }

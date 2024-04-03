@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// The information for displaying an alert.
-public struct APNSAlertNotificationContent: Encodable, Sendable {
+public struct APNSAlertNotificationContent: Encodable, Sendable, Hashable {
     public struct StringValue: Encodable, Hashable, Sendable {
         internal enum Configuration: Encodable, Hashable {
             case raw(String)

@@ -38,6 +38,16 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
         }
     }
 
+    public var alert: APNSAlertNotificationContent? {
+        get {
+            return self.aps.alert
+        }
+
+        set {
+            self.aps.alert = newValue
+        }
+    }
+
     /// Event type e.g. update
     public var event: any APNSLiveActivityNotificationEvent {
         get {
@@ -48,14 +58,17 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
                 return APNSLiveActivityNotificationEventUpdate()
             default:
                 guard let attributesType = self.aps.attributesType,
-                    let state = self.aps.attributesContent
+                    let state = self.aps.attributesContent,
+                    let alert = self.aps.alert
                 else {
                     // Default to update
                     return APNSLiveActivityNotificationEventUpdate()
                 }
 
                 return APNSLiveActivityNotificationEventStart(
-                    attributes: .init(type: attributesType, state: state))
+                    attributes: .init(type: attributesType, state: state),
+                    alert: alert
+                )
             }
         }
 
@@ -173,8 +186,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
 
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
-            event: event.rawValue,
-            attributes: attributes,
+            event: event,
             contentState: contentState,
             dismissalDate: dismissalDate.dismissal
         )
