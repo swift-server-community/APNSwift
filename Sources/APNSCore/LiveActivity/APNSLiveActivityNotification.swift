@@ -12,13 +12,15 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.UUID
 import struct Foundation.Data
+import struct Foundation.UUID
 
 /// A live activity notification.
 ///
 /// It is **important** that you do not encode anything with the key `aps`.
-public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & Sendable>: APNSMessage {
+public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & Sendable>:
+    APNSMessage
+{
     enum CodingKeys: CodingKey {
         case aps
     }
@@ -31,30 +33,33 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
         get {
             return self.aps.timestamp
         }
-        
+
         set {
             self.aps.timestamp = newValue
         }
     }
-    
+
     /// Event type e.g. update
     public var event: any APNSLiveActivityNotificationEvent {
         get {
-					switch self.aps.event {
-					case "end":
-						return APNSLiveActivityNotificationEventEnd()
-					case "update":
-						return APNSLiveActivityNotificationEventUpdate()
-					default:
-						guard let attributesType = self.aps.attributesType, let state = self.aps.attributesContent else {
-							// Default to update
-							return APNSLiveActivityNotificationEventUpdate()
-						}
+            switch self.aps.event {
+            case "end":
+                return APNSLiveActivityNotificationEventEnd()
+            case "update":
+                return APNSLiveActivityNotificationEventUpdate()
+            default:
+                guard let attributesType = self.aps.attributesType,
+                    let state = self.aps.attributesContent
+                else {
+                    // Default to update
+                    return APNSLiveActivityNotificationEventUpdate()
+                }
 
-						return APNSLiveActivityNotificationEventStart(attributes: .init(type: attributesType, state: state))
-					}
+                return APNSLiveActivityNotificationEventStart(
+                    attributes: .init(type: attributesType, state: state))
+            }
         }
-        
+
         set {
             self.aps.event = newValue.rawValue
         }
@@ -65,7 +70,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
         get {
             return self.aps.contentState
         }
-        
+
         set {
             self.aps.contentState = newValue
         }
@@ -79,7 +84,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
             self.aps.dismissalDate = newValue?.dismissal
         }
     }
-    
+
     /// A canonical UUID that identifies the notification. If there is an error sending the notification,
     /// APNs uses this value to identify the notification to your server. The canonical form is 32 lowercase hexadecimal digits,
     /// displayed in five groups separated by hyphens in the form 8-4-4-4-12. An example UUID is as follows:
@@ -136,7 +141,6 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
             dismissalDate: dismissalDate
         )
     }
-    
 
     /// Initializes a new ``APNSLiveActivityNotification``.
     ///
@@ -163,15 +167,15 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Hashable & 
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none
     ) {
-				var attributes: APNSLiveActivityNotificationEventStart<ContentState>.Attributes?
-				if let event = event as? APNSLiveActivityNotificationEventStart<ContentState> {
-					attributes = event.attributes
-				}
+        var attributes: APNSLiveActivityNotificationEventStart<ContentState>.Attributes?
+        if let event = event as? APNSLiveActivityNotificationEventStart<ContentState> {
+            attributes = event.attributes
+        }
 
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
             event: event.rawValue,
-						attributes: attributes,
+            attributes: attributes,
             contentState: contentState,
             dismissalDate: dismissalDate.dismissal
         )
