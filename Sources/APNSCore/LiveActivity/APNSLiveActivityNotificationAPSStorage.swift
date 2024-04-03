@@ -11,7 +11,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import struct Foundation.Data
 
 struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable & Hashable & Sendable>:
     Encodable, Sendable, Hashable

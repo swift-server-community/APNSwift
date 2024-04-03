@@ -12,7 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Foundation.Data
 import struct Foundation.UUID
 
 /// A live activity notification.
