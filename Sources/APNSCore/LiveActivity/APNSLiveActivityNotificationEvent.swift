@@ -12,16 +12,51 @@
 //
 //===----------------------------------------------------------------------===//
 
-public struct APNSLiveActivityNotificationEvent: Hashable {
-    /// The underlying raw value that is send to APNs.
-    @usableFromInline
-    internal let rawValue: String
-    
-    /// Specifies that live activity should be updated
-    public static let update = Self(rawValue: "update")
-    
-    /// Specifies that live activity should be ended
-    public static let end = Self(rawValue: "end")
+public protocol APNSLiveActivityNotificationEvent: Hashable, Encodable {
+	var rawValue: String { get }
+}
 
-		public static let start = Self(rawValue: "start")
+public struct APNSLiveActivityNotificationEventUpdate: APNSLiveActivityNotificationEvent {
+	public let rawValue = "update"
+}
+
+public struct APNSLiveActivityNotificationEventEnd: APNSLiveActivityNotificationEvent {
+	public let rawValue = "end"
+}
+
+public protocol APNSLiveActivityNotificationEventStartStateProtocol: Encodable & Hashable & Sendable {
+	associatedtype State: Encodable & Hashable & Sendable
+}
+
+public struct APNSLiveActivityNotificationEventStart<State: Encodable & Hashable & Sendable>: APNSLiveActivityNotificationEvent, APNSLiveActivityNotificationEventStartStateProtocol {
+	public struct Attributes: Encodable, Hashable, Sendable {
+		public let type: String
+		public let state: State
+
+		public init(type: String, state: State) {
+			self.type = type
+			self.state = state
+		}
+	}
+
+	public let rawValue = "start"
+	public let attributes: Attributes
+
+	public init(attributes: Attributes) {
+		self.attributes = attributes
+	}
+}
+
+public extension APNSLiveActivityNotificationEvent where Self == APNSLiveActivityNotificationEventUpdate {
+	static var update: APNSLiveActivityNotificationEventUpdate { APNSLiveActivityNotificationEventUpdate() }
+}
+
+public extension APNSLiveActivityNotificationEvent where Self == APNSLiveActivityNotificationEventEnd {
+	static var end: APNSLiveActivityNotificationEventEnd { APNSLiveActivityNotificationEventEnd() }
+}
+
+public extension APNSLiveActivityNotificationEvent where Self: APNSLiveActivityNotificationEventStartStateProtocol {
+	static func start(type: String, state: State) -> APNSLiveActivityNotificationEventStart<State> {
+		.init(attributes: .init(type: type, state: state))
+	}
 }

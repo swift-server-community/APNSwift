@@ -11,28 +11,36 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+import struct Foundation.Data
 
-struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodable {
+struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable & Hashable & Sendable>: Encodable, Sendable, Hashable {
     enum CodingKeys: String, CodingKey {
         case timestamp = "timestamp"
         case event = "event"
         case contentState = "content-state"
         case dismissalDate = "dismissal-date"
+				case attributesType = "attributes-type"
+				case attributesContent = "attributes"
     }
 
     var timestamp: Int
     var event: String
+		var attributesType: String?
+		var attributesContent: ContentState?
     var contentState: ContentState
     var dismissalDate: Int?
     
     init(
         timestamp: Int,
         event: String,
+				attributes: APNSLiveActivityNotificationEventStart<ContentState>.Attributes?,
         contentState: ContentState,
         dismissalDate: Int?
     ) {
         self.timestamp = timestamp
         self.event = event
+				self.attributesType = attributes?.type
+				self.attributesContent = attributes?.state
         self.contentState = contentState
         self.dismissalDate = dismissalDate
     }
