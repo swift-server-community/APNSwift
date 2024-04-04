@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-public protocol APNSLiveActivityNotificationEvent: Hashable, Encodable {
+public protocol APNSLiveActivityNotificationEvent: Encodable {
     var rawValue: String { get }
 }
 
@@ -24,15 +24,15 @@ public struct APNSLiveActivityNotificationEventEnd: APNSLiveActivityNotification
     public let rawValue = "end"
 }
 
-public protocol APNSLiveActivityNotificationEventStartStateProtocol: Encodable & Hashable & Sendable
+public protocol APNSLiveActivityNotificationEventStartStateProtocol: Encodable
 {
-    associatedtype State: Encodable & Hashable & Sendable
+    associatedtype State: Encodable
 }
 
-public struct APNSLiveActivityNotificationEventStart<State: Encodable & Hashable & Sendable>:
+public struct APNSLiveActivityNotificationEventStart<State: Encodable>:
     APNSLiveActivityNotificationEvent, APNSLiveActivityNotificationEventStartStateProtocol
 {
-    public struct Attributes: Encodable, Hashable, Sendable {
+    public struct Attributes: Encodable {
         public let type: String
         public let state: State
 
