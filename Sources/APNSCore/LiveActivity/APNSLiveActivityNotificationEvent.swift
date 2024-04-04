@@ -22,7 +22,4 @@ public struct APNSLiveActivityNotificationEvent: Hashable {
 
     /// Specifies that live activity should be ended
     public static let end = Self(rawValue: "end")
-
-    /// The underlying raw value that is send to APNs.
-    public static let start = Self(rawValue: "start")
 }
