@@ -51,11 +51,8 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
             priority: .immediately,
             appID: "test.app.id",
             contentState: State(),
-            // Need the fully qualified name here
-            event: APNSLiveActivityNotificationEventStart(
-                attributes: .init(type: "State", state: State()),
-                alert: .init(title: .raw("Update"))
-            ),
+						event: .start,
+						startOptions: .init(attributeType: "State", attributes: State(), alert: .init(title: .raw("Update"))),
             timestamp: 1_672_680_658)
 
         let encoder = JSONEncoder()

@@ -49,25 +49,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
     /// Event type e.g. update
     public var event: APNSLiveActivityNotificationEvent {
         get {
-            switch self.aps.event {
-            case "end":
-                return APNSLiveActivityNotificationEventEnd()
-            case "update":
-                return APNSLiveActivityNotificationEventUpdate()
-            default:
-                guard let attributesType = self.aps.attributesType,
-                    let state = self.aps.attributesContent,
-                    let alert = self.aps.alert
-                else {
-                    // Default to update
-                    return APNSLiveActivityNotificationEventUpdate()
-                }
-
-                return APNSLiveActivityNotificationEventStart(
-                    attributes: .init(type: attributesType, state: state),
-                    alert: alert
-                )
-            }
+						return APNSLiveActivityNotificationEvent(rawValue: self.aps.event)
         }
 
         set {
@@ -136,7 +118,8 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
         priority: APNSPriority,
         appID: String,
         contentState: ContentState,
-        event: any APNSLiveActivityNotificationEvent,
+        event: APNSLiveActivityNotificationEvent,
+				startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none,
         apnsID: UUID? = nil
@@ -147,6 +130,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
             topic: appID + ".push-type.liveactivity",
             contentState: contentState,
             event: event,
+						startOptions: startOptions,
             timestamp: timestamp,
             dismissalDate: dismissalDate
         )
@@ -173,18 +157,15 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
         topic: String,
         apnsID: UUID? = nil,
         contentState: ContentState,
-        event: any APNSLiveActivityNotificationEvent,
+        event: APNSLiveActivityNotificationEvent,
+				startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none
     ) {
-        var attributes: APNSLiveActivityNotificationEventStart<ContentState>.Attributes?
-        if let event = event as? APNSLiveActivityNotificationEventStart<ContentState> {
-            attributes = event.attributes
-        }
-
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
             event: event,
+						startOptions: startOptions,
             contentState: contentState,
             dismissalDate: dismissalDate.dismissal
         )

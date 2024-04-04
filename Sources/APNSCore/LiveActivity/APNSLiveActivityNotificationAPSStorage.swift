@@ -33,7 +33,8 @@ struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodabl
 
     init(
         timestamp: Int,
-        event: any APNSLiveActivityNotificationEvent,
+        event: APNSLiveActivityNotificationEvent,
+				startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>?,
         contentState: ContentState,
         dismissalDate: Int?
     ) {
@@ -42,10 +43,10 @@ struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodabl
         self.dismissalDate = dismissalDate
         self.event = event.rawValue
 
-        if let event = event as? APNSLiveActivityNotificationEventStart<ContentState> {
-            self.attributesType = event.attributes.type
-            self.attributesContent = event.attributes.state
-            self.alert = event.alert
+				if let startOptions {
+					self.attributesType = startOptions.attributeType
+					self.attributesContent = startOptions.attributes
+					self.alert = startOptions.alert
         }
     }
 }
