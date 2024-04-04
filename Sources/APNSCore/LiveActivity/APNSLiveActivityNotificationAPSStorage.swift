@@ -27,13 +27,13 @@ struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable>: Encodabl
 
     init(
         timestamp: Int,
-        event: APNSLiveActivityNotificationEvent,
+        event: String,
         contentState: ContentState,
         dismissalDate: Int?
     ) {
         self.timestamp = timestamp
         self.contentState = contentState
         self.dismissalDate = dismissalDate
-        self.event = event.rawValue
+        self.event = event
     }
 }

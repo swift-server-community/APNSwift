@@ -151,7 +151,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
     ) {
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
-            event: event,
+						event: event.rawValue,
             contentState: contentState,
             dismissalDate: dismissalDate.dismissal
         )
