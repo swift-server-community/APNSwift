@@ -14,16 +14,18 @@
 
 import struct Foundation.UUID
 
-/// A live activity notification.
+/// A notification that starts a live activity
 ///
 /// It is **important** that you do not encode anything with the key `aps`.
-public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage {
+public struct APNSStartLiveActivityNotification<Attributes: Encodable, ContentState: Encodable>:
+    APNSMessage
+{
     enum CodingKeys: CodingKey {
         case aps
     }
 
     /// The fixed content to indicate that this is a background notification.
-    private var aps: APNSLiveActivityNotificationAPSStorage<ContentState>
+    private var aps: APNSStartLiveActivityNotificationAPSStorage<Attributes, ContentState>
 
     /// Timestamp when sending notification
     public var timestamp: Int {
@@ -36,14 +38,13 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
         }
     }
 
-    /// Event type e.g. update
-    public var event: APNSLiveActivityNotificationEvent {
+    public var alert: APNSAlertNotificationContent {
         get {
-            return APNSLiveActivityNotificationEvent(rawValue: self.aps.event)
+            return self.aps.alert
         }
 
         set {
-            self.aps.event = newValue.rawValue
+            self.aps.alert = newValue
         }
     }
 
@@ -88,7 +89,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
     /// The topic for the notification. In general, the topic is your app’s bundle ID/app ID.
     public var topic: String
 
-    /// Initializes a new ``APNSLiveActivityNotification``.
+    /// Initializes a new ``APNSStartLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
     /// It is **important** that you do not encode anything with the key `aps`
@@ -99,32 +100,38 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
     ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.liveactivity`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
-    ///   - event: event type e.g. update
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
+    ///   - attributes: The ActivityAttributes of the live activity to start
+    ///   - attributesString: The type name of the ActivityAttributes you want to send
+    ///   - alert: An alert that will be sent along with the notification
     public init(
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
         appID: String,
         contentState: ContentState,
-        event: APNSLiveActivityNotificationEvent,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none,
-        apnsID: UUID? = nil
+        apnsID: UUID? = nil,
+        attributes: Attributes,
+        attributesType: String,
+        alert: APNSAlertNotificationContent
     ) {
         self.init(
             expiration: expiration,
             priority: priority,
             topic: appID + ".push-type.liveactivity",
             contentState: contentState,
-            event: event,
             timestamp: timestamp,
-            dismissalDate: dismissalDate
+            dismissalDate: dismissalDate,
+            attributes: attributes,
+            attributesType: attributesType,
+            alert: alert
         )
     }
 
-    /// Initializes a new ``APNSLiveActivityNotification``.
+    /// Initializes a new ``APNSStartLiveActivityNotification``.
     ///
     /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
     /// It is **important** that you do not encode anything with the key `aps`
@@ -135,25 +142,31 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
     ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID suffixed with `.push-type.liveactivity`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
-    ///   - event: event type e.g. update
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
+    ///   - attributes: The ActivityAttributes of the live activity to start
+    ///   - attributesString: The type name of the ActivityAttributes you want to send
+    ///   - alert: An alert that will be sent along with the notification
     public init(
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
         topic: String,
         apnsID: UUID? = nil,
         contentState: ContentState,
-        event: APNSLiveActivityNotificationEvent,
         timestamp: Int,
-        dismissalDate: APNSLiveActivityDismissalDate = .none
+        dismissalDate: APNSLiveActivityDismissalDate = .none,
+        attributes: Attributes,
+        attributesType: String,
+        alert: APNSAlertNotificationContent
     ) {
-        self.aps = APNSLiveActivityNotificationAPSStorage(
+        self.aps = APNSStartLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
-            event: event,
             contentState: contentState,
-            dismissalDate: dismissalDate.dismissal
+            dismissalDate: dismissalDate.dismissal,
+            alert: alert,
+            attributes: attributes,
+            attributesType: attributesType
         )
         self.apnsID = apnsID
         self.expiration = expiration

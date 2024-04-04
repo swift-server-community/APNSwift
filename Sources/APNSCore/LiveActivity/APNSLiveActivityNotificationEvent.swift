@@ -26,15 +26,3 @@ public struct APNSLiveActivityNotificationEvent: Hashable {
     /// The underlying raw value that is send to APNs.
     public static let start = Self(rawValue: "start")
 }
-
-public struct APNSLiveActivityNotificationEventStartOptions<State: Encodable> {
-    var attributeType: String
-    var attributes: State
-    var alert: APNSAlertNotificationContent
-
-    public init(attributeType: String, attributes: State, alert: APNSAlertNotificationContent) {
-        self.attributeType = attributeType
-        self.attributes = attributes
-        self.alert = alert
-    }
-}

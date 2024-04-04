@@ -17,6 +17,10 @@ import XCTest
 
 final class APNSLiveActivityNotificationTests: XCTestCase {
 
+    struct Attributes: Encodable {
+        let name: String = "Test Attribute"
+    }
+
     struct State: Encodable, Hashable {
         let string: String = "Test"
         let number: Int = 123
@@ -46,21 +50,22 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
     }
 
     func testEncodeStart() throws {
-        let notification = APNSLiveActivityNotification(
+        let notification = APNSStartLiveActivityNotification(
             expiration: .immediately,
             priority: .immediately,
             appID: "test.app.id",
             contentState: State(),
-            event: .start,
-            startOptions: .init(
-                attributeType: "State", attributes: State(), alert: .init(title: .raw("Update"))),
-            timestamp: 1_672_680_658)
+            timestamp: 1_672_680_658,
+            attributes: Attributes(),
+            attributesType: "Attributes",
+            alert: .init(title: .raw("Hi"), body: .raw("Hello"))
+        )
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)
 
         let expectedJSONString = """
-            {"aps":{"event":"start", "alert": { "title": "Update" }, "attributes-type": "State", "attributes": {"string":"Test","number":123},"content-state":{"string":"Test","number":123},"timestamp":1672680658}}
+            {"aps":{"event":"start", "alert": { "title": "Hi", "body": "Hello" }, "attributes-type": "Attributes", "attributes": {"name":"Test Attribute"},"content-state":{"string":"Test","number":123},"timestamp":1672680658}}
             """
 
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary
