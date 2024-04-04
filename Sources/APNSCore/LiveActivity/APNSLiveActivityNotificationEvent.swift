@@ -12,30 +12,29 @@
 //
 //===----------------------------------------------------------------------===//
 
-
 public struct APNSLiveActivityNotificationEvent: Encodable {
-			/// The underlying raw value that is send to APNs.
-			@usableFromInline
-			internal let rawValue: String
+    /// The underlying raw value that is send to APNs.
+    @usableFromInline
+    internal let rawValue: String
 
-			/// Specifies that live activity should be updated
-			public static let update = Self(rawValue: "update")
+    /// Specifies that live activity should be updated
+    public static let update = Self(rawValue: "update")
 
-			/// Specifies that live activity should be ended
-			public static let end = Self(rawValue: "end")
+    /// Specifies that live activity should be ended
+    public static let end = Self(rawValue: "end")
 
-			/// The underlying raw value that is send to APNs.
-			public static let start = Self(rawValue: "start")
+    /// The underlying raw value that is send to APNs.
+    public static let start = Self(rawValue: "start")
 }
 
 public struct APNSLiveActivityNotificationEventStartOptions<State: Encodable> {
-	var attributeType: String
-	var attributes: State
-	var alert: APNSAlertNotificationContent
+    var attributeType: String
+    var attributes: State
+    var alert: APNSAlertNotificationContent
 
-	public init(attributeType: String, attributes: State, alert: APNSAlertNotificationContent) {
-		self.attributeType = attributeType
-		self.attributes = attributes
-		self.alert = alert
-	}
+    public init(attributeType: String, attributes: State, alert: APNSAlertNotificationContent) {
+        self.attributeType = attributeType
+        self.attributes = attributes
+        self.alert = alert
+    }
 }

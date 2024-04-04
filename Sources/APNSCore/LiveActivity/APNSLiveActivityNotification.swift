@@ -49,7 +49,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
     /// Event type e.g. update
     public var event: APNSLiveActivityNotificationEvent {
         get {
-						return APNSLiveActivityNotificationEvent(rawValue: self.aps.event)
+            return APNSLiveActivityNotificationEvent(rawValue: self.aps.event)
         }
 
         set {
@@ -119,7 +119,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
         appID: String,
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
-				startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>? = nil,
+        startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none,
         apnsID: UUID? = nil
@@ -130,7 +130,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
             topic: appID + ".push-type.liveactivity",
             contentState: contentState,
             event: event,
-						startOptions: startOptions,
+            startOptions: startOptions,
             timestamp: timestamp,
             dismissalDate: dismissalDate
         )
@@ -158,14 +158,14 @@ public struct APNSLiveActivityNotification<ContentState: Encodable>: APNSMessage
         apnsID: UUID? = nil,
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
-				startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>? = nil,
+        startOptions: APNSLiveActivityNotificationEventStartOptions<ContentState>? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none
     ) {
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
             event: event,
-						startOptions: startOptions,
+            startOptions: startOptions,
             contentState: contentState,
             dismissalDate: dismissalDate.dismissal
         )
