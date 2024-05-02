@@ -393,6 +393,11 @@ public struct APNSError: Error {
     /// Use this value to identify the notification. If you don’t specify an `apnsID` in your request,
     /// APNs creates a new `UUID` and returns it in this header.
     public let apnsID: UUID?
+    
+    /// A unique ID for the notification used for development, as determined by the APNs servers.
+    ///
+    /// In the development or sandbox environement, this value can be used to look up information about notifications on the [Push Notifications Console](https://icloud.developer.apple.com/dashboard/notifications). This value is not provided in the production environement.
+    public var apnsUniqueID: UUID?
 
     /// The error code indicating the reason for the failure.
     public let reason: ErrorReason?
@@ -405,11 +410,13 @@ public struct APNSError: Error {
     public init(
         responseStatus: Int,
         apnsID: UUID? = nil,
+        apnsUniqueID: UUID? = nil,
         apnsResponse: APNSErrorResponse? = nil,
         timestamp: Date? = nil
     ) {
         self.responseStatus = responseStatus
         self.apnsID = apnsID
+        self.apnsUniqueID = apnsUniqueID
         if let apnsResponse {
             self.reason = .init(_reason: .init(rawValue: apnsResponse.reason))
         } else {
@@ -425,6 +432,7 @@ extension APNSError: Hashable {
         return
             lhs.responseStatus == rhs.responseStatus &&
             lhs.apnsID == rhs.apnsID &&
+            lhs.apnsUniqueID == rhs.apnsUniqueID &&
             lhs.reason == rhs.reason &&
             lhs.timestamp == rhs.timestamp
     }
@@ -432,6 +440,7 @@ extension APNSError: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(self.responseStatus)
         hasher.combine(self.apnsID)
+        hasher.combine(self.apnsUniqueID)
         hasher.combine(self.reason)
         hasher.combine(self.timestamp)
     }
