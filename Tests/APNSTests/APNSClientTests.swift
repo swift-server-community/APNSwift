@@ -33,7 +33,7 @@ final class APNSClientTests: XCTestCase {
                     keyIdentifier: "MY_KEY_ID",
                     teamIdentifier: "MY_TEAM_ID"
                 ),
-                environment: .sandbox
+                environment: .development
             ),
             eventLoopGroupProvider: .createNew,
             responseDecoder: JSONDecoder(),

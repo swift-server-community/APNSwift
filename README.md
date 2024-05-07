@@ -40,7 +40,7 @@ let client = APNSClient(
             keyIdentifier: keyIdentifier,
             teamIdentifier: teamIdentifier
         ),
-        environment: .sandbox
+        environment: .development
     ),
     eventLoopGroupProvider: .createNew,
     responseDecoder: JSONDecoder(),
