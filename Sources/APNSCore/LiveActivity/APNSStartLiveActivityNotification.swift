@@ -98,13 +98,13 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable, ContentSt
     ///   - expiration: The date when the notification is no longer valid and can be discarded.
     ///   - priority: The priority of the notification.
     ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.liveactivity`.
-    ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
+    ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - attributes: The ActivityAttributes of the live activity to start
-    ///   - attributesString: The type name of the ActivityAttributes you want to send
+    ///   - attributesType: The type name of the ActivityAttributes you want to send
     ///   - alert: An alert that will be sent along with the notification
     public init(
         expiration: APNSNotificationExpiration,
@@ -118,59 +118,17 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable, ContentSt
         attributesType: String,
         alert: APNSAlertNotificationContent
     ) {
-        self.init(
-            expiration: expiration,
-            priority: priority,
-            topic: appID + ".push-type.liveactivity",
-            contentState: contentState,
-            timestamp: timestamp,
-            dismissalDate: dismissalDate,
-            attributes: attributes,
-            attributesType: attributesType,
-            alert: alert
-        )
-    }
-
-    /// Initializes a new ``APNSStartLiveActivityNotification``.
-    ///
-    /// - Important: Your dynamic payload will get encoded to the root of the JSON payload that is send to APNs.
-    /// It is **important** that you do not encode anything with the key `aps`
-    ///
-    /// - Parameters:
-    ///   - expiration: The date when the notification is no longer valid and can be discarded.
-    ///   - priority: The priority of the notification.
-    ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID suffixed with `.push-type.liveactivity`.
-    ///   - apnsID: A canonical UUID that identifies the notification.
-    ///   - contentState: Updated content-state of live activity
-    ///   - timestamp: Timestamp when sending notification
-    ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
-    ///    dismiss immediately
-    ///   - attributes: The ActivityAttributes of the live activity to start
-    ///   - attributesString: The type name of the ActivityAttributes you want to send
-    ///   - alert: An alert that will be sent along with the notification
-    public init(
-        expiration: APNSNotificationExpiration,
-        priority: APNSPriority,
-        topic: String,
-        apnsID: UUID? = nil,
-        contentState: ContentState,
-        timestamp: Int,
-        dismissalDate: APNSLiveActivityDismissalDate = .none,
-        attributes: Attributes,
-        attributesType: String,
-        alert: APNSAlertNotificationContent
-    ) {
-        self.aps = APNSStartLiveActivityNotificationAPSStorage(
-            timestamp: timestamp,
-            contentState: contentState,
-            dismissalDate: dismissalDate.dismissal,
-            alert: alert,
-            attributes: attributes,
-            attributesType: attributesType
-        )
-        self.apnsID = apnsID
-        self.expiration = expiration
-        self.priority = priority
-        self.topic = topic
+      self.aps = APNSStartLiveActivityNotificationAPSStorage(
+          timestamp: timestamp,
+          contentState: contentState,
+          dismissalDate: dismissalDate.dismissal,
+          alert: alert,
+          attributes: attributes,
+          attributesType: attributesType
+			)
+			self.apnsID = apnsID
+			self.expiration = expiration
+			self.priority = priority
+			self.topic = appID + ".push-type.liveactivity"
     }
 }
