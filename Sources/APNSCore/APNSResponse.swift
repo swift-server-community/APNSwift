@@ -21,11 +21,25 @@ public struct APNSResponse: Hashable {
     /// Use this value to identify the notification. If you don’t specify an `apnsID` in your request,
     /// APNs creates a new `UUID` and returns it in this header.
     public var apnsID: UUID?
+    
+    /// A unique ID for the notification used for development, as determined by the APNs servers.
+    ///
+    /// In the development or sandbox environement, this value can be used to look up information about notifications on the [Push Notifications Console](https://icloud.developer.apple.com/dashboard/notifications). This value is not provided in the production environement.
+    public var apnsUniqueID: UUID?
 
     /// Initializes a new ``APNSResponse``.
     ///
     /// - Parameter apnsID: The same value as the `apnsID` send in the request.
-    public init(apnsID: UUID? = nil) {
+    /// - Parameter apnsUniqueID: A unique ID for the notification used only in the development environment.
+    public init(apnsID: UUID? = nil, apnsUniqueID: UUID? = nil) {
         self.apnsID = apnsID
+        self.apnsUniqueID = apnsUniqueID
+    }
+}
+
+/// The [Push Notifications Console](https://icloud.developer.apple.com/dashboard/notifications) expects IDs to be lowercased, so prep them ahead of time here to make it easier for users to copy and paste these IDs.
+extension APNSResponse: CustomStringConvertible {
+    public var description: String {
+        "APNSResponse(apns-id: \(apnsID?.uuidString.lowercased() ?? "nil"), apns-unique-id: \(apnsUniqueID?.uuidString.lowercased() ?? "nil"))"
     }
 }

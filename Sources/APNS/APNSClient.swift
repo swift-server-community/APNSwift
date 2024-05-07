@@ -192,9 +192,10 @@ extension APNSClient {
         let response = try await self.httpClient.execute(httpClientRequest, deadline: .distantFuture)
 
         let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }
+        let apnsUniqueID = response.headers.first(name: "apns-unique-id").flatMap { UUID(uuidString: $0) }
 
         if response.status == .ok {
-            return APNSResponse(apnsID: apnsID)
+            return APNSResponse(apnsID: apnsID, apnsUniqueID: apnsUniqueID)
         }
 
         let body = try await response.body.collect(upTo: 1024)
@@ -203,6 +204,7 @@ extension APNSClient {
         let error = APNSError(
             responseStatus: Int(response.status.code),
             apnsID: apnsID,
+            apnsUniqueID: apnsUniqueID,
             apnsResponse: errorResponse,
             timestamp: errorResponse.timestampInSeconds.flatMap { Date(timeIntervalSince1970: $0) }
         )
