@@ -86,11 +86,10 @@ public struct APNSBackgroundNotification<Payload: Encodable & Sendable>: APNSMes
 
     @inlinable
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
         // First we encode the user payload since this might use the `aps` key
         // and we override it afterward.
         try self.payload.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.aps, forKey: .aps)
     }
 }
