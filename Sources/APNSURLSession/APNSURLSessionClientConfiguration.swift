@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 import APNSCore
-import Crypto
+@preconcurrency import Crypto
 
 /// The configuration of an ``APNSURLSessionClient``.
 public struct APNSURLSessionClientConfiguration {

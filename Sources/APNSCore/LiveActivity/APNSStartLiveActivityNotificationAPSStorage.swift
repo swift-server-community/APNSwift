@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-struct APNSStartLiveActivityNotificationAPSStorage<Attributes: Encodable, ContentState: Encodable>:
-    Encodable
+struct APNSStartLiveActivityNotificationAPSStorage<Attributes: Encodable & Sendable, ContentState: Encodable & Sendable>:
+    Encodable & Sendable
 {
     enum CodingKeys: String, CodingKey {
         case timestamp = "timestamp"

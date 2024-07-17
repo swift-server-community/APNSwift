@@ -125,7 +125,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     /// - Parameters:
     ///   - queue: The queue on which the callback is invoked on.
     ///   - callback: The callback that is invoked when everything is shutdown.
-    public func shutdown(queue: DispatchQueue = .global(), callback: @escaping (Error?) -> Void) {
+    public func shutdown(queue: DispatchQueue = .global(), callback: @Sendable @escaping (Error?) -> Void) {
         self.httpClient.shutdown(callback)
     }
 

@@ -21,8 +21,8 @@ public struct APNSError: Error {
     /// The error reason returned by APNs.
     ///
     /// For more information please look here: [Reference]( https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns)
-    public struct ErrorReason: Hashable {
-        public enum Reason: RawRepresentable, Hashable {
+    public struct ErrorReason: Hashable, Sendable {
+        public enum Reason: RawRepresentable, Hashable, Sendable {
             public typealias RawValue = String
 
             case badCollapseIdentifier
