@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-public struct APNSLiveActivityNotificationEvent: Hashable {
+public struct APNSLiveActivityNotificationEvent: Hashable, Sendable {
     /// The underlying raw value that is send to APNs.
     @usableFromInline
     internal let rawValue: String

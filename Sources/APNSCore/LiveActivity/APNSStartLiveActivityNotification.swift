@@ -17,7 +17,7 @@ import struct Foundation.UUID
 /// A notification that starts a live activity
 ///
 /// It is **important** that you do not encode anything with the key `aps`.
-public struct APNSStartLiveActivityNotification<Attributes: Encodable, ContentState: Encodable>:
+public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable, ContentState: Encodable & Sendable>:
     APNSMessage
 {
     enum CodingKeys: CodingKey {
