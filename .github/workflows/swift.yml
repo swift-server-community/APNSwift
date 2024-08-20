@@ -4,21 +4,21 @@ on:
 jobs:
   focal:
     container:
-      image: swift:6.0-focal
+      image: swiftlang/swift:nightly-6.0-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery
   thread:
     container:
-      image: swift:6.0-focal
+      image: swiftlang/swift:nightly-6.0-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery  --sanitize=thread
   address:
     container:
-      image: swift:6.0-focal
+      image: swiftlang/swift:nightly-6.0-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
