@@ -14,7 +14,7 @@
 
 import APNSCore
 import APNS
-import OSLog
+import Logging
 import Foundation
 
 @available(macOS 11.0, *)
@@ -30,8 +30,10 @@ struct Main {
     static let keyIdentifier = ""
     static let teamIdentifier = ""
 
+    private static let logger = Logger(label: "APNSwiftExample")
+    
     static func main() async throws {
-        let logger = Logger(subsystem: "apns", category: "apns-main")
+        
         let client = APNSClient(
             configuration: .init(
                 authenticationMethod: .jwt(
@@ -55,14 +57,10 @@ struct Main {
             try await Self.sendVoIP(with: client)
             try await Self.sendFileProvider(with: client)
         } catch {
-            logger.warning("error sending push:\(error)")
+            logger.warning("error sending push: \(error)")
         }
         
-        client.shutdown { error in
-            if let error = error {
-                logger.warning("error shutting down client: \(error.localizedDescription)")
-            }
-        }
+        try? await client.shutdown()
     }
 }
 
