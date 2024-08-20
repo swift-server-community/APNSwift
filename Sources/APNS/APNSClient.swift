@@ -145,7 +145,7 @@ extension APNSClient {
         var headers = self.defaultRequestHeaders
 
         // Push type
-        headers.add(name: "apns-push-type", value: request.pushType.configuration.rawValue)
+        headers.add(name: "apns-push-type", value: request.pushType.description)
 
         // APNS ID
         if let apnsID = request.apnsID {
