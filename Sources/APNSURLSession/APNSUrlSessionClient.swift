@@ -7,6 +7,7 @@ enum APNSUrlSessionClientError: Error {
 }
 
 public struct APNSURLSessionClient: APNSClientProtocol {
+    
     private let configuration: APNSURLSessionClientConfiguration
     
     let encoder = JSONEncoder()
@@ -60,6 +61,10 @@ public struct APNSURLSessionClient: APNSClientProtocol {
             /// Return APNSResponse
             return APNSResponse(apnsID: apnsID, apnsUniqueID: apnsUniqueID)
         }
+    }
+
+    public func shutdown() async throws {
+        // no op
     }
 }
 
