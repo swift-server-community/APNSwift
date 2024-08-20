@@ -13,8 +13,9 @@
 //===----------------------------------------------------------------------===//
 
 /// A struct which represents the different supported APNs push types.
-public struct APNSPushType: Hashable, Sendable {
-    public enum Configuration: String, Hashable, Sendable {
+public struct APNSPushType: Hashable, Sendable, CustomStringConvertible {
+    
+    internal enum Configuration: String, Hashable, Sendable {
         case alert
         case background
         case location
@@ -23,10 +24,15 @@ public struct APNSPushType: Hashable, Sendable {
         case fileprovider
         case mdm
         case liveactivity
+        case pushtotalk
+    }
+    
+    public var description: String {
+        configuration.rawValue
     }
 
     /// The underlying raw value that is send to APNs.
-    public var configuration: Configuration
+    internal var configuration: Configuration
 
     /// Use the alert push type for notifications that trigger a user interaction—for example, an alert, badge, or sound.
     ///
@@ -94,4 +100,12 @@ public struct APNSPushType: Hashable, Sendable {
     /// Use the live activity push type to update your live activity.
     ///
     public static let liveactivity = Self(configuration: .liveactivity)
+    
+    /// Use the pushtotalk push type for notifications that provide information about an incoming Push to Talk (Ptt).
+    ///
+    /// Push to Talk services aren’t available to compatible iPad and iPhone apps running in visionOS.
+    ///
+    /// - Important: If you set this push type, the topic must use your app’s bundle ID with `.voip-ptt` appended to the end.
+    ///
+    public static let pushtotalk = Self(configuration: .pushtotalk)
 }
