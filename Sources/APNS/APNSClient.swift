@@ -14,7 +14,6 @@
 
 import APNSCore
 import AsyncHTTPClient
-import Dispatch
 import struct Foundation.Date
 import struct Foundation.UUID
 import NIOConcurrencyHelpers
