@@ -14,7 +14,7 @@
 
 import struct Foundation.Date
 
-public struct APNSLiveActivityDismissalDate: Hashable {
+public struct APNSLiveActivityDismissalDate: Hashable, Sendable {
     /// The date at which the live activity will be dismissed
     /// This value is a UNIX epoch expressed in seconds (UTC)
     @usableFromInline

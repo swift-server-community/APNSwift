@@ -89,7 +89,7 @@ internal enum Base64 {}
 
 extension Base64 {
     @usableFromInline
-    internal struct EncodingOptions: OptionSet {
+    internal struct EncodingOptions: OptionSet, Sendable {
         @usableFromInline
         internal let rawValue: UInt
 
@@ -557,7 +557,7 @@ extension Base64 {
 
 extension Base64 {
     @usableFromInline
-    internal struct DecodingOptions: OptionSet {
+    internal struct DecodingOptions: OptionSet, Sendable {
         @usableFromInline
         internal let rawValue: UInt
 

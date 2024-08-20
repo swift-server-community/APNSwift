@@ -22,6 +22,7 @@ import NIOCore
 import NIOHTTP1
 import NIOSSL
 import NIOTLS
+import NIOPosix
 
 /// A client to talk with the Apple Push Notification services.
 public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSClientProtocol {
@@ -100,19 +101,17 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
         httpClientConfiguration.httpVersion = .automatic
         httpClientConfiguration.proxy = configuration.proxy
 
-        let httpClientEventLoopGroupProvider: HTTPClient.EventLoopGroupProvider
-
         switch eventLoopGroupProvider {
         case .shared(let eventLoopGroup):
-            httpClientEventLoopGroupProvider = .shared(eventLoopGroup)
+            self.httpClient = HTTPClient(
+                eventLoopGroupProvider: .shared(eventLoopGroup),
+                configuration: httpClientConfiguration
+            )
         case .createNew:
-            httpClientEventLoopGroupProvider = .createNew
+            self.httpClient = HTTPClient(
+                configuration: httpClientConfiguration
+            )
         }
-
-        self.httpClient = HTTPClient(
-            eventLoopGroupProvider: httpClientEventLoopGroupProvider,
-            configuration: httpClientConfiguration
-        )
     }
 
     /// Shuts down the client and event loop gracefully. This function is clearly an outlier in that it uses a completion
@@ -126,7 +125,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     /// - Parameters:
     ///   - queue: The queue on which the callback is invoked on.
     ///   - callback: The callback that is invoked when everything is shutdown.
-    public func shutdown(queue: DispatchQueue = .global(), callback: @escaping (Error?) -> Void) {
+    @preconcurrency public func shutdown(queue: DispatchQueue = .global(), callback: @Sendable @escaping (Error?) -> Void) {
         self.httpClient.shutdown(callback)
     }
 
@@ -136,6 +135,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     }
 }
 
+extension APNSClient: Sendable where Decoder: Sendable, Encoder: Sendable {}
 
 // MARK: - Raw sending
 
@@ -145,7 +145,7 @@ extension APNSClient {
         var headers = self.defaultRequestHeaders
 
         // Push type
-        headers.add(name: "apns-push-type", value: request.pushType.configuration.rawValue)
+        headers.add(name: "apns-push-type", value: request.pushType.description)
 
         // APNS ID
         if let apnsID = request.apnsID {
@@ -192,9 +192,10 @@ extension APNSClient {
         let response = try await self.httpClient.execute(httpClientRequest, deadline: .distantFuture)
 
         let apnsID = response.headers.first(name: "apns-id").flatMap { UUID(uuidString: $0) }
+        let apnsUniqueID = response.headers.first(name: "apns-unique-id").flatMap { UUID(uuidString: $0) }
 
         if response.status == .ok {
-            return APNSResponse(apnsID: apnsID)
+            return APNSResponse(apnsID: apnsID, apnsUniqueID: apnsUniqueID)
         }
 
         let body = try await response.body.collect(upTo: 1024)
@@ -203,6 +204,7 @@ extension APNSClient {
         let error = APNSError(
             responseStatus: Int(response.status.code),
             apnsID: apnsID,
+            apnsUniqueID: apnsUniqueID,
             apnsResponse: errorResponse,
             timestamp: errorResponse.timestampInSeconds.flatMap { Date(timeIntervalSince1970: $0) }
         )

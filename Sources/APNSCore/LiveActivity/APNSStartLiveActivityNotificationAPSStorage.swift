@@ -12,28 +12,40 @@
 //
 //===----------------------------------------------------------------------===//
 
-struct APNSLiveActivityNotificationAPSStorage<ContentState: Encodable & Sendable>: Encodable {
+struct APNSStartLiveActivityNotificationAPSStorage<Attributes: Encodable & Sendable, ContentState: Encodable & Sendable>:
+    Encodable & Sendable
+{
     enum CodingKeys: String, CodingKey {
         case timestamp = "timestamp"
         case event = "event"
         case contentState = "content-state"
         case dismissalDate = "dismissal-date"
+        case alert = "alert"
+        case attributes = "attributes"
+        case attributesType = "attributes-type"
     }
 
     var timestamp: Int
-    var event: String
+    var event: String = "start"
     var contentState: ContentState
     var dismissalDate: Int?
+    var alert: APNSAlertNotificationContent
+    var attributes: Attributes
+    var attributesType: String
 
     init(
         timestamp: Int,
-        event: String,
         contentState: ContentState,
-        dismissalDate: Int?
+        dismissalDate: Int?,
+        alert: APNSAlertNotificationContent,
+        attributes: Attributes,
+        attributesType: String
     ) {
         self.timestamp = timestamp
         self.contentState = contentState
         self.dismissalDate = dismissalDate
-        self.event = event
+        self.alert = alert
+        self.attributes = attributes
+        self.attributesType = attributesType
     }
 }
