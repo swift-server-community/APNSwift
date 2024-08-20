@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
@@ -31,17 +31,25 @@ let package = Package(
             dependencies: [
                 .target(name: "APNSCore"),
                 .target(name: "APNS"),
-            ]),
+            ]
+        ),
         .testTarget(
             name: "APNSTests",
             dependencies: [
                 .target(name: "APNSCore"),
                 .target(name: "APNS"),
-            ]),
+            ],
+            swiftSettings: [
+              .enableExperimentalFeature("StrictConcurrency")
+            ]
+        ),
         .target(
             name: "APNSCore",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
+            ],
+            swiftSettings: [
+              .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
@@ -50,6 +58,9 @@ let package = Package(
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
                 .target(name: "APNSCore"),
+            ],
+            swiftSettings: [
+              .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
@@ -62,12 +73,18 @@ let package = Package(
                 .product(name: "NIOSSL", package: "swift-nio-ssl"),
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "NIOHTTP2", package: "swift-nio-http2"),
+            ],
+            swiftSettings: [
+              .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
             name: "APNSURLSession",
             dependencies: [
                 .target(name: "APNSCore"),
+            ],
+            swiftSettings: [
+              .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
     ]

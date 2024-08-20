@@ -12,6 +12,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Dispatch
+
 public protocol APNSClientProtocol {
     func send(_ request: APNSRequest<some APNSMessage>) async throws -> APNSResponse
+    func shutdown(queue: DispatchQueue, callback: @Sendable @escaping (Error?) -> Void)
 }

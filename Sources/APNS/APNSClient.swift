@@ -125,13 +125,8 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     /// - Parameters:
     ///   - queue: The queue on which the callback is invoked on.
     ///   - callback: The callback that is invoked when everything is shutdown.
-    @preconcurrency public func shutdown(queue: DispatchQueue = .global(), callback: @Sendable @escaping (Error?) -> Void) {
+    public func shutdown(queue: DispatchQueue = .global(), callback: @Sendable @escaping (Error?) -> Void) {
         self.httpClient.shutdown(callback)
-    }
-
-    /// Shuts down the client and `EventLoopGroup` if it was created by the client.
-    public func syncShutdown() throws {
-        try self.httpClient.syncShutdown()
     }
 }
 
