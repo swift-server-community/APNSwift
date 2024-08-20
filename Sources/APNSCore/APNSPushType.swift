@@ -24,6 +24,7 @@ public struct APNSPushType: Hashable, Sendable, CustomStringConvertible {
         case fileprovider
         case mdm
         case liveactivity
+        case pushtotalk
     }
     
     public var description: String {
@@ -99,4 +100,12 @@ public struct APNSPushType: Hashable, Sendable, CustomStringConvertible {
     /// Use the live activity push type to update your live activity.
     ///
     public static let liveactivity = Self(configuration: .liveactivity)
+    
+    /// Use the pushtotalk push type for notifications that provide information about an incoming Push to Talk (Ptt).
+    ///
+    /// Push to Talk services aren’t available to compatible iPad and iPhone apps running in visionOS.
+    ///
+    /// - Important: If you set this push type, the topic must use your app’s bundle ID with `.voip-ptt` appended to the end.
+    ///
+    public static let pushtotalk = Self(configuration: .pushtotalk)
 }
