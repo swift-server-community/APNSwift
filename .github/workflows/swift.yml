@@ -4,22 +4,22 @@ on:
 jobs:
   focal:
     container:
-      image: swift:5.7-focal
+      image: swiftlang/swift:nightly-6.0-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: swift test --enable-test-discovery
+    - run: swift test
   thread:
     container:
-      image: swift:5.7-focal
+      image: swiftlang/swift:nightly-6.0-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: swift test --enable-test-discovery  --sanitize=thread
+    - run: swift test --sanitize=thread
   address:
     container:
-      image: swift:5.7-focal
+      image: swiftlang/swift:nightly-6.0-focal
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: ASAN_OPTIONS=detect_leaks=0 swift test --enable-test-discovery --sanitize=address
+    - run: ASAN_OPTIONS=detect_leaks=0 swift test --sanitize=address

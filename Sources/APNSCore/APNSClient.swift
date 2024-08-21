@@ -14,4 +14,5 @@
 
 public protocol APNSClientProtocol {
     func send(_ request: APNSRequest<some APNSMessage>) async throws -> APNSResponse
+    func shutdown() async throws
 }

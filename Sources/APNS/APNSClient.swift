@@ -14,7 +14,6 @@
 
 import APNSCore
 import AsyncHTTPClient
-import Dispatch
 import struct Foundation.Date
 import struct Foundation.UUID
 import NIOConcurrencyHelpers
@@ -114,24 +113,9 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
         }
     }
 
-    /// Shuts down the client and event loop gracefully. This function is clearly an outlier in that it uses a completion
-    /// callback instead of an EventLoopFuture. The reason for that is that NIO's EventLoopFutures will call back on an event loop.
-    /// The virtue of this function is to shut the event loop down. To work around that we call back on a DispatchQueue
-    /// instead.
-    ///
-    /// - Important: This will only shutdown the event loop if the provider passed to the client was ``createNew``.
-    /// For shared event loops the owner of the event loop is responsible for handling the lifecycle.
-    ///
-    /// - Parameters:
-    ///   - queue: The queue on which the callback is invoked on.
-    ///   - callback: The callback that is invoked when everything is shutdown.
-    @preconcurrency public func shutdown(queue: DispatchQueue = .global(), callback: @Sendable @escaping (Error?) -> Void) {
-        self.httpClient.shutdown(callback)
-    }
-
-    /// Shuts down the client and `EventLoopGroup` if it was created by the client.
-    public func syncShutdown() throws {
-        try self.httpClient.syncShutdown()
+    /// Shuts down the client gracefully.
+    public func shutdown() async throws {
+        try await self.httpClient.shutdown()
     }
 }
 

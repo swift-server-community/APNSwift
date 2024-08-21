@@ -18,9 +18,9 @@ import Crypto
 import XCTest
 
 final class APNSClientTests: XCTestCase {
-    func testShutdown() throws {
+    func testShutdown() async throws {
         let client = self.makeClient()
-        try client.syncShutdown()
+        try await client.shutdown()
     }
 
     // MARK: - Helper methods

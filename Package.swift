@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
@@ -31,13 +31,16 @@ let package = Package(
             dependencies: [
                 .target(name: "APNSCore"),
                 .target(name: "APNS"),
-            ]),
+                .product(name: "Logging", package: "swift-log"),
+            ]
+        ),
         .testTarget(
             name: "APNSTests",
             dependencies: [
                 .target(name: "APNSCore"),
                 .target(name: "APNS"),
-            ]),
+            ]
+        ),
         .target(
             name: "APNSCore",
             dependencies: [
@@ -70,5 +73,6 @@ let package = Package(
                 .target(name: "APNSCore"),
             ]
         ),
-    ]
+    ],
+    swiftLanguageVersions: [.v6]
 )
