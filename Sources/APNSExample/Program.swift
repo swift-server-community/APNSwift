@@ -33,7 +33,6 @@ struct Main {
     static let keyIdentifier = ""
     static let teamIdentifier = ""
 
-    private static let logger = Logger(label: "APNSwiftExample")
     
     static func main() async throws {
         

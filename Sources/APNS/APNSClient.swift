@@ -113,7 +113,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
         }
     }
 
-    /// Shuts down the client and event loop gracefully.
+    /// Shuts down the client gracefully.
     public func shutdown() async throws {
         try await self.httpClient.shutdown()
     }
