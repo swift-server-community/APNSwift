@@ -130,6 +130,18 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
         }
     }
 
+    /// The content available flag,  when set to `1`, the notification will wake up your app in the background and trigger `didReceiveRemoteNotification`.
+    ///
+    /// The highest score gets featured in the notification summary
+    public var contentAvailable: Int? {
+        get {
+            self.aps.contentAvailable
+        }
+        set {
+            self.aps.contentAvailable = newValue
+        }
+    }
+
     /// A canonical UUID that identifies the notification. If there is an error sending the notification,
     /// APNs uses this value to identify the notification to your server. The canonical form is 32 lowercase hexadecimal digits,
     /// displayed in five groups separated by hyphens in the form 8-4-4-4-12. An example UUID is as follows:
@@ -176,6 +188,7 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
     ///   - targetContentID: The identifier of the window brought forward.
     ///   - interruptionLevel: A string that indicates the importance and delivery timing of a notification.
     ///   - relevanceScore: The relevance score, a number between `0` and `1`, that the system uses to sort the notifications from your app.
+    ///   - contentAvailable: The content available flag,  when set to `1`, the notification will wake up your app in the background and trigger `didReceiveRemoteNotification`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     public init(
         alert: APNSAlertNotificationContent,
@@ -191,6 +204,7 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
         targetContentID: String? = nil,
         interruptionLevel: APNSAlertNotificationInterruptionLevel? = nil,
         relevanceScore: Double? = nil,
+        contentAvailable: Int? = nil,
         apnsID: UUID? = nil
     ) {
         self.aps = APNSAlertNotificationAPSStorage(
@@ -202,7 +216,8 @@ public struct APNSAlertNotification<Payload: Encodable & Sendable>: APNSMessage,
             mutableContent: mutableContent,
             targetContentID: targetContentID,
             interruptionLevel: interruptionLevel,
-            relevanceScore: relevanceScore
+            relevanceScore: relevanceScore,
+            contentAvailable: contentAvailable
         )
         self.apnsID = apnsID
         self.expiration = expiration
@@ -239,6 +254,7 @@ extension APNSAlertNotification where Payload == EmptyPayload {
     ///   - targetContentID: The identifier of the window brought forward.
     ///   - interruptionLevel: A string that indicates the importance and delivery timing of a notification.
     ///   - relevanceScore: The relevance score, a number between `0` and `1`, that the system uses to sort the notifications from your app.
+    ///   - contentAvailable: The content available flag,  when set to `1`, the notification will wake up your app in the background and trigger `didReceiveRemoteNotification`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     public init(
         alert: APNSAlertNotificationContent,
@@ -253,6 +269,7 @@ extension APNSAlertNotification where Payload == EmptyPayload {
         targetContentID: String? = nil,
         interruptionLevel: APNSAlertNotificationInterruptionLevel? = nil,
         relevanceScore: Double? = nil,
+        contentAvailable: Int? = nil,
         apnsID: UUID? = nil
     ) {
         self.aps = APNSAlertNotificationAPSStorage(
@@ -264,7 +281,8 @@ extension APNSAlertNotification where Payload == EmptyPayload {
             mutableContent: mutableContent,
             targetContentID: targetContentID,
             interruptionLevel: interruptionLevel,
-            relevanceScore: relevanceScore
+            relevanceScore: relevanceScore,
+            contentAvailable: contentAvailable
         )
         self.apnsID = apnsID
         self.expiration = expiration

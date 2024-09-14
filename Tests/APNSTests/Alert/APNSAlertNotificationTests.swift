@@ -86,13 +86,14 @@ final class APNSAlertNotificationTests: XCTestCase {
             targetContentID: "targetContentID",
             interruptionLevel: .critical,
             relevanceScore: 1,
+            contentAvailable: 1,
             apnsID: .init()
         )
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)
 
         let expectedJSONString = """
-        {\"payload\":\"payload\",\"aps\":{\"category\":\"category\",\"relevance-score\":1,\"badge\":1,\"target-content-id\":\"targetContentID\",\"sound\":\"default\",\"interruption-level\":\"critical\",\"alert\":{\"body\":\"body\",\"subtitle-loc-key\":\"subtitle-key\",\"title\":\"title\",\"launch-image\":\"launchimage\",\"subtitle-loc-args\":[\"arg1\"]},\"thread-id\":\"threadID\",\"mutable-content\":1}}
+        {\"payload\":\"payload\",\"aps\":{\"category\":\"category\",\"relevance-score\":1,\"content-available\":1,\"badge\":1,\"target-content-id\":\"targetContentID\",\"sound\":\"default\",\"interruption-level\":\"critical\",\"alert\":{\"body\":\"body\",\"subtitle-loc-key\":\"subtitle-key\",\"title\":\"title\",\"launch-image\":\"launchimage\",\"subtitle-loc-args\":[\"arg1\"]},\"thread-id\":\"threadID\",\"mutable-content\":1}}
         """
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary
         let jsonObject2 = try JSONSerialization.jsonObject(with: expectedJSONString.data(using: .utf8)!) as! NSDictionary
@@ -125,13 +126,14 @@ final class APNSAlertNotificationTests: XCTestCase {
             targetContentID: "targetContentID",
             interruptionLevel: .critical,
             relevanceScore: 1,
+            contentAvailable: 1,
             apnsID: .init()
         )
         let encoder = JSONEncoder()
         let data = try encoder.encode(notification)
 
         let expectedJSONString = """
-        {\"payload\":\"payload\",\"aps\":{\"category\":\"category\",\"relevance-score\":1,\"badge\":1,\"target-content-id\":\"targetContentID\",\"sound\":{\"name\":\"file\",\"volume\":1,\"critical\":1},\"interruption-level\":\"critical\",\"alert\":{\"body\":\"body\",\"subtitle-loc-key\":\"subtitle-key\",\"title\":\"title\",\"launch-image\":\"launchimage\",\"subtitle-loc-args\":[\"arg1\"]},\"thread-id\":\"threadID\",\"mutable-content\":1}}
+        {\"payload\":\"payload\",\"aps\":{\"category\":\"category\",\"relevance-score\":1,\"content-available\":1,\"badge\":1,\"target-content-id\":\"targetContentID\",\"sound\":{\"name\":\"file\",\"volume\":1,\"critical\":1},\"interruption-level\":\"critical\",\"alert\":{\"body\":\"body\",\"subtitle-loc-key\":\"subtitle-key\",\"title\":\"title\",\"launch-image\":\"launchimage\",\"subtitle-loc-args\":[\"arg1\"]},\"thread-id\":\"threadID\",\"mutable-content\":1}}
         """
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary
         let jsonObject2 = try JSONSerialization.jsonObject(with: expectedJSONString.data(using: .utf8)!) as! NSDictionary
