@@ -67,7 +67,7 @@ public struct APNSClientConfiguration: Sendable {
     /// Upstream proxy, defaults to no proxy.
     public var proxy: HTTPClient.Configuration.Proxy?
 
-    /// Initializes a new ``APNSClient.Configuration``.
+    /// Initializes a new ``APNSClientConfiguration``.
     ///
     /// - Parameters:
     ///   - authenticationMethod: The authentication method used by the ``APNSClient``.

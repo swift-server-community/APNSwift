@@ -16,7 +16,7 @@ import Foundation
 import NIOCore
 import NIOFoundationCompat
 
-/// A protocol that is similar to the ``JSONDecoder``. This allows users of APNSwift to customize the decoder used
+/// A protocol that is similar to the `JSONDecoder`. This allows users of APNSwift to customize the decoder used
 /// for decoding the APNS response bodies.
 public protocol APNSJSONDecoder {
     func decode<T: Decodable>(_ type: T.Type, from buffer: ByteBuffer) throws -> T

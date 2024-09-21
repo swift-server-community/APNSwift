@@ -1,6 +1,6 @@
 [![sswg:graduated|94x20](https://img.shields.io/badge/sswg-graduated-green.svg)]([https://github.com/swift-server/sswg/blob/master/process/incubation.md#sandbox-level](https://www.swift.org/sswg/incubation-process.html#graduation-requirements))
 [![Build](https://github.com/kylebrowning/APNSwift/workflows/test/badge.svg)](https://github.com/kylebrowning/APNSwift/actions)
-[![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg)](https://swiftpackageindex.com/swift-server-community/APNSwift/main/documentation/apnswift)
+[![Documentation](https://img.shields.io/badge/documentation-blueviolet.svg)](https://swiftpackageindex.com/swift-server-community/APNSwift/documentation)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/swift-server-community/APNSwift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-server-community%2FAPNSwift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/swift-server-community/APNSwift)
 <h1> APNSwift</h1>
@@ -25,7 +25,7 @@ To install `APNSwift`, just add the package as a dependency in your [**Package.s
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "5.0.0"),
+    .package(url: "https://github.com/swift-server-community/APNSwift.git", from: "6.0.0"),
 ]
 ```
 
@@ -44,15 +44,11 @@ let client = APNSClient(
     ),
     eventLoopGroupProvider: .createNew,
     responseDecoder: JSONDecoder(),
-    requestEncoder: JSONEncoder(),
-    byteBufferAllocator: .init(),
-    backgroundActivityLogger: logger
+    requestEncoder: JSONEncoder()
 )
-defer {
-    client.shutdown { _ in
-        logger.error("Failed to shutdown APNSClient")
-    }
-}
+
+// Shutdown the client when done
+try await client.shutdown()
 ```
 
 ## Sending a simple notification
@@ -74,44 +70,40 @@ try await client.sendAlertNotification(
         topic: "com.app.bundle",
         payload: Payload()
     ),
-    deviceToken: "device-token",
-    deadline: .nanoseconds(Int64.max),
-    logger: myLogger
+    deviceToken: "device-token"
 )
 ```
 
 ## Sending Live Activity Update / End
-It requires sending `ContentState` matching with the live activity configuration to successfully update activity state. `ContentState` needs to conform to `Encodable`
+It requires sending `ContentState` matching with the live activity configuration to successfully update activity state. `ContentState` needs to conform to `Encodable` and `Sendable`.
 
 ```swift
-        try await client.sendLiveActivityNotification(
-            .init(
-                  expiration: .immediately,
-                  priority: .immediately,
-                  appID: "com.app.bundle",
-                  contentState: ContentState,
-                  event: .update,
-                  timestamp: Int(Date().timeIntervalSince1970)
-            ),
-            activityPushToken: activityPushToken,
-            deadline: .distantFuture
-        )
+try await client.sendLiveActivityNotification(
+    .init(
+          expiration: .immediately,
+          priority: .immediately,
+          appID: "com.app.bundle",
+          contentState: ContentState,
+          event: .update,
+          timestamp: Int(Date().timeIntervalSince1970)
+    ),
+    deviceToken: activityPushToken
+)
 ```
 
 ```swift
-        try await client.sendLiveActivityNotification(
-            .init(
-                  expiration: .immediately,
-                  priority: .immediately,
-                  appID: "com.app.bundle",
-                  contentState: ContentState,
-                  event: .end,
-                  timestamp: Int(Date().timeIntervalSince1970),
-                  dismissalDate: .dismissImmediately // Optional to alter default behaviour
-            ),
-            activityPushToken: activityPushToken,
-            deadline: .distantFuture
-        )
+try await client.sendLiveActivityNotification(
+    .init(
+          expiration: .immediately,
+          priority: .immediately,
+          appID: "com.app.bundle",
+          contentState: ContentState,
+          event: .end,
+          timestamp: Int(Date().timeIntervalSince1970),
+          dismissalDate: .immediately // Optional to alter default behaviour
+    ),
+    deviceToken: activityPushToken
+)
 ```
 ## Authentication
 `APNSwift` provides two authentication methods. `jwt`, and `TLS`. 
@@ -121,8 +113,8 @@ These can be configured when created your `APNSClientConfiguration`
 
 *Notes: `jwt` requires an encrypted version of your .p8 file from Apple which comes in a `pem` format. If you're having trouble with your key being invalid please confirm it is a PEM file*
 ```
- openssl pkcs8 -nocrypt -in /path/to/my/key.p8 -out ~/Downloads/key.pem
- ```
+openssl pkcs8 -nocrypt -in /path/to/my/key.p8 -out ~/Downloads/key.pem
+```
 
 ## Logging
 By default APNSwift has a no-op logger which will not log anything. However if you pass a logger in, you will see logs.

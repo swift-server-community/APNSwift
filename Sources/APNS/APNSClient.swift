@@ -57,8 +57,8 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
 
     /// Initializes a new APNS.
     ///
-    /// The client will create an internal ``HTTPClient`` which is used to make requests to APNs.
-    /// This ``HTTPClient`` is intentionally internal since both authentication mechanisms are bound to a
+    /// The client will create an internal `HTTPClient` which is used to make requests to APNs.
+    /// This `HTTPClient` is intentionally internal since both authentication mechanisms are bound to a
     /// single connection and these connections cannot be shared.
     ///
     ///
@@ -67,7 +67,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     ///   - eventLoopGroupProvider: Specify how EventLoopGroup will be created.
     ///   - responseDecoder: The decoder for the responses from APNs.
     ///   - requestEncoder: The encoder for the requests to APNs.
-    ///   - backgroundActivityLogger: The logger used by the APNS.
+    ///   - byteBufferAllocator: The `ByteBufferAllocator`.
     public init(
         configuration: APNSClientConfiguration,
         eventLoopGroupProvider: NIOEventLoopGroupProvider,
