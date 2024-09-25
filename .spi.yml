@@ -3,3 +3,4 @@ builder:
   configs:
     - documentation_targets: [APNS]
       scheme: APNS
+      swift_version: 6.0
