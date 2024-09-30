@@ -49,8 +49,6 @@ struct Main {
             responseDecoder: JSONDecoder(),
             requestEncoder: JSONEncoder()
         )
-        
-        try await client.run()
 
         do {
             try await Self.sendSimpleAlert(with: client)
@@ -65,6 +63,8 @@ struct Main {
         } catch {
             logger.warning("error sending push: \(error)")
         }
+        
+        try await client.run()
         
     }
 }
