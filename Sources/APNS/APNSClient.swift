@@ -22,9 +22,10 @@ import NIOHTTP1
 import NIOSSL
 import NIOTLS
 import NIOPosix
+import ServiceLifecycle
 
 /// A client to talk with the Apple Push Notification services.
-public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSClientProtocol {
+public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: Service, APNSClientProtocol {
    
     /// The configuration used by the ``APNSClient``.
     private let configuration: APNSClientConfiguration
@@ -112,9 +113,8 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
             )
         }
     }
-
-    /// Shuts down the client gracefully.
-    public func shutdown() async throws {
+    
+    public func run() async throws {
         try await self.httpClient.shutdown()
     }
 }

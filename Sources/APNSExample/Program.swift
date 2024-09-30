@@ -64,7 +64,7 @@ struct Main {
             logger.warning("error sending push: \(error)")
         }
         
-        try? await client.shutdown()
+        try await client.run()
     }
 }
 

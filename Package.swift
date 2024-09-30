@@ -24,6 +24,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.42.0"),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.6.0"),
         .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.9.0"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -52,6 +53,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .target(name: "APNSCore"),
             ]
         ),
