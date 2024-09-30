@@ -115,6 +115,7 @@ public final class APNSClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder
     }
     
     public func run() async throws {
+        try await gracefulShutdown()
         try await self.httpClient.shutdown()
     }
 }
