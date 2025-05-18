@@ -50,3 +50,18 @@ final class APNSClientTests: XCTestCase {
     -----END PRIVATE KEY-----
     """
 }
+
+// This doesn't perform any runtime tests, it just ensures the call to sendAlertNotification
+// compiles when called within an actor's isolation context.
+actor TestActor {
+    func sendAlert(client: APNSClient<JSONDecoder, JSONEncoder>) async throws {
+        let notification = APNSAlertNotification(
+            alert: .init(title: .raw("title")),
+            expiration: .immediately,
+            priority: .immediately,
+            topic: "",
+            payload: ""
+        )
+        try await client.sendAlertNotification(notification, deviceToken: "")
+    }
+}
