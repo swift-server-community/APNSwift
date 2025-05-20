@@ -15,7 +15,7 @@
 import struct Foundation.UUID
 
 /// The response of a successful APNs request.
-public struct APNSResponse: Hashable {
+public struct APNSResponse: Hashable, Sendable {
     /// The same value as the `apnsID` send in the request.
     ///
     /// Use this value to identify the notification. If you don’t specify an `apnsID` in your request,
