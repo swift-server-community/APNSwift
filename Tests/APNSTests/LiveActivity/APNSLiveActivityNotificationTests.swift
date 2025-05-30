@@ -49,6 +49,31 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
         XCTAssertEqual(jsonObject1, jsonObject2)
     }
 
+    func testEncodeUpdateAlert() throws {
+        let notification = APNSLiveActivityNotification(
+            expiration: .immediately,
+            priority: .immediately,
+            appID: "test.app.id",
+            contentState: State(),
+            event: .update,
+            alert: .init(title: .raw("Hi"), body: .raw("Hello")),
+            timestamp: 1_672_680_658
+        )
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(notification)
+
+        let expectedJSONString = """
+            {"aps":{"event":"update", "alert": { "title": "Hi", "body": "Hello" },"content-state":{"string":"Test","number":123},"timestamp":1672680658}}
+            """
+
+        let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary
+        let jsonObject2 =
+            try JSONSerialization.jsonObject(with: expectedJSONString.data(using: .utf8)!)
+            as! NSDictionary
+        XCTAssertEqual(jsonObject1, jsonObject2)
+    }
+
     func testEncodeStart() throws {
         let notification = APNSStartLiveActivityNotification(
             expiration: .immediately,
