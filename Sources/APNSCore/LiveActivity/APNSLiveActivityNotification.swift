@@ -100,6 +100,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
     ///   - event: event type e.g. update
+    ///   - alert: Optional alert content for the notification.
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
@@ -109,6 +110,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
         appID: String,
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
+        alert: APNSAlertNotificationContent? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none,
         apnsID: UUID? = nil
@@ -119,6 +121,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
             topic: appID + ".push-type.liveactivity",
             contentState: contentState,
             event: event,
+            alert: alert,
             timestamp: timestamp,
             dismissalDate: dismissalDate
         )
@@ -136,6 +139,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - contentState: Updated content-state of live activity
     ///   - event: event type e.g. update
+    ///   - alert: Optional alert content for the notification.
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
@@ -146,6 +150,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
         apnsID: UUID? = nil,
         contentState: ContentState,
         event: APNSLiveActivityNotificationEvent,
+        alert: APNSAlertNotificationContent? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none
     ) {
@@ -153,7 +158,8 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
             timestamp: timestamp,
             event: event.rawValue,
             contentState: contentState,
-            dismissalDate: dismissalDate.dismissal
+            dismissalDate: dismissalDate.dismissal,
+            alert: alert
         )
         self.apnsID = apnsID
         self.expiration = expiration
