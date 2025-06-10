@@ -25,6 +25,7 @@ public struct APNSPushType: Hashable, Sendable, CustomStringConvertible {
         case mdm
         case liveactivity
         case pushtotalk
+        case widgets
     }
     
     public var description: String {
@@ -108,4 +109,10 @@ public struct APNSPushType: Hashable, Sendable, CustomStringConvertible {
     /// - Important: If you set this push type, the topic must use your app’s bundle ID with `.voip-ptt` appended to the end.
     ///
     public static let pushtotalk = Self(configuration: .pushtotalk)
+
+    /// Use the widgets push type for notifications that trigger widget updates.
+    ///
+    /// - Important: if you set this push type, the topic must use your app’s bundle ID with `.push-type.widgets` appended to the end.
+    ///
+    public static let widgets = Self(configuration: .widgets)
 }
