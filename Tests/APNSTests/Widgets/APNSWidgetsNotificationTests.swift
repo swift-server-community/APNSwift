@@ -17,21 +17,12 @@ import XCTest
 
 final class APNSWidgetsNotificationTests: XCTestCase {
     func testAppID() {
-        let widgetsNotification = APNSWidgetsNotification(
-            expiration: .none,
-            priority: .immediately,
-            appID: "com.example.app"
-        )
-
+        let widgetsNotification = APNSWidgetsNotification(appID: "com.example.app")
         XCTAssertEqual(widgetsNotification.topic, "com.example.app.push-type.widgets")
     }
 
     func testEncode() throws {
-        let widgetsNotification = APNSWidgetsNotification(
-            expiration: .none,
-            priority: .immediately,
-            appID: "com.example.app"
-        )
+        let widgetsNotification = APNSWidgetsNotification(appID: "com.example.app")
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(widgetsNotification)

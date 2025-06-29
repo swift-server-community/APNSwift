@@ -45,33 +45,17 @@ public struct APNSWidgetsNotification: APNSMessage {
     /// The topic for the notification. In general, the topic is your app’s bundle ID/app ID suffixed with `.push-type.widgets`.
     public var topic: String
 
-    /// The date when the notification is no longer valid and can be discarded. If this value is not `none`,
-    /// APNs stores the notification and tries to deliver it at least once,
-    /// repeating the attempt as needed if it is unable to deliver the notification the first time.
-    /// If the value is `immediately`, APNs treats the notification as if it expires immediately
-    /// and does not store the notification or attempt to redeliver it.
-    public var expiration: APNSNotificationExpiration
-
-    /// The priority of the notification.
-    public var priority: APNSPriority
-
     /// Initializes a new ``APNSWidgetsNotification``.
     ///
     /// - Parameters:
-    ///   - expiration: The date when the notification is no longer valid and can be discarded.
-    ///   - priority: The priority of the notification.
     ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.widgets`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     @inlinable
     public init(
-        expiration: APNSNotificationExpiration,
-        priority: APNSPriority,
         appID: String,
         apnsID: UUID? = nil
     ) {
         self.init(
-            expiration: expiration,
-            priority: priority,
             topic: appID + ".push-type.widgets",
             apnsID: apnsID
         )
@@ -80,19 +64,13 @@ public struct APNSWidgetsNotification: APNSMessage {
     /// Initializes a new ``APNSWidgetsNotification``.
     ///
     /// - Parameters:
-    ///   - expiration: The date when the notification is no longer valid and can be discarded.
-    ///   - priority: The priority of the notification.
     ///   - topic: The topic for the notification. In general, the topic is your app’s bundle ID/app ID suffixed with `.push-type.widgets`.
     ///   - apnsID: A canonical UUID that identifies the notification.
     @inlinable
     public init(
-        expiration: APNSNotificationExpiration,
-        priority: APNSPriority,
         topic: String,
         apnsID: UUID? = nil
     ) {
-        self.expiration = expiration
-        self.priority = priority
         self.topic = topic
         self.apnsID = apnsID
     }
