@@ -32,8 +32,8 @@ extension APNSClientProtocol {
             message: notification,
             deviceToken: deviceToken,
             pushType: .widgets,
-            expiration: notification.expiration,
-            priority: notification.priority,
+            expiration: nil,
+            priority: nil,
             apnsID: notification.apnsID,
             topic: notification.topic,
             collapseID: nil
