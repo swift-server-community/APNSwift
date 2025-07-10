@@ -127,7 +127,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
             alert: alert,
             timestamp: timestamp,
             dismissalDate: dismissalDate,
-            staleDate: staleDate,
+            staleDate: staleDate
         )
     }
 
