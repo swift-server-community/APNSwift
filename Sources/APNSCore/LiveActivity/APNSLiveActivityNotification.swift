@@ -104,6 +104,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
+    ///   - staleDate: Timestamp when the notification is marked as stale
     public init(
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
@@ -113,17 +114,20 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
         alert: APNSAlertNotificationContent? = nil,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none,
+        staleDate: Int? = nil,
         apnsID: UUID? = nil
     ) {
         self.init(
             expiration: expiration,
             priority: priority,
             topic: appID + ".push-type.liveactivity",
+            apnsID: apnsID,
             contentState: contentState,
             event: event,
             alert: alert,
             timestamp: timestamp,
-            dismissalDate: dismissalDate
+            dismissalDate: dismissalDate,
+            staleDate: staleDate,
         )
     }
 
@@ -143,6 +147,7 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
+    ///   - staleDate: Timestamp when the notification is marked as stale
     public init(
         expiration: APNSNotificationExpiration,
         priority: APNSPriority,
@@ -152,13 +157,15 @@ public struct APNSLiveActivityNotification<ContentState: Encodable & Sendable>: 
         event: APNSLiveActivityNotificationEvent,
         alert: APNSAlertNotificationContent? = nil,
         timestamp: Int,
-        dismissalDate: APNSLiveActivityDismissalDate = .none
+        dismissalDate: APNSLiveActivityDismissalDate = .none,
+        staleDate: Int? = nil
     ) {
         self.aps = APNSLiveActivityNotificationAPSStorage(
             timestamp: timestamp,
             event: event.rawValue,
             contentState: contentState,
             dismissalDate: dismissalDate.dismissal,
+            staleDate: staleDate,
             alert: alert
         )
         self.apnsID = apnsID
