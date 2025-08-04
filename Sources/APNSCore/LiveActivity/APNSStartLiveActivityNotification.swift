@@ -102,6 +102,7 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
     ///   - timestamp: Timestamp when sending notification
     ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
     ///    dismiss immediately
+    ///   - staleDate: Timestamp when the notification is marked as stale
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - attributes: The ActivityAttributes of the live activity to start
     ///   - attributesType: The type name of the ActivityAttributes you want to send
@@ -113,6 +114,7 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
         contentState: ContentState,
         timestamp: Int,
         dismissalDate: APNSLiveActivityDismissalDate = .none,
+        staleDate: Int? = nil,
         apnsID: UUID? = nil,
         attributes: Attributes,
         attributesType: String,
@@ -122,6 +124,7 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
           timestamp: timestamp,
           contentState: contentState,
           dismissalDate: dismissalDate.dismissal,
+          staleDate: staleDate,
           alert: alert,
           attributes: attributes,
           attributesType: attributesType
