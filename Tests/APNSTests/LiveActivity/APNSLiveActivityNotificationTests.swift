@@ -81,7 +81,7 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
             appID: "test.app.id",
             contentState: State(),
             event: .update,
-            alert: .init(title: .raw("Hi"), body: .raw("Hello")),
+            alert: .init(title: .raw("Hi"), body: .raw("Hello"), sound: .default),
             timestamp: 1_672_680_658
         )
 
@@ -89,7 +89,8 @@ final class APNSLiveActivityNotificationTests: XCTestCase {
         let data = try encoder.encode(notification)
 
         let expectedJSONString = """
-            {"aps":{"event":"update", "alert": { "title": "Hi", "body": "Hello" },"content-state":{"string":"Test","number":123},"timestamp":1672680658}}
+            {"aps":{"event":"update", "alert": { "title": "Hi", "body": "Hello", "sound": "default" },\
+            "content-state":{"string":"Test","number":123},"timestamp":1672680658}}
             """
 
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary

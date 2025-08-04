@@ -60,6 +60,7 @@ public struct APNSAlertNotificationContent: Encodable, Sendable {
         case subtitleLocalizationArguments = "subtitle-loc-args"
         case bodyLocalizationKey = "loc-key"
         case bodyLocalizationArguments = "loc-args"
+        case sound
     }
 
     /// The title of the notification. Apple Watch displays this string in the short look notification interface.
@@ -76,6 +77,12 @@ public struct APNSAlertNotificationContent: Encodable, Sendable {
     /// the contents of the specified image or storyboard file are displayed instead of your app’s normal launch image.
     public var launchImage: String?
 
+    /// For regular notifications, use ``APNSAlertNotificationSound/fileName(_:)`` to specify the name of a sound file in your app's main bundle
+    /// or in the Library/Sounds folder of your app's container directory.
+    /// Use ``APNSAlertNotificationSound/default`` to play the system sound.
+    /// Use this key for regular notifications. For critical alerts, use ``APNSAlertNotificationSound/critical(fileName:volume:)`` instead.
+    public var sound: APNSAlertNotificationSound?
+
     /// Initializes a new ``APNSAlertNotificationContent``.
     ///
     /// - Parameters:
@@ -87,12 +94,14 @@ public struct APNSAlertNotificationContent: Encodable, Sendable {
         title: APNSAlertNotificationContent.StringValue? = nil,
         subtitle: APNSAlertNotificationContent.StringValue? = nil,
         body: APNSAlertNotificationContent.StringValue? = nil,
-        launchImage: String? = nil
+        launchImage: String? = nil,
+        sound: APNSAlertNotificationSound? = nil,
     ) {
         self.title = title
         self.subtitle = subtitle
         self.body = body
         self.launchImage = launchImage
+        self.sound = sound
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -120,6 +129,7 @@ public struct APNSAlertNotificationContent: Encodable, Sendable {
             localizedArgumentsKey: .bodyLocalizationArguments
         )
         try container.encodeIfPresent(self.launchImage, forKey: .launchImage)
+        try container.encodeIfPresent(self.sound, forKey: .sound)
     }
 
     private func encode(
