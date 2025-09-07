@@ -91,6 +91,7 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
     ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.liveactivity`.
     ///   - contentState: Updated content-state of live activity
     ///   - timestamp: Timestamp when sending notification
+    ///   - staleDate: Timestamp when the notification is marked as stale
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - attributes: The ActivityAttributes of the live activity to start
     ///   - attributesType: The type name of the ActivityAttributes you want to send
@@ -101,6 +102,7 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
         appID: String,
         contentState: ContentState,
         timestamp: Int,
+        staleDate: Int? = nil,
         apnsID: UUID? = nil,
         attributes: Attributes,
         attributesType: String,
@@ -109,6 +111,7 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
       self.aps = APNSStartLiveActivityNotificationAPSStorage(
           timestamp: timestamp,
           contentState: contentState,
+          staleDate: staleDate,
           alert: alert,
           attributes: attributes,
           attributesType: attributesType

@@ -19,6 +19,7 @@ struct APNSStartLiveActivityNotificationAPSStorage<Attributes: Encodable & Senda
         case timestamp = "timestamp"
         case event = "event"
         case contentState = "content-state"
+        case staleDate = "stale-date"
         case alert = "alert"
         case attributes = "attributes"
         case attributesType = "attributes-type"
@@ -27,6 +28,7 @@ struct APNSStartLiveActivityNotificationAPSStorage<Attributes: Encodable & Senda
     var timestamp: Int
     var event: String = "start"
     var contentState: ContentState
+    var staleDate: Int?
     var alert: APNSAlertNotificationContent
     var attributes: Attributes
     var attributesType: String
@@ -34,12 +36,14 @@ struct APNSStartLiveActivityNotificationAPSStorage<Attributes: Encodable & Senda
     init(
         timestamp: Int,
         contentState: ContentState,
+        staleDate: Int?,
         alert: APNSAlertNotificationContent,
         attributes: Attributes,
         attributesType: String
     ) {
         self.timestamp = timestamp
         self.contentState = contentState
+        self.staleDate = staleDate
         self.alert = alert
         self.attributes = attributes
         self.attributesType = attributesType
