@@ -59,15 +59,6 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
         }
     }
 
-    public var dismissalDate: APNSLiveActivityDismissalDate? {
-        get {
-            return .init(dismissal: self.aps.dismissalDate)
-        }
-        set {
-            self.aps.dismissalDate = newValue?.dismissal
-        }
-    }
-
     /// A canonical UUID that identifies the notification. If there is an error sending the notification,
     /// APNs uses this value to identify the notification to your server. The canonical form is 32 lowercase hexadecimal digits,
     /// displayed in five groups separated by hyphens in the form 8-4-4-4-12. An example UUID is as follows:
@@ -100,8 +91,6 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
     ///   - appID: Your app’s bundle ID/app ID. This will be suffixed with `.push-type.liveactivity`.
     ///   - contentState: Updated content-state of live activity
     ///   - timestamp: Timestamp when sending notification
-    ///   - dismissalDate: Timestamp when to dismiss live notification when sent with `end`, if in the past
-    ///    dismiss immediately
     ///   - staleDate: Timestamp when the notification is marked as stale
     ///   - apnsID: A canonical UUID that identifies the notification.
     ///   - attributes: The ActivityAttributes of the live activity to start
@@ -113,7 +102,6 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
         appID: String,
         contentState: ContentState,
         timestamp: Int,
-        dismissalDate: APNSLiveActivityDismissalDate = .none,
         staleDate: Int? = nil,
         apnsID: UUID? = nil,
         attributes: Attributes,
@@ -123,7 +111,6 @@ public struct APNSStartLiveActivityNotification<Attributes: Encodable & Sendable
       self.aps = APNSStartLiveActivityNotificationAPSStorage(
           timestamp: timestamp,
           contentState: contentState,
-          dismissalDate: dismissalDate.dismissal,
           staleDate: staleDate,
           alert: alert,
           attributes: attributes,
