@@ -95,7 +95,7 @@ public struct APNSAlertNotificationContent: Encodable, Sendable {
         subtitle: APNSAlertNotificationContent.StringValue? = nil,
         body: APNSAlertNotificationContent.StringValue? = nil,
         launchImage: String? = nil,
-        sound: APNSAlertNotificationSound? = nil,
+        sound: APNSAlertNotificationSound? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
