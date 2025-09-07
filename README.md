@@ -129,7 +129,7 @@ This logger can be passed into any of the `send:` methods and will log everythin
 ## Server Example
 Take a look at [Program.swift](https://github.com/swift-server-community/APNSwift/blob/main/Sources/APNSExample/Program.swift)
 
-## iOS Examples
+## iOS Example
 
 For an iOS example, open the example project within this repo. 
 
