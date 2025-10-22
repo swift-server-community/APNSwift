@@ -54,6 +54,7 @@ public struct APNSError: Error {
             case internalServerError
             case serviceUnavailable
             case shutdown
+            case badEnvironmentKeyInToken
             case unknown(String)
             
             public init(rawValue: RawValue) {
@@ -116,6 +117,8 @@ public struct APNSError: Error {
                     self = .serviceUnavailable
                 case "Shutdown":
                     self = .shutdown
+                case "BadEnvironmentKeyInToken":
+                    self = .badEnvironmentKeyInToken
                 default:
                     self = .unknown(rawValue)
                 }
@@ -181,6 +184,8 @@ public struct APNSError: Error {
                     return "ServiceUnavailable"
                 case .shutdown:
                     return "Shutdown"
+                case .badEnvironmentKeyInToken:
+                    return "BadEnvironmentKeyInToken"
                 case .unknown(let string):
                     return string
                 }
@@ -246,6 +251,8 @@ public struct APNSError: Error {
                     return "The service is unavailable"
                 case .shutdown:
                     return "The server is shutting down"
+                case .badEnvironmentKeyInToken:
+                    return "Environment mismatch between key and APNs endpoint"
                 case .unknown:
                     return "Indicates an error reason that is unknown to `APNSwift`. If you receive this please file an issue so that we can extend the known error reasons"
                 }
@@ -379,7 +386,11 @@ public struct APNSError: Error {
         public static var shutdown: Self {
             return .init(_reason: .shutdown)
         }
-        
+
+        public static var badEnvironmentKeyInToken: Self {
+            return .init(_reason: .badEnvironmentKeyInToken)
+        }
+
         init(_reason: APNSError.ErrorReason.Reason) {
             self._reason = _reason
         }
