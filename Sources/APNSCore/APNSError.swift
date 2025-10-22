@@ -253,8 +253,8 @@ public struct APNSError: Error {
                     return "The server is shutting down"
                 case .badEnvironmentKeyInToken:
                     return "Environment mismatch between key and APNs endpoint"
-                case .unknown:
-                    return "Indicates an error reason that is unknown to `APNSwift`. If you receive this please file an issue so that we can extend the known error reasons"
+                case .unknown(let string):
+                    return "Indicates an error reason that is unknown value \"\(string)\" to `APNSwift`. If you receive this please file an issue so that we can extend the known error reasons"
                 }
             }
         }
