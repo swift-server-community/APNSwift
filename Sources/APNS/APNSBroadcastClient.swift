@@ -24,7 +24,7 @@ import NIOTLS
 import NIOPosix
 
 /// A client for managing Apple Push Notification broadcast channels.
-public final class APNSBroadcastClient<Decoder: APNSJSONDecoder, Encoder: APNSJSONEncoder>: APNSBroadcastClientProtocol {
+public final class APNSBroadcastClient<Decoder: APNSJSONDecoder & Sendable, Encoder: APNSJSONEncoder & Sendable>: APNSBroadcastClientProtocol {
 
     /// The broadcast environment to use.
     private let environment: APNSBroadcastEnvironment
