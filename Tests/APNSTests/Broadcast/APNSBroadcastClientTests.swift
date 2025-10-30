@@ -19,14 +19,14 @@ import Crypto
 import XCTest
 
 final class APNSBroadcastClientTests: XCTestCase {
-    var server: APNSBroadcastTestServer!
+    var server: APNSTestServer!
     var client: APNSBroadcastClient<JSONDecoder, JSONEncoder>!
 
     override func setUp() async throws {
         try await super.setUp()
 
         // Start the mock server
-        server = APNSBroadcastTestServer()
+        server = APNSTestServer()
         try await server.start(port: 0)
 
         // Create a client pointing to the mock server

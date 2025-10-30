@@ -24,8 +24,11 @@ This implementation adds support for iOS 18+ broadcast push notifications to APN
 
 ### Test Infrastructure (APNSTestServer)
 
-- **APNSBroadcastTestServer**: Real SwiftNIO HTTP server that mocks Apple's broadcast API
+- **APNSTestServer**: Unified real SwiftNIO HTTP server that mocks both:
+  - Apple's regular push notification API (`POST /3/device/{token}`)
+  - Apple's broadcast channel API (`POST/GET/DELETE /channels[/{id}]`)
   - In-memory channel storage
+  - Notification recording with full metadata
   - Proper HTTP method handling
   - Error responses (404, 400)
   - Request ID generation
@@ -34,7 +37,10 @@ This implementation adds support for iOS 18+ broadcast push notifications to APN
 
 - **APNSBroadcastChannelTests**: Unit tests for encoding/decoding channels (4 tests)
 - **APNSBroadcastChannelListTests**: Unit tests for channel lists (3 tests)
-- **APNSBroadcastClientTests**: Integration tests with mock server (9 tests)
+- **APNSBroadcastClientTests**: Broadcast channel integration tests (9 tests)
+- **APNSClientIntegrationTests**: Push notification integration tests (10 tests)
+  - Alert, Background, VoIP, FileProvider, Complication notifications
+  - Header validation, multiple notifications
 
 ## Usage Example
 
@@ -77,17 +83,17 @@ try await client.shutdown()
 
 ## Testing with Mock Server
 
-The mock server allows you to test broadcast functionality without hitting real Apple servers:
+The unified `APNSTestServer` allows you to test both broadcast channels AND regular push notifications without hitting real Apple servers:
 
 ```swift
 import APNSTestServer
 
 // Start mock server on random port
-let server = APNSBroadcastTestServer()
+let server = APNSTestServer()
 try await server.start(port: 0)
 
-// Create client pointing to mock server
-let client = APNSBroadcastClient(
+// Test broadcast channels
+let broadcastClient = APNSBroadcastClient(
     authenticationMethod: .jwt(...),
     environment: .custom(url: "http://127.0.0.1", port: server.port),
     eventLoopGroupProvider: .createNew,
@@ -95,10 +101,28 @@ let client = APNSBroadcastClient(
     requestEncoder: JSONEncoder()
 )
 
-// Use client...
+// Test regular push notifications
+let pushClient = APNSClient(
+    configuration: .init(
+        authenticationMethod: .jwt(...),
+        environment: .custom(url: "http://127.0.0.1", port: server.port)
+    ),
+    eventLoopGroupProvider: .createNew,
+    responseDecoder: JSONDecoder(),
+    requestEncoder: JSONEncoder()
+)
+
+// Send notifications and verify
+let notification = APNSAlertNotification(...)
+try await pushClient.sendAlertNotification(notification, deviceToken: "device-token")
+
+let sent = server.getSentNotifications()
+XCTAssertEqual(sent.count, 1)
+XCTAssertEqual(sent[0].pushType, "alert")
 
 // Cleanup
-try await client.shutdown()
+try await broadcastClient.shutdown()
+try await pushClient.shutdown()
 try await server.shutdown()
 ```
 
