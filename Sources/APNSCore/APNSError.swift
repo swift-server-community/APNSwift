@@ -45,8 +45,11 @@ public struct APNSError: Error {
             case forbidden
             case invalidProviderToken
             case missingProviderToken
+            case unrelatedKeyIdInToken
+            case badEnvironmentKeyIdInToken
             case badPath
             case methodNotAllowed
+            case expiredToken
             case unregistered
             case payloadTooLarge
             case tooManyProviderTokenUpdates
@@ -99,10 +102,16 @@ public struct APNSError: Error {
                     self = .invalidProviderToken
                 case "MissingProviderToken":
                     self = .missingProviderToken
+                case "UnrelatedKeyIdInToken":
+                    self = .unrelatedKeyIdInToken
+                case "BadEnvironmentKeyIdInToken":
+                    self = .badEnvironmentKeyIdInToken
                 case "BadPath":
                     self = .badPath
                 case "MethodNotAllowed":
                     self = .methodNotAllowed
+                case "ExpiredToken":
+                    self = .expiredToken
                 case "Unregistered":
                     self = .unregistered
                 case "PayloadTooLarge":
@@ -166,10 +175,16 @@ public struct APNSError: Error {
                     return "InvalidProviderToken"
                 case .missingProviderToken:
                     return "MissingProviderToken"
+                case .unrelatedKeyIdInToken:
+                    return "UnrelatedKeyIdInToken"
+                case .badEnvironmentKeyIdInToken:
+                    return "BadEnvironmentKeyIdInToken"
                 case .badPath:
                     return "BadPath"
                 case .methodNotAllowed:
                     return "MethodNotAllowed"
+                case .expiredToken:
+                    return "ExpiredToken"
                 case .unregistered:
                     return "Unregistered"
                 case .payloadTooLarge:
@@ -233,10 +248,16 @@ public struct APNSError: Error {
                     return "The provider token is not valid or the token signature could not be verified"
                 case .missingProviderToken:
                     return "No provider certificate was used to connect to APNs and Authorization header was missing or no provider token was specified"
+                case .unrelatedKeyIdInToken:
+                    return "The key ID in the provider token isn't related to the key ID of the token used in the first push of this connection. To use this token, open a new connection"
+                case .badEnvironmentKeyIdInToken:
+                    return "The key ID in the provider token doesn't match the environment"
                 case .badPath:
                     return "The request contained a bad :path value"
                 case .methodNotAllowed:
                     return "The specified :method was not POST"
+                case .expiredToken:
+                    return "The device token has expired"
                 case .unregistered:
                     return "The device token is inactive for the specified topic. There is no need to send further pushes to the same device token, unless your application retrieves the same device token"
                 case .payloadTooLarge:
@@ -351,12 +372,24 @@ public struct APNSError: Error {
             return .init(_reason: .missingProviderToken)
         }
 
+        public static var unrelatedKeyIdInToken: Self {
+            return .init(_reason: .unrelatedKeyIdInToken)
+        }
+
+        public static var badEnvironmentKeyIdInToken: Self {
+            return .init(_reason: .badEnvironmentKeyIdInToken)
+        }
+
         public static var badPath: Self {
             return .init(_reason: .badPath)
         }
 
         public static var methodNotAllowed: Self {
             return .init(_reason: .methodNotAllowed)
+        }
+
+        public static var expiredToken: Self {
+            return .init(_reason: .expiredToken)
         }
 
         public static var unregistered: Self {
