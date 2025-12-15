@@ -76,7 +76,7 @@ try await client.sendAlertNotification(
 
 ## Sending Live Activity Start
 To successfully start a live activity:
-- `Attributes` and `ContentState` must match the live activity configuration
+- `Attributes` and `ContentState` must match the live activity attributes provided in `attributesType`
 - `alert` must contain a title, body, and sound
     - title and body are visible to the device's paired Apple Watch when starting the live activity
 
