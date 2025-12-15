@@ -48,7 +48,6 @@ extension APNSClientProtocol {
     ///   - notification: The notification to send.
     ///   - pushToStartToken: The hexadecimal bytes use to start a live on a device. Your app receives the bytes for this activity token
     ///    from the `pushToStartTokenUpdates` async stream on `Activity`.
-    @available(iOS 16.1, *)
     @discardableResult
     @inlinable
     public func sendStartLiveActivityNotification<Attributes: Encodable & Sendable, ContentState: Encodable & Sendable>(
