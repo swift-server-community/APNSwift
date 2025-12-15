@@ -41,5 +41,31 @@ extension APNSClientProtocol {
         )
         return try await send(request)
     }
+
+    /// Sends a notification to start a live activity.
+    ///
+    /// - Parameters:
+    ///   - notification: The notification to send.
+    ///   - pushToStartToken: The hexadecimal bytes use to start a live on a device. Your app receives the bytes for this activity token
+    ///    from the `pushToStartTokenUpdates` async stream on `Activity`.
+    @available(iOS 16.1, *)
+    @discardableResult
+    @inlinable
+    public func sendStartLiveActivityNotification<Attributes: Encodable & Sendable, ContentState: Encodable & Sendable>(
+        _ notification: APNSStartLiveActivityNotification<Attributes, ContentState>,
+        pushToStartToken: String
+    ) async throws -> APNSResponse {
+        let request = APNSRequest(
+            message: notification,
+            deviceToken: pushToStartToken,
+            pushType: .liveactivity,
+            expiration: notification.expiration,
+            priority: notification.priority,
+            apnsID: notification.apnsID,
+            topic: notification.topic,
+            collapseID: nil
+        )
+        return try await send(request)
+    }
 }
 

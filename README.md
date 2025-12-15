@@ -74,6 +74,32 @@ try await client.sendAlertNotification(
 )
 ```
 
+## Sending Live Activity Start
+To successfully start a live activity:
+- `Attributes` and `ContentState` must match the live activity configuration
+- `alert` must contain a title, body, and sound
+    - title and body are visible to the device's paired Apple Watch when starting the live activity
+
+```swift
+let response = try await client.sendStartLiveActivityNotification(
+    .init (
+        expiration: .immediately,
+        priority: .immediately,
+        appID: "com.app.bundle",
+        contentState: contentState,
+        timestamp: Int(Date().timeIntervalSince1970),
+        attributes: attributes,
+        attributesType: "YourActivityAttributes",
+        alert: .init(
+            title: .raw("Your title"),
+            body: .raw(Your body),
+            sound: .fileName("default.aiff")
+        )
+    ),
+    pushToStartToken: pushToStartToken
+)
+```
+
 ## Sending Live Activity Update / End
 It requires sending `ContentState` matching with the live activity configuration to successfully update activity state. `ContentState` needs to conform to `Encodable` and `Sendable`.
 
