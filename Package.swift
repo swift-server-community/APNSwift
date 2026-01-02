@@ -39,6 +39,7 @@ let package = Package(
             dependencies: [
                 .target(name: "APNSCore"),
                 .target(name: "APNS"),
+                .target(name: "APNSTestServer"),
             ]
         ),
         .target(
