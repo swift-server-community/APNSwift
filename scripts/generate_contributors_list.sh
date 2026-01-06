@@ -7,7 +7,7 @@
 ## Licensed under Apache License v2.0
 ##
 ## See LICENSE.txt for license information
-## See CONTRIBUTORS.txt for the list of N project authors
+## See CONTRIBUTORS.md for the list of APNSwift project authors
 ##
 ## SPDX-License-Identifier: Apache-2.0
 ##
@@ -17,13 +17,16 @@ set -eu
 here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 contributors=$( cd "$here"/.. && git shortlog -es | cut -f2 | sed 's/^/- /' )
 
-cat > "$here/../CONTRIBUTORS.txt" <<- EOF
+cat > "$here/../CONTRIBUTORS.md" <<- EOF
 	For the purpose of tracking copyright, this is the list of individuals and
 	organizations who have contributed source code to APNSwift.
 
 	For employees of an organization/company where the copyright of work done
 	by employees of that company is held by the company itself, only the company
 	needs to be listed here.
+
+	## ORIGINAL AUTHOR
+	Kyle Browning <kylebrowning@me.com>
 
 	## COPYRIGHT HOLDERS
 

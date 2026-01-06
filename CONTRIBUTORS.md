@@ -5,34 +5,59 @@ For employees of an organization/company where the copyright of work done
 by employees of that company is held by the company itself, only the company
 needs to be listed here.
 
+## ORIGINAL AUTHOR
+Kyle Browning <kylebrowning@me.com>
+
 ## COPYRIGHT HOLDERS
 
 ### Contributors
 
+- Amit Samant <voilentbynature@gmail.com>
+- Chris Tibbs <151952971+phyllistibbs@users.noreply.github.com>
 - Craig Newell <craign@ieee.org>
+- Diggory Laycock <nospam@diggory.net>
+- Dimitri Bouniol <dimitribouniol@mochidev.com>
 - Eduardo Perez <sabeatra@gmail.com>
+- Florian Friedrich <ffried@me.com>
 - Florian Reinhart <florian.reinhart@gmail.com>
+- Francesco Paolo Severino <96546612+fpseverino@users.noreply.github.com>
 - Franz Busch <f.busch@apple.com>
+- Franz Busch <privat@franz-busch.de>
 - Geoff Verdouw <geoff@verdouw.id.au>
+- Grigor Hakobyan <grighakobian@gmail.com>
+- Harlan Haskins <harlan@harlanhaskins.com>
+- Iceman <side.junktown@gmail.com>
 - Jeffrey Macko <mackoj@users.noreply.github.com>
+- Joe Fabisevich <mergesort@users.noreply.github.com>
 - Jonny <lightscreen.app@gmail.com>
+- Julian Kahnert <mail@juliankahnert.de>
+- Kyle Bashour <kylebshr@me.com>
 - Kyle Browning <kylebrowning@me.com>
 - Laurent Gaches <laurent@binimo.com>
 - Lukáš Petr <luka.petr@gmail.com>
 - Mads Odgaard <mads@madsodgaard.com>
 - Mark Woollard <mark.woollard@urbanthings.co>
+- Mash'al AL-Ma'mari <mash3l777@gmail.com>
 - Nikola Paunović <nikola@applycolo.rs>
+- Pat Nakajima <patnakajima@gmail.com>
 - Roderic Campbell <roderic@gmail.com>
+- Ryu <87907656+Ryu0118@users.noreply.github.com>
 - Simon Kempendorf <simon@code28.de>
 - Sven A. Schmidt <sas@finestructure.co>
 - Tanner <me@tanner.xyz>
 - Tanner Nelson <me@tanner.xyz>
+- Tim <0xtimc@gmail.com>
 - Tim Condon <0xTim@users.noreply.github.com>
 - Timothy Ellis <3098078+TimAEllis@users.noreply.github.com>
 - Timothy Ellis <timothy.ellis@carsales.com.au>
+- Tobias Kreß <kress@pixelflut.net>
 - Vojtech Rylko <vojta.rylko@gmail.com>
+- emmikkelsen <emmikkelsen@gmail.com>
+- featherless <jverkoey@gmail.com>
 - grosch <scott.grosch@icloud.com>
 - itcohorts <ben@itcohorts.com>
+- joker <824219521@qq.com>
+- ladiesman218 <duncej@gmail.com>
 - tanner0101 <me@tanner.xyz>
 
 **Updating this list**
