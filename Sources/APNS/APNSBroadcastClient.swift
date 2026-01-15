@@ -29,6 +29,9 @@ public final class APNSBroadcastClient<Decoder: APNSJSONDecoder & Sendable, Enco
     /// The broadcast environment to use.
     private let environment: APNSBroadcastEnvironment
 
+    /// The app's bundle identifier used in the API path.
+    private let bundleID: String
+
     /// The ``HTTPClient`` used by the APNS broadcast client.
     private let httpClient: HTTPClient
 
@@ -62,6 +65,7 @@ public final class APNSBroadcastClient<Decoder: APNSJSONDecoder & Sendable, Enco
     /// - Parameters:
     ///   - authenticationMethod: The authentication method to use.
     ///   - environment: The broadcast environment (production or sandbox).
+    ///   - bundleID: The app's bundle identifier (e.g., "com.example.myapp").
     ///   - eventLoopGroupProvider: Specify how EventLoopGroup will be created.
     ///   - responseDecoder: The decoder for the responses from APNs.
     ///   - requestEncoder: The encoder for the requests to APNs.
@@ -69,12 +73,14 @@ public final class APNSBroadcastClient<Decoder: APNSJSONDecoder & Sendable, Enco
     public init(
         authenticationMethod: APNSClientConfiguration.AuthenticationMethod,
         environment: APNSBroadcastEnvironment,
+        bundleID: String,
         eventLoopGroupProvider: NIOEventLoopGroupProvider,
         responseDecoder: Decoder,
         requestEncoder: Encoder,
         byteBufferAllocator: ByteBufferAllocator = .init()
     ) {
         self.environment = environment
+        self.bundleID = bundleID
         self.byteBufferAllocator = byteBufferAllocator
         self.responseDecoder = responseDecoder
         self.requestEncoder = requestEncoder
@@ -140,7 +146,7 @@ extension APNSBroadcastClient {
         }
 
         // Build the request URL
-        let requestURL = "\(self.environment.url):\(self.environment.port)\(request.operation.path)"
+        let requestURL = "\(self.environment.url):\(self.environment.port)/1/apps/\(self.bundleID)\(request.operation.path)"
 
         // Create HTTP request
         var httpClientRequest = HTTPClientRequest(url: requestURL)

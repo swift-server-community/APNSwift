@@ -38,6 +38,7 @@ final class APNSBroadcastClientTests: XCTestCase {
                 teamIdentifier: "MY_TEAM_ID"
             ),
             environment: .custom(url: "http://127.0.0.1", port: serverPort),
+            bundleID: "com.example.testapp",
             eventLoopGroupProvider: .createNew,
             responseDecoder: JSONDecoder(),
             requestEncoder: JSONEncoder()

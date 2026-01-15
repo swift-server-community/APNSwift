@@ -129,20 +129,21 @@ public final class APNSTestServer: @unchecked Sendable {
         // Parse the URI
         let components = uri.split(separator: "/")
 
-        // Broadcast channel endpoints
+        // Broadcast channel endpoints: /1/apps/{bundleID}/channels[/{channelID}]
+        // Expected format: ["1", "apps", "{bundleID}", "channels"] or ["1", "apps", "{bundleID}", "channels", "{channelID}"]
         switch (method, components.count) {
-        case (.POST, 1) where components[0] == "channels":
+        case (.POST, 4) where components[0] == "1" && components[1] == "apps" && components[3] == "channels":
             return handleCreateChannel(body: body)
 
-        case (.GET, 1) where components[0] == "channels":
+        case (.GET, 4) where components[0] == "1" && components[1] == "apps" && components[3] == "channels":
             return handleListChannels()
 
-        case (.GET, 2) where components[0] == "channels":
-            let channelID = String(components[1])
+        case (.GET, 5) where components[0] == "1" && components[1] == "apps" && components[3] == "channels":
+            let channelID = String(components[4])
             return handleReadChannel(channelID: channelID)
 
-        case (.DELETE, 2) where components[0] == "channels":
-            let channelID = String(components[1])
+        case (.DELETE, 5) where components[0] == "1" && components[1] == "apps" && components[3] == "channels":
+            let channelID = String(components[4])
             return handleDeleteChannel(channelID: channelID)
 
         // Regular push notification endpoint: POST /3/device/{token}
