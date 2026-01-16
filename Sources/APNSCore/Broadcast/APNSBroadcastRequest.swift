@@ -47,6 +47,7 @@ public struct APNSBroadcastRequest<Message: Encodable>: Sendable where Message: 
             }
         }
         
+        /// HTTP Headers for this operation.
         public var headers: [String: String]? {
             switch self {
             case .delete(let channelID), .read(channelID: let channelID):
