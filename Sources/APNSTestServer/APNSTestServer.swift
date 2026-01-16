@@ -77,10 +77,12 @@ public final class APNSTestServer: @unchecked Sendable {
     struct MockBroadcastChannel: Codable {
         let channelID: String
         let messageStoragePolicy: Int
+        let pushType: String
 
         enum CodingKeys: String, CodingKey {
             case channelID = "channel-id"
             case messageStoragePolicy = "message-storage-policy"
+            case pushType = "push-type"
         }
     }
 
@@ -193,21 +195,22 @@ public final class APNSTestServer: @unchecked Sendable {
 
         let data = Data(bytes)
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let policy = json["message-storage-policy"] as? Int else {
+              let policy = json["message-storage-policy"] as? Int,
+              let pushType = json["push-type"] as? String else {
             var headers = HTTPHeaders()
             headers.add(name: "content-type", value: "application/json")
             return (.badRequest, headers, "{\"reason\":\"BadRequest\"}")
         }
 
         let channelID = UUID().uuidString
-        let channel = MockBroadcastChannel(channelID: channelID, messageStoragePolicy: policy)
+        let channel = MockBroadcastChannel(channelID: channelID, messageStoragePolicy: policy, pushType: pushType)
         broadcastChannels[channelID] = channel
 
         var headers = HTTPHeaders()
         headers.add(name: "content-type", value: "application/json")
 
         let responseJSON = """
-        {"channel-id":"\(channelID)","message-storage-policy":\(policy)}
+        {"channel-id":"\(channelID)","message-storage-policy":\(policy),"push-type":"\(pushType)"}
         """
         return (.created, headers, responseJSON)
     }
@@ -231,7 +234,7 @@ public final class APNSTestServer: @unchecked Sendable {
         }
 
         let responseJSON = """
-        {"channel-id":"\(channel.channelID)","message-storage-policy":\(channel.messageStoragePolicy)}
+        {"channel-id":"\(channel.channelID)","message-storage-policy":\(channel.messageStoragePolicy),"push-type":"\(channel.pushType)"}
         """
         return (.ok, headers, responseJSON)
     }

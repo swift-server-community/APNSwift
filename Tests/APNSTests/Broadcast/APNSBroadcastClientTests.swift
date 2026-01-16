@@ -58,6 +58,7 @@ final class APNSBroadcastClientTests: XCTestCase {
         XCTAssertNotNil(response.apnsRequestID)
         XCTAssertNotNil(response.body.channelID)
         XCTAssertEqual(response.body.messageStoragePolicy, .mostRecentMessageStored)
+        XCTAssertEqual(response.body.pushType, "LiveActivity")
     }
 
     func testCreateChannel_noMessageStored() async throws {
@@ -67,6 +68,7 @@ final class APNSBroadcastClientTests: XCTestCase {
         XCTAssertNotNil(response.apnsRequestID)
         XCTAssertNotNil(response.body.channelID)
         XCTAssertEqual(response.body.messageStoragePolicy, .noMessageStored)
+        XCTAssertEqual(response.body.pushType, "LiveActivity")
     }
 
     func testReadChannel() async throws {
@@ -81,6 +83,7 @@ final class APNSBroadcastClientTests: XCTestCase {
         XCTAssertNotNil(readResponse.apnsRequestID)
         XCTAssertEqual(readResponse.body.channelID, channelID)
         XCTAssertEqual(readResponse.body.messageStoragePolicy, .mostRecentMessageStored)
+        XCTAssertEqual(readResponse.body.pushType, "LiveActivity")
     }
 
     func testReadChannel_notFound() async throws {

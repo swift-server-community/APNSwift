@@ -22,7 +22,7 @@ final class APNSBroadcastChannelTests: XCTestCase {
         let data = try encoder.encode(channel)
 
         let expectedJSONString = """
-        {"message-storage-policy":1}
+        {"message-storage-policy":1,"push-type":"LiveActivity"}
         """
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary
         let jsonObject2 = try JSONSerialization.jsonObject(with: expectedJSONString.data(using: .utf8)!) as! NSDictionary
@@ -35,7 +35,7 @@ final class APNSBroadcastChannelTests: XCTestCase {
         let data = try encoder.encode(channel)
 
         let expectedJSONString = """
-        {"message-storage-policy":0}
+        {"message-storage-policy":0,"push-type":"LiveActivity"}
         """
         let jsonObject1 = try JSONSerialization.jsonObject(with: data) as! NSDictionary
         let jsonObject2 = try JSONSerialization.jsonObject(with: expectedJSONString.data(using: .utf8)!) as! NSDictionary
@@ -44,7 +44,7 @@ final class APNSBroadcastChannelTests: XCTestCase {
 
     func testDecode() throws {
         let jsonString = """
-        {"channel-id":"test-channel-123","message-storage-policy":1}
+        {"channel-id":"test-channel-123","message-storage-policy":1,"push-type":"LiveActivity"}
         """
         let data = jsonString.data(using: .utf8)!
         let decoder = JSONDecoder()
@@ -52,11 +52,12 @@ final class APNSBroadcastChannelTests: XCTestCase {
 
         XCTAssertEqual(channel.channelID, "test-channel-123")
         XCTAssertEqual(channel.messageStoragePolicy, .mostRecentMessageStored)
+        XCTAssertEqual(channel.pushType, "LiveActivity")
     }
 
     func testDecode_withoutChannelID() throws {
         let jsonString = """
-        {"message-storage-policy":0}
+        {"message-storage-policy":0,"push-type":"LiveActivity"}
         """
         let data = jsonString.data(using: .utf8)!
         let decoder = JSONDecoder()
@@ -64,5 +65,6 @@ final class APNSBroadcastChannelTests: XCTestCase {
 
         XCTAssertNil(channel.channelID)
         XCTAssertEqual(channel.messageStoragePolicy, .noMessageStored)
+        XCTAssertEqual(channel.pushType, "LiveActivity")
     }
 }
