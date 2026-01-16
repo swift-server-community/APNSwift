@@ -145,6 +145,12 @@ extension APNSBroadcastClient {
             headers.add(name: "authorization", value: token)
         }
 
+        if let operationHeaders = request.operation.headers {
+            for (name, value) in operationHeaders {
+                headers.add(name: name, value: value)
+            }
+        }
+        
         // Build the request URL
         let requestURL = "\(self.environment.url):\(self.environment.port)/1/apps/\(self.bundleID)\(request.operation.path)"
 

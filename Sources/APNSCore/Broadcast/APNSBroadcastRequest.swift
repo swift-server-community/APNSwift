@@ -42,10 +42,19 @@ public struct APNSBroadcastRequest<Message: Encodable>: Sendable where Message: 
         /// The path for this operation.
         public var path: String {
             switch self {
-            case .create, .listAll:
+            case .create, .delete, .listAll:
                 return "/channels"
-            case .read(let channelID), .delete(let channelID):
+            case .read(let channelID):
                 return "/channels/\(channelID)"
+            }
+        }
+        
+        public var headers: [String: String]? {
+            switch self {
+            case .delete(let channelID):
+                return ["apns-channel-id": channelID]
+            default:
+                return nil
             }
         }
     }
