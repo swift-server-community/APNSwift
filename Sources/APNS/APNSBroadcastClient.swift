@@ -145,6 +145,7 @@ extension APNSBroadcastClient {
             headers.add(name: "authorization", value: token)
         }
 
+        // Append operation specific HTTPS headers
         if let operationHeaders = request.operation.headers {
             for (name, value) in operationHeaders {
                 headers.add(name: name, value: value)
