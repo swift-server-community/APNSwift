@@ -172,12 +172,15 @@ extension APNSBroadcastClient {
 
         // Extract request ID from response
         let apnsRequestID = response.headers.first(name: "apns-request-id").flatMap { UUID(uuidString: $0) }
-
+        
+        // Extract channel ID from response, or from request headers (as 'read' operation doesn't return in payload
+        let channelID = response.headers.first(name: "apns-channel-id") ?? request.operation.headers?["apns-channel-id"]
+        
         // Handle successful responses
-        if response.status == .ok || response.status == .created {
+        if response.status == .ok || response.status == .created || response.status == .noContent {
             let body = try await response.body.collect(upTo: 1024 * 1024) // 1MB max
-            let responseBody = try responseDecoder.decode(ResponseBody.self, from: body)
-            return APNSBroadcastResponse(apnsRequestID: apnsRequestID, body: responseBody)
+            let responseBody = try? responseDecoder.decode(ResponseBody.self, from: body)
+            return APNSBroadcastResponse(apnsRequestID: apnsRequestID, channelID: channelID, body: responseBody)
         }
 
         // Handle error responses
